@@ -238,7 +238,7 @@ Windows 测试包在 MediaNfo 配置「应用与维护 → 卸载 MediaNfo」里
 
 托盘「导出诊断报告」和系统诊断页「下载诊断报告」提供脱敏 ZIP。托盘导出完成后可打开目录、打开文件或关闭窗口；启动失败时，弹窗给出自动保存的报告位置。报告包含版本、系统信息、选定日志的末尾和可取得的系统检查；配置文件、凭据、MediaNfo 数据库和媒体不进入报告。日志中的网址、本机路径、IP、邮箱和常见凭据字段会脱敏，发送前仍应检查报告内容。
 
-独立包支持 `MediaNfo.exe --diagnostic-report`，无需启动服务即可保存报告；指定目标文件时放在该参数后，已有文件不会覆盖。源码环境可用 `python -m peach.support_bundle` 取得同类报告。默认报告与错误日志保存在数据目录的 `logs`，目录不可写时使用系统临时目录下的 `MediaNfo/logs`。
+独立包支持 `MediaNfo.exe --diagnostic-report`，无需启动服务即可保存报告；指定目标文件时放在该参数后，已有文件不会覆盖。源码环境可用 `python -m medianfo.support_bundle` 取得同类报告。默认报告与错误日志保存在数据目录的 `logs`，目录不可写时使用系统临时目录下的 `MediaNfo/logs`。
 
 主线程、后台线程、未处理协程和本机浏览器错误写入 `errors-<PID>.log`；Python 可捕获的原生崩溃栈写入 `crash-<PID>.log`。Windows 独立启动失败的记录包含失败 API 名称和系统错误码。操作系统在 Python 启动前阻止程序、进程被直接终止或磁盘完全不可写时，程序自身可能无法留证，应保留系统提示和完整弹窗。
 
@@ -422,7 +422,7 @@ untrunc 按相同顺序查找，对应目录为 `tools/untrunc`。独立程序�
 ### 桌面入口与发布
 
 - Windows 日常入口是当前用户「启动」文件夹里唯一的 `MediaNfo.lnk`，指向项目内的 `dist\MediaNfo\MediaNfo.exe`。桌面快捷方式和开机自启在配置页「开机自启」一组里开关，由 `src/medianfo/desktop_startup.py` 写入；`scripts/manage_tray_startup.ps1` 只用于发布包排障。
-- `dist/MediaNfo/MediaNfo.exe` 是本机打包入口，不是可以拷走的独立发行版：托盘只打包了自己，服务进程仍由项目 venv 的 `peach.exe` 运行（`_peach_executable()` 从 exe 所在位置逐级向上找 `.venv\Scripts\peach.exe`），不要把它描述成绿色版。
+- `dist/MediaNfo/MediaNfo.exe` 是本机打包入口，不是可以拷走的独立发行版：托盘只打包了自己，服务进程仍由项目 venv 的 `medianfo.exe` 运行（`tray._peach_executable()` 从 exe 所在位置逐级向上找 `.venv\Scripts\medianfo.exe`），不要把它描述成绿色版。
 - macOS 日常入口是 LaunchAgent `io.github.longmeidao.medianfo.tray`，由 `python scripts/install_macos_agent.py`（`install`／`status`／`uninstall`）管理。`.app` 外壳的 bundle ID 是 `io.github.longmeidao.peach.app`，80/443 的转发在 pf anchor `io.github.longmeidao.peach`。三个标识都取自 `src/medianfo/appid.py`；`setup_macos_port80.sh` 里的 shell 字面量由 `tests/test_tray.py` 保证一致。macOS 源码菜单栏的构建入口是 `build_macos_app.py`。
 - 标识变更要在 Mac 上跑一遍下面的命令才生效，遗留的 LaunchAgent 与 pf anchor 由 `install` 自己清掉：
 

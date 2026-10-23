@@ -193,7 +193,7 @@ class MigrationTests(unittest.TestCase):
         self.directory.cleanup()
 
     def migrations(self, run, *, writer=(True, "本机是写入端")):
-        return Migrations(self.db, peach=lambda: Path("C:/medianfo/.venv/Scripts/peach.exe"),
+        return Migrations(self.db, peach=lambda: Path("C:/medianfo/.venv/Scripts/medianfo.exe"),
                           writer=lambda: writer, run=run,
                           environ=lambda: {"MEDIANFO_DATA_ROOT": "C:/medianfo-data"})
 
@@ -374,7 +374,7 @@ class ImportBoundaryTests(unittest.TestCase):
     def test_the_restart_path_loads_no_third_party_module(self):
         """重启脚本要在活着时替换 venv 里的包，被加载的 `.pyd` 在 Windows 上换不掉。"""
         probe = (
-            "import sys; import medianfo.runtime_prepare, peach.windows_restart, peach.jobs, "
+            "import sys; import medianfo.runtime_prepare, medianfo.windows_restart, medianfo.jobs, "
             "medianfo.config\n"
             "names = sorted(name for name, module in sys.modules.items()\n"
             "    if 'site-packages' in (getattr(module, '__file__', '') or '')\n"

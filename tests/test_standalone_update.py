@@ -92,7 +92,7 @@ class StandaloneUpdateTests(unittest.TestCase):
     def test_zip_rejects_traversal_windows_streams_and_case_collisions(self):
         for name in ("../escape", "MediaNfo/../escape", "C:/escape", "MediaNfo/a:b", "MediaNfo/MediaNfo.exe"):
             with self.subTest(name=name):
-                archive = self.archive(["MediaNfo/peach.exe", name])
+                archive = self.archive(["MediaNfo/MediaNfo.exe", name])
                 with self.assertRaises(ValueError):
                     update.extract(archive, self.root / "extract", Mock())
 

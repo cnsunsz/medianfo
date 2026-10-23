@@ -4,9 +4,9 @@
 
 **依赖。** 判据与动作是同一串参数 `UV_SYNC`，前者多一个 `--check`（只读）：
 
-- `--no-install-project` 把 editable 的 peach 本身排除在外。它的 `cache-keys` 含
+- `--no-install-project` 把 editable 的 medianfo 本身排除在外。它的 `cache-keys` 含
   `README.md` 与 `src/medianfo/__init__.py`，uv 按修改时间判，几乎每次合入都会判成要重装，
-  而重装要改写 `Scripts\\peach.exe`；源码本来就按 editable 直接读，不需要重装。
+  而重装要改写 `Scripts\\medianfo.exe`；源码本来就按 editable 直接读，不需要重装。
 - `--inexact` 不删锁文件之外的包：主检出的 venv 由 `python -m venv` 建，自带 pip。
 - Windows 上被进程加载的 `.pyd` 不能替换，托盘自己就加载着 PIL 与 pystray。所以托盘
   进程里只做只读检查；真同步由 `scripts/restart_windows_tray.py` 在旧托盘退出、新托盘
@@ -15,8 +15,8 @@
 
 **迁移。** 只有本机是账本写入端才迁，判据与 `library_processing._require_writer` 相同：
 复制关掉时按独立写者；开着时 `device-id` 必须等于 `sync.writer_device`。用子进程跑 venv 的
-`peach migrate`，拿到的一定是检出里的新代码；备份由 `peach migrate upgrade` 自带
-（`ledger.pre-migrate-<时间>.db`），清退归 `peach.ledger_backups`。
+`medianfo migrate`，拿到的一定是检出里的新代码；备份由 `medianfo migrate upgrade` 自带
+（`ledger.pre-migrate-<时间>.db`），清退归 `medianfo.ledger_backups`。
 
 **重启闸门。** 重启前看本机还活着的任务：后继由 `requeue_followups` 重排、定时检查到点
 再跑，这两类能续上；其余重启后只会被 `recover_interrupted` 标成 interrupted。
@@ -189,7 +189,7 @@ def ledger_writer(*, replication_enabled: bool, db: Path, shared_db: Path,
 
 
 class Migrations:
-    """用 venv 的 `peach migrate` 子进程把账本迁到当前结构。"""
+    """用 venv 的 `medianfo migrate` 子进程把账本迁到当前结构。"""
 
     def __init__(self, db: Path, *, peach: Callable[[], Path],
                  writer: Callable[[], tuple[bool, str]], run: Run = subprocess.run,
