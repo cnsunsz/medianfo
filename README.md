@@ -28,7 +28,7 @@
 
 ## 能做什么
 
-- **桌面主窗口**：托盘拉起本地服务后，在嵌入式 WebView（Windows 上优先 Edge WebView2）中打开界面；可用托盘菜单「在浏览器中打开」或环境变量 `MEDIANFO_UI=browser` 退回系统浏览器。局域网远程访问仍可作为可选项保留。
+- **桌面主窗口**：托盘拉起本地服务后，以**独立 UI 进程**打开嵌入式 WebView（Windows 上 Edge WebView2）；默认绝不调用系统浏览器。局域网远程访问仍可由本机 HTTP 服务提供。
 - **本地、网盘一起看**：硬盘与已挂载的 115、PikPak、OneDrive 等网盘汇成一个馆藏。
 - **播放墙挑片**：拖动全屏封面墙，点开原位播放；同一番号的不同版本与分卷集中切换。
 - **接手已有收藏**：直接读取 NFO 和海报，缺少的标题、女优、厂牌与封面可从多个来源补齐，保留手动修改。
@@ -42,7 +42,7 @@
 
 1. 从 [Releases](https://github.com/cnsunsz/medianfo/releases) 下载完整安装包 `MediaNfo-<版本>-windows-x64-setup.exe`，双击安装（默认装到 `%LOCALAPPDATA%\\Programs\\MediaNfo`，无需管理员）；或下载免安装 ZIP，解压后运行 `MediaNfo.exe`。
 2. 启动后托盘出现，**本机主窗口**打开首次设置页；选择媒体目录和访问范围。
-3. 开始扫描，随后在桌面窗口里浏览和播放。需要时可用托盘「在浏览器中打开」做局域网调试。
+3. 开始扫描，随后在桌面窗口里浏览和播放。调试才需要系统浏览器时，设置 `MEDIANFO_ALLOW_BROWSER=1`。
 
 完整安装包携带媒体工具，可离线安装；轻量安装包体积更小，安装时按需下载工具。
 
@@ -61,7 +61,7 @@ uv run medianfo-tray          # 托盘 + 本地服务 + 嵌入式主窗口
 uv run medianfo serve --host 127.0.0.1 --port 8900
 ```
 
-仅托盘、不弹窗：`uv run medianfo-tray --silent`。强制系统浏览器：`MEDIANFO_UI=browser uv run medianfo-tray`。
+仅托盘、不弹窗：`uv run medianfo-tray --silent`。调试用系统浏览器（默认关闭）：`MEDIANFO_ALLOW_BROWSER=1 uv run medianfo-tray`。
 
 数据目录默认：
 

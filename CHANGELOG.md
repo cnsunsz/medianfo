@@ -21,6 +21,10 @@ Removed / Fixed / Security。
 
 ## [未发布]
 
+### 修复
+
+- **桌面**：主界面改为独立 UI 进程（`MediaNfo.exe ui`）在主线程启动 WebView2；禁止 `open_url` 回退系统浏览器。托盘「在浏览器中打开」仅 `MEDIANFO_ALLOW_BROWSER=1` 时可见。Windows 打包补齐 pywebview / pythonnet / clr_loader / bottle / proxy_tools 收集。
+
 ## [0.46.1] - 2026-10-19
 
 ### 新增

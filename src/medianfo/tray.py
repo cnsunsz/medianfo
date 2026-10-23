@@ -15,7 +15,6 @@ import subprocess
 import sys
 import threading
 import time
-import webbrowser
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -1088,15 +1087,21 @@ class MediaNfoTray:
             "MediaNfo",
             pystray.Menu(
                 pystray.MenuItem(lambda _item: self.gate.open_label(), self.open, default=True),
-                pystray.MenuItem("在浏览器中打开", self.open_browser),
+                pystray.MenuItem(
+                    "在浏览器中打开", self.open_browser,
+                    visible=lambda _: desktop_window.browser_allowed()),
                 pystray.MenuItem("配置 MediaNfo", lambda *_: desktop_window.open_url(self.gate.open_url() + "configuration")),
                 pystray.MenuItem(lambda _item: f"状态：{self.gate.status_line()}", pystray.Menu(
                     lambda: (
                         *(pystray.MenuItem(line, None, enabled=False)
                           for line in self.manager.status_details()),
                         pystray.MenuItem(menu_text(f"地址：{self.gate.open_url()}"), self.open),
-                        pystray.MenuItem("在浏览器中打开此地址",
-                                        lambda *_: desktop_window.open_in_browser(self.gate.open_url())),
+                        *(
+                            (pystray.MenuItem(
+                                "在浏览器中打开此地址",
+                                lambda *_: desktop_window.open_in_browser(self.gate.open_url())),)
+                            if desktop_window.browser_allowed() else ()
+                        ),
                         pystray.MenuItem("查看完整配置", lambda *_: desktop_window.open_url(
                             self.gate.open_url() + "configuration")),
                     ))),
@@ -1119,8 +1124,13 @@ class MediaNfoTray:
         self.gate.open()
 
     def open_browser(self, _icon=None, _item=None) -> None:
-        """托盘备选：系统浏览器 / 局域网调试，不替代默认嵌入式主窗口。"""
-        desktop_window.open_in_browser(self.gate.open_url())
+        """托盘备选：仅 MEDIANFO_ALLOW_BROWSER=1 时可用；默认隐藏菜单项。"""
+        if not desktop_window.open_in_browser(self.gate.open_url()):
+            show_message(
+                "MediaNfo",
+                "默认不使用系统浏览器。调试时可设置环境变量 MEDIANFO_ALLOW_BROWSER=1。",
+                error=True,
+            )
 
     # -- 运行环境准备（ADR-0091）------------------------------------------
 

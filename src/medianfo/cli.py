@@ -697,6 +697,12 @@ def _doctor(args: argparse.Namespace) -> int:
     return 1 if result["status"] == "failed" else 0
 
 
+def _ui(args: argparse.Namespace) -> int:
+    """独立进程主线程打开嵌入式桌面窗（见 desktop_window.run_ui）。"""
+    from . import desktop_window
+    return desktop_window.run_ui(args.url, title=args.title)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="peach")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -802,6 +808,12 @@ def build_parser() -> argparse.ArgumentParser:
     ledger_sync.add_argument("--take-ownership", action="store_true",
                              help="claim the single-writer role after both copies are in sync")
     ledger_sync.set_defaults(handler=_ledger_sync)
+
+    ui = commands.add_parser(
+        "ui", help="打开嵌入式桌面主窗口（本进程主线程；由托盘 spawn，勿与 serve 混用）")
+    ui.add_argument("--url", required=True, help="本机 HTTP 地址，例如 http://127.0.0.1:8900/")
+    ui.add_argument("--title", default="MediaNfo", help="窗口标题")
+    ui.set_defaults(handler=_ui)
 
     return parser
 

@@ -132,7 +132,12 @@ if ($Standalone) {
     --distpath $BuildDestination --workpath $WorkPath --specpath $BuildPath `
     --paths (Join-Path $ProjectRoot 'src') --python-option 'X utf8' `
     --collect-all curl_cffi --collect-all resvg_py `
+    --collect-all pywebview --collect-all pythonnet --collect-all clr_loader `
+    --collect-all bottle --collect-all proxy_tools `
     --copy-metadata sentry-sdk `
+    --hidden-import webview --hidden-import webview.platforms.edgechromium `
+    --hidden-import bottle --hidden-import proxy_tools `
+    --hidden-import clr_loader --hidden-import pythonnet `
     --hidden-import uvicorn.logging --hidden-import uvicorn.loops.auto `
     --hidden-import uvicorn.protocols.http.auto --hidden-import uvicorn.protocols.websockets.auto `
     --hidden-import uvicorn.lifespan.on `
