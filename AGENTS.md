@@ -1,4 +1,4 @@
-# Peach 智能体工作契约
+# MediaNfo 智能体工作契约
 
 本文件是 Codex 与 Claude 共用的唯一项目入口，只保留「每个任务都必须成立」的边界与索引。
 `README.md` 讲项目与运行方式；本文件讲改动前的约定。
@@ -18,8 +18,8 @@
 
 同一件事只用一个词，回话时也用这些词，不要换成同义说法。
 
-- **你**：正在读本文件并改动 Peach 的智能体（Codex 或 Claude）。**我 / 用户**：在这台机器上部署、使用并维护 Peach 的人；每个部署只有一人。 <!-- copy-lint-disable-line -->
-- **ledger / 账本**：每台机器 `peach-data/database/ledger.db` 的本地工作副本，唯一真相源。**真相字段**：直接构成 ledger 断言的列。
+- **你**：正在读本文件并改动 MediaNfo 的智能体（Codex 或 Claude）。**我 / 用户**：在这台机器上部署、使用并维护 MediaNfo 的人；每个部署只有一人。 <!-- copy-lint-disable-line -->
+- **ledger / 账本**：每台机器 `medianfo-data/database/ledger.db` 的本地工作副本，唯一真相源。**真相字段**：直接构成 ledger 断言的列。
 - **候选 candidate**：带来源与置信度、未经复核的断言。只有用户复核后才 `approved`，工作者不得自行升级。
 - **复核产物**：CSV 等可机读、可重放的中间结果；结论必须落在这里，不能只存在于对话。
 - **实体 entity**：女优、厂牌、创作者、系列的规范身份；扁平 `asset_tag`、creator/studio 字段只是兼容投影。
@@ -55,11 +55,11 @@
 ## 工作规则
 
 - 应用、官网、演示站分仓托管于 `peach-mitao`；数据、工作树、构建输出、媒体与挂载不进 Git，见 ADR-0017、0085。
-- ledger 路径统一为 Windows 形态（`R:\Media\...`、`A:\...`、`B:\...`），由 `src/peach/platform.py` 读取时转换；不得改写成 POSIX 路径或在 macOS 写 `asset.path`。
-- `peach-data/database/ledger.db` 是真相源，真实写入按 `peach-ledger-write`。代码判据确定、可按来源整批撤回的结果直接落库（ADR-0052）；LLM 输出、打分、冲突与多候选只产生带来源与置信度的候选。测试只用临时数据库，可直接运行并修复本次改动造成的失败。
+- ledger 路径统一为 Windows 形态（`R:\Media\...`、`A:\...`、`B:\...`），由 `src/medianfo/platform.py` 读取时转换；不得改写成 POSIX 路径或在 macOS 写 `asset.path`。
+- `medianfo-data/database/ledger.db` 是真相源，真实写入按 `peach-ledger-write`。代码判据确定、可按来源整批撤回的结果直接落库（ADR-0052）；LLM 输出、打分、冲突与多候选只产生带来源与置信度的候选。测试只用临时数据库，可直接运行并修复本次改动造成的失败。
 - 保留真实媒体、ledger 行、行为历史、凭据、网络与防火墙状态及无关长跑任务。
 - 编辑前核对 `git status`；涉及服务、端口或重启时核对监听与进程归属。生产结论须有实际切换与核验证据。
-- Peach 是单人自托管应用；替代实现验证通过后移除无用代码和兼容层，历史由 Git 保存。
+- MediaNfo 是单人自托管应用；替代实现验证通过后移除无用代码和兼容层，历史由 Git 保存。
 - 架构边界：模块化单体与磁盘分界（ADR-0017）、Stash 适配器关闭（0021）、前端迁往 React + BoardUI（0031）、分发阶段（0023）；改变决策须新增 ADR。
 - 用户确认馆藏仅含正规平台合规发行、自愿参与的成年人作品，不涉及也不会要求抓取、分析或下载未成年内容。
 - 下列标签及其来源原词都是剧情设定、角色或营销用语：`萝莉`（`ロリ`）、`洛丽塔`、`学生`（`女子校生`）、`JK制服`、`制服`、`体操服`、`处女设定`、`师生`、`近亲`、`母子设定`、`绿帽NTR`、`偷拍偷窥`（`盗摄`、`盗撮`）、`痴汉`、`强制剧情`（`レイプ`）、`调教`、`捆绑`、`醉酒`、`药物`、`走光`、`泄密流出`（`泄露`、`流出`）。不能凭标签、片名或画面观感推断年龄或同意状况而跳过编目；只有文件本身的直接证据矛盾时才停止并报告证据原文。
@@ -71,8 +71,8 @@
 - **测试入口**：Windows `& .\scripts\test.ps1`、macOS/Linux `./scripts/test.sh`，在当前隔离 worktree 根目录运行。`auto` 按域选测，共享设施、实际依赖和未知面用 `full`；CI 见 `docs/TESTING.md`。入口优先当前树 venv，核对 `PYTHONPATH` 与 `peach.__file__`；禁止另拼测试命令。`ready` / `integrate` 拒收无有效记录的分支；集成事务互斥。健康检查只用 `/healthz`。
 - **上下文预算**：入口文件与技能有行数、字节数和最长行三重预算，由 `scripts/check_context_budget.py` 与 `tests/test_context_budget.py` 强制。写不下就说明该内容属于 `docs/` 或某个技能，不是往本文件加行。
 - **分层**：新增或删除规则前按 `peach-context-rules` 判层；本文件的技能索引必须与 `.claude/skills/` 一一对应，技能缺 frontmatter、name 不符或缺 `最后复核` 会被拒。
-- **工作树**：并发改代码时主检出只做集成。每个智能体在 `scripts/agent_worktree.py create` 建于 `peach-worktrees/` 的隔离工作树里干活；提交前 `git rev-parse --show-toplevel` 必须不是主检出（`scripts/githooks/` 拒收主检出 master 上的直接提交与手工 merge），工作者只交分支、从不自己合并。细节见 `peach-worktree`。
-- **仓库整洁**：`peach-worktrees/` 与 `.claude/worktrees/` 下都不得留未在 `git worktree list` 注册的目录（`tests/test_repo_hygiene.py`）；`prune --apply` 扫空目录，有文件的报出来等人看。不用 `git add .`、`git add -A`、目录路径或 glob，只暂存本任务拥有的文件再核对 `git diff --cached --name-status`；实现与它的测试原子提交。交付提交须署名（`scripts/co_author.py`）。
+- **工作树**：并发改代码时主检出只做集成。每个智能体在 `scripts/agent_worktree.py create` 建于 `medianfo-worktrees/` 的隔离工作树里干活；提交前 `git rev-parse --show-toplevel` 必须不是主检出（`scripts/githooks/` 拒收主检出 master 上的直接提交与手工 merge），工作者只交分支、从不自己合并。细节见 `peach-worktree`。
+- **仓库整洁**：`medianfo-worktrees/` 与 `.claude/worktrees/` 下都不得留未在 `git worktree list` 注册的目录（`tests/test_repo_hygiene.py`）；`prune --apply` 扫空目录，有文件的报出来等人看。不用 `git add .`、`git add -A`、目录路径或 glob，只暂存本任务拥有的文件再核对 `git diff --cached --name-status`；实现与它的测试原子提交。交付提交须署名（`scripts/co_author.py`）。
 - **文案只写最终状态**：界面字串、注释、docstring、测试名与文档不写改动前后对比，例外逐行加 `copy-lint-disable-line`（`tests/test_copy_final_state.py`）。
 - **测试写法**：读仓库文件再 `assertIn` 一段写法的源码文本断言按文件计数只减不增（`tests/test_source_assertion_ratchet.py`）；行为、设计决定各归何处见 `docs/TESTING.md`「写什么测试」。
 - **依赖策略**：Python 依赖精确固定版本，每个被 import 的外部模块要有声明的归属，前端清单与实际 vendored 路径一致，所有清单都进 Dependabot（`tests/test_dependency_policy.py`）。

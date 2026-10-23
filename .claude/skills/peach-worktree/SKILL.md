@@ -1,6 +1,6 @@
 ---
-name: peach-worktree
-description: 在用户说并行、工作树、暂存、提交、ready、集成、生产重启，或任何要写 Peach 代码的任务开始时使用。
+name: medianfo-worktree
+description: 在用户说并行、工作树、暂存、提交、ready、集成、生产重启，或任何要写 MediaNfo 代码的任务开始时使用。
 ---
 
 # 并行 worktree 与提交边界
@@ -13,10 +13,10 @@ description: 在用户说并行、工作树、暂存、提交、ready、集成�
 默认最多一个工作者；多个工作者只用于彼此无依赖的任务。委派只传目标、相关文件、边界和验收命令，不转交完整对话。
 协调者只在完成、阻塞或至少五分钟的检查点读取状态，不做分钟级轮询，也不重复工作者完成的搜索、浏览器检查和测试。
 跨对话消息仅用于对方需要处理的具体依赖；发送前核对状态与职责。授权不等于同步义务，不唤醒已结束对话只为报进度或收确认；交付以 Git 和共享证据为准。
-任何会写入当前机器 `peach-app` 的代码任务都使用隔离工作树。主目录只做集成，不做并行编辑；worktree 本机重建，不跨机器复制目录。
+任何会写入当前机器 `medianfo-app` 的代码任务都使用隔离工作树。主目录只做集成，不做并行编辑；worktree 本机重建，不跨机器复制目录。
 
 ## 流程
-1. 协调者在主目录创建隔离工作树：`& .\.venv\Scripts\python.exe -X utf8 scripts\agent_worktree.py create --agent claude --task <task>`。它建在 `peach-worktrees/`，Codex 和 Claude 共用这一个目录。**不要用 Claude Code 内置的工作树机制（`.claude/worktrees/`）**：它在分支被集成后会被回收，目录却留在原地。
+1. 协调者在主目录创建隔离工作树：`& .\.venv\Scripts\python.exe -X utf8 scripts\agent_worktree.py create --agent claude --task <task>`。它建在 `medianfo-worktrees/`，Codex 和 Claude 共用这一个目录。**不要用 Claude Code 内置的工作树机制（`.claude/worktrees/`）**：它在分支被集成后会被回收，目录却留在原地。
    Windows Codex 对 `create`／`ready`／`integrate`／`prune --apply`、`git add` 与 `git commit`
    从第一次调用就按 `peach-shell-commands` 的沙箱规则使用受控提权；它们会写主检出的
    Git common directory，工作树目录可写不代表 `.git/worktrees/**` 可写。
@@ -85,7 +85,7 @@ description: 在用户说并行、工作树、暂存、提交、ready、集成�
   `.claude/worktrees/<task>` 的注册消失，目录变成主检出里一份旧副本。提示符和文件列表看不出
   任何差别，但在里面跑的每一条 git 都作用于主检出的 master。后果不是报错而是假结论：
   那一轮里智能体一直报告「还没推」，实际上提交已经被另一个智能体的 push 顺带到了 origin。
-  判据不看目录名，只看 `git rev-parse --show-toplevel`；等于 `peach-app` 就是在主检出里。
+  判据不看目录名，只看 `git rev-parse --show-toplevel`；等于 `medianfo-app` 就是在主检出里。
   实测入口：`git worktree list` 里没有你那一行，就是已经没了。
 - Windows 源码改动生效时，禁止用 Computer Use 操作系统托盘。只用与托盘「重启服务」等价的项目命令；入口必须让现有托盘执行重启，或完整重启托盘并重新取得子服务所有权。直接强杀／另启 `.venv\Scripts\peach.exe` 会让 `_owned` 失真，不算等价；仓库缺少安全命令时先补入口，不能退回托盘 UI。
 - 工作者报 `ready` 前必须 rebase 到当前 `master`。落后十天的分支不要指望协调者去 merge：
@@ -99,7 +99,7 @@ description: 在用户说并行、工作树、暂存、提交、ready、集成�
 里没东西，实测就有工作树的分支早已并入 master、里面却躺着一份成形的未提交改动。
 
 一个工作树失败不影响其它工作树：`residue` 是连脚本也删不掉的目录，分支照样删，`holders` 列出占着它的进程（`orphan` 为真是父进程已退出的残留），
-按 PID 结束自己起的再重跑；`processes` 子命令列出两处落点下的全部活进程。`failed` 是注册还没摘掉，分支保留。未登记的目录归 `swept`：`peach-worktrees/`
+按 PID 结束自己起的再重跑；`processes` 子命令列出两处落点下的全部活进程。`failed` 是注册还没摘掉，分支保留。未登记的目录归 `swept`：`medianfo-worktrees/`
 与 `.claude/worktrees/` 两处都扫，只删空的，有文件的进 `kept` 等人确认，因为那种目录和真
 工作树长得一模一样，在里面跑 git 全作用于主检出的 master，门槛在 `tests/test_repo_hygiene.py`。
 
@@ -108,11 +108,11 @@ description: 在用户说并行、工作树、暂存、提交、ready、集成�
 
 `Desktop\peach` 顶层只放 ADR-0017 定义的四个运行时目录加一个 `attic/`：
 
-    peach-app  peach-data  peach-sync  peach-worktrees  attic
+    medianfo-app  medianfo-data  medianfo-sync  medianfo-worktrees  attic
 
 `peach-` 前缀专属那四个，不再新增；别的东西按性质进 `attic/` 的 `builds`／`evidence`／
 `instances`／`tools`／`reviews`，目录名写成 `YYYYMMDD-主题`，顶层不放散落文件，
-由 `test_repo_hygiene` 守住。这条规则只写在仓库外的 `../attic/README.md` 时，在 peach-app 里
+由 `test_repo_hygiene` 守住。这条规则只写在仓库外的 `../attic/README.md` 时，在 medianfo-app 里
 干活的人根本看不到它，清完两天又堆回三个违规目录。 <!-- copy-lint-disable-line -->
 
 `attic/` 不等于可以随便删：`instances/` 常带 100 MB 量级的 ledger 副本，`tools/` 的

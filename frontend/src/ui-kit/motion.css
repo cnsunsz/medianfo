@@ -2,8 +2,8 @@
    类名由同目录的 `motion.ts`（以及 `skeleton.ts`、`scroll.ts`、`react/toaster.tsx`）挂上。
 
    共同的形态取自 transitions.dev 的免费配方（逐条的来源 URL、它那边的时长／模糊／
-   缩放取值和 Peach 落成的值记在 docs/reference-snapshots/transitions-dev-measured.md）。
-   借的是形态和参数，类名与 token 都是 Peach 自己的：时长与缓动一律读 board.css 的
+   缩放取值和 MediaNfo 落成的值记在 docs/reference-snapshots/transitions-dev-measured.md）。
+   借的是形态和参数，类名与 token 都是 MediaNfo 自己的：时长与缓动一律读 board.css 的
    `--motion-swap`／`--motion-reveal`／`--board-motion`／`--spring-*`，所以
    `prefers-reduced-motion` 由那一份全局规则一次关掉，这里不再逐处补。
 

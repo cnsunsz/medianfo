@@ -9,7 +9,7 @@
 - 播放器 JS：<https://www.youtube.com/s/player/f572e43c/player_es6.vflset/zh_CN/base.js>，SHA-256
   `5b4bd0e8f05798738bbdb46b828e2bd8331a7dbc6e6108fb7a787e9902134586`
 - 桌面站脚本 `desktop_polymer.js` 的可重抓 URL 未取得，`ytd-miniplayer` 的规则只有计算样式一侧
-- 完整实测原文与失败记录留在仓库外、与 `peach-app` 同级的
+- 完整实测原文与失败记录留在仓库外、与 `medianfo-app` 同级的
   `<私有验证记录>`
 
 ## 不登记进 docs/reference-sources.json 的原因
@@ -49,18 +49,18 @@
 ## 未取得
 
 - 四个角的落点坐标：CDP 合成拖动松手后被 AnimatingSnap 弹回原位，JS 合成 PointerEvent 拖动使
-  渲染进程卡死 45 秒，两条通道都没拿到「拖到左上后的 left/top」。Peach 按同一 16px 边距自行推导。
-- 进出场关键帧的位移量。Peach 只做 .366s 透明度进场。
+  渲染进程卡死 45 秒，两条通道都没拿到「拖到左上后的 left/top」。MediaNfo 按同一 16px 边距自行推导。
+- 进出场关键帧的位移量。MediaNfo 只做 .366s 透明度进场。
 - `desktop_polymer.js` 的可重抓 URL。
 
-## Peach 主动保留的差异
+## MediaNfo 主动保留的差异
 
 - 顶部两角让出吸顶顶栏：`top:calc(var(--topH) + 16px)`，上游没有吸顶顶栏。
 - `i` 键与上游同义（详情里进小窗，小窗里展开），因此原来映射到画中画的 `i` 改掉，画中画只留按钮。
 - 小窗内换片重新挂一个 Video.js 播放器，不复用旧实例：错误兜底、观看上报与清晰度表都绑在
-  旧实例的闭包里。上游只在播放列表内切换，Peach 把目录卡与关注视频卡的点击也收进来，这是主动扩大的范围。
+  旧实例的闭包里。上游只在播放列表内切换，MediaNfo 把目录卡与关注视频卡的点击也收进来，这是主动扩大的范围。
 - 分卷／版次组、计费的本地条目、反查不到关注条目的在线资产和脱盘来源不进小窗，照旧走详情。
 - 右键菜单去掉嵌入代码、调试信息、排查播放问题三项；「播放统计」只在详情里且统计键可用时出现；
   「画中画」只在浏览器支持时出现。宽度不复制 293px，按内容自适应且不小于 220px。
-- 颜色用 Peach 自己的 `--surface`／`--ink`／`--muted` token，进度条用 `--tungsten`；不复制 YouTube 品牌色与字体。
+- 颜色用 MediaNfo 自己的 `--surface`／`--ink`／`--muted` token，进度条用 `--tungsten`；不复制 YouTube 品牌色与字体。
 - 窄屏宽度收成 `min(400px, 100vw - 32px)`，竖片画面区比例压到 1:1 以内。

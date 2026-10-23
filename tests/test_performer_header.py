@@ -10,12 +10,12 @@ import unittest
 from datetime import date
 from pathlib import Path
 
-from peach import minnano_av, performer_header
-from peach import web_contract as rm_web
-from peach.entities import normalize_entity_name
-from peach.genre_decisions import record_genre_decision
-from peach.performer_profiles import write_profile
-from peach.web_entity import q_entity_shapes
+from medianfo import minnano_av, performer_header
+from medianfo import web_contract as rm_web
+from medianfo.entities import normalize_entity_name
+from medianfo.genre_decisions import record_genre_decision
+from medianfo.performer_profiles import write_profile
+from medianfo.web_entity import q_entity_shapes
 from support.ledger import fresh_ledger
 
 STAMP = "2026-09-24T00:00:00.000Z"

@@ -5,8 +5,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from peach import face_detect, face_match
-from peach.face_detect import Face, FaceModelUnavailable
+from medianfo import face_detect, face_match
+from medianfo.face_detect import Face, FaceModelUnavailable
 
 
 class EnsureModelTests(unittest.TestCase):

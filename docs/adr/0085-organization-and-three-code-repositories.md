@@ -5,15 +5,15 @@
 
 ## 背景
 
-Peach 应用、官网和演示站具有不同的运行入口、依赖和发布目标。用户决定将三个项目分别公开源码，统一托管于 GitHub 组织 `peach-mitao`。
+MediaNfo 应用、官网和演示站具有不同的运行入口、依赖和发布目标。用户决定将三个项目分别公开源码，统一托管于 GitHub 组织 `peach-mitao`。
 
 ## 决策
 
 | 仓库 | 范围 | 入口 |
 | --- | --- | --- |
-| `peach-mitao/peach` | 应用、前端源码、测试、发行与项目文档 | Peach 自托管服务 |
-| `peach-mitao/peach-site` | 官网页面、交互、文字编辑预览与部署配置 | `peach.video` |
-| `peach-mitao/peach-demo` | 演示 Worker、回放协议、演示交互与部署配置 | `demo.peach.video` |
+| `cnsunsz/medianfo` | 应用、前端源码、测试、发行与项目文档 | MediaNfo 自托管服务 |
+| `cnsunsz/medianfo-site` | 官网页面、交互、文字编辑预览与部署配置 | `github.com/cnsunsz/medianfo` |
+| `cnsunsz/medianfo-demo` | 演示 Worker、回放协议、演示交互与部署配置 | `github.com/cnsunsz/medianfo/releases` |
 
 应用仓库通过 GitHub 转移功能保留提交、标签、发行与问题记录。应用主分支保持 `master`，站点主分支使用 `main`。本机目录和生产入口保持现有布局。
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""用 r18dev 同一响应中的官方日文系列名修正 Peach 规范实体。
+"""用 r18dev 同一响应中的官方日文系列名修正 MediaNfo 规范实体。
 
 输入是 ``scrape_codes.py`` 生成的字段候选 CSV。脚本会回读每条候选引用的原始
 快照，只接受 r18dev 响应 ``translations`` 中明确标为日文的系列名。默认只输出
@@ -23,11 +23,11 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import GENERATED_DIR
-from peach.entities import merge_entity, normalize_entity_name
-from peach.metadata import collapse_repeated_phrase
-from peach.review_csv import read_rows, write_rows
-from peach.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
+from medianfo.config import GENERATED_DIR
+from medianfo.entities import merge_entity, normalize_entity_name
+from medianfo.metadata import collapse_repeated_phrase
+from medianfo.review_csv import read_rows, write_rows
+from medianfo.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
 
 
 SOURCE = "r18dev:series-localization"

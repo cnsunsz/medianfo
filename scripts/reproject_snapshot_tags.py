@@ -40,18 +40,18 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import GENERATED_DIR
-from peach.entities import normalize_entity_name
-from peach.genre_decisions import load_genre_decisions
-from peach.genre_taxonomy import map_genres
-from peach.metadata_auto_apply import UNION_TAGS_SOURCE, _extend_approved_tags
-from peach.review_csv import write_rows
-from peach.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
+from medianfo.config import GENERATED_DIR
+from medianfo.entities import normalize_entity_name
+from medianfo.genre_decisions import load_genre_decisions
+from medianfo.genre_taxonomy import map_genres
+from medianfo.metadata_auto_apply import UNION_TAGS_SOURCE, _extend_approved_tags
+from medianfo.review_csv import write_rows
+from medianfo.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
 
 FIELDS = ("asset_id", "code", "source", "status", "removed", "added", "snapshot")
 #: 每组的去向；只有 `REWRITE` 会写库。
 REWRITE, SAME, NO_SNAPSHOT, NO_GENRES, EMPTY = "重写", "不受影响", "快照缺失", "无 genre", "套完为空"
-TAXONOMY = "src/peach/genre_taxonomy.py"
+TAXONOMY = "src/medianfo/genre_taxonomy.py"
 
 
 def taxonomy_at(revision: str) -> types.ModuleType:

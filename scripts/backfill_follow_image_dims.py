@@ -35,20 +35,20 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import GENERATED_DIR, SECRETS_DIR, SHARED_CREDENTIAL_ROOT, SOURCES_DIR
-from peach.follow_image_dims import ImageDimsUnavailable, positive_dims, probe_image_dims
-from peach.follow_secrets import credential_store_for
-from peach.follow_sources import display_thumb_url, f95_attachment_media_items
-from peach.follow_store import FollowItemRow, FollowStore
-from peach.follow_stream import FollowMediaResolver, FollowMediaUnavailable
-from peach.http import HttpTransport, HttpxTransport
-from peach.review_csv import write_rows
-from peach.scripting import (
+from medianfo.config import GENERATED_DIR, SECRETS_DIR, SHARED_CREDENTIAL_ROOT, SOURCES_DIR
+from medianfo.follow_image_dims import ImageDimsUnavailable, positive_dims, probe_image_dims
+from medianfo.follow_secrets import credential_store_for
+from medianfo.follow_sources import display_thumb_url, f95_attachment_media_items
+from medianfo.follow_store import FollowItemRow, FollowStore
+from medianfo.follow_stream import FollowMediaResolver, FollowMediaUnavailable
+from medianfo.http import HttpTransport, HttpxTransport
+from medianfo.review_csv import write_rows
+from medianfo.scripting import (
     BACKUP_REQUIRED, HostLimiter, add_ledger_write_args, open_for_write, open_readonly,
 )
 # 「这条是不是图片」与「卡面是清单里哪一张」都与界面同一判据：卡片按卡面那张图预留
 # 比例，这里就按同一张去问尺寸。
-from peach.web_follow import _media_items as visible_media_of, _media_kind as media_kind_of
+from medianfo.web_follow import _media_items as visible_media_of, _media_kind as media_kind_of
 
 FIELDS = ("item_id", "provider", "external_id", "media", "mode", "result",
           "width", "height", "note")

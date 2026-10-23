@@ -5,12 +5,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from peach import config, settings_file
-from peach.settings_file import SettingsFileError
+from medianfo import config, settings_file
+from medianfo.settings_file import SettingsFileError
 
 
 class TempTree:
-    """`<tmp>/peach-data` 加一个并列的 `<tmp>/app` 当项目根。
+    """`<tmp>/medianfo-data` 加一个并列的 `<tmp>/app` 当项目根。
 
     临时目录一律先 `.resolve()`：CI runner 的临时路径都是别名（macOS `/var` 软链到
     `/private/var`，Windows 短名 `RUNNER~1` 展开成 `runneradmin`），不 resolve 的路径
@@ -22,7 +22,7 @@ class TempTree:
         self.root = Path(self._temp.name).resolve()
         self.project = self.root / "app"
         self.project.mkdir()
-        self.data_root = self.root / "peach-data"
+        self.data_root = self.root / "medianfo-data"
         if with_data_root:
             self.data_root.mkdir()
 
@@ -83,7 +83,7 @@ class DataRootDiscoveryTests(unittest.TestCase):
         with TempTree() as tree:
             elsewhere = tree.root / "elsewhere"
             found = settings_file.discover_data_root(
-                tree.project, {"PEACH_DATA_ROOT": str(elsewhere)})
+                tree.project, {"MEDIANFO_DATA_ROOT": str(elsewhere)})
             self.assertEqual(found, (elsewhere, True))
 
     def test_sibling_peach_data_is_found_from_the_project_root(self):
@@ -102,9 +102,9 @@ class DataRootDiscoveryTests(unittest.TestCase):
                 settings_file.discover_data_root(nested, {}), (tree.data_root, True))
 
     def test_frozen_build_searches_from_the_executable_directory(self):
-        """单文件包的 `_MEIPASS` 是临时目录，起点必须是 EXE 所在目录才找得到 Peach 数据目录。"""
+        """单文件包的 `_MEIPASS` 是临时目录，起点必须是 EXE 所在目录才找得到 MediaNfo 数据目录。"""
         with TempTree() as tree:
-            executable = tree.project / "dist" / "Peach" / "Peach.exe"
+            executable = tree.project / "dist" / "MediaNfo" / "MediaNfo.exe"
             executable.parent.mkdir(parents=True)
             executable.write_bytes(b"")
             anchor = settings_file._search_anchor(
@@ -124,7 +124,7 @@ class DataRootDiscoveryTests(unittest.TestCase):
             path, found = settings_file.discover_data_root(tree.project, {})
             self.assertFalse(found)
             # 找不到也要给出落点：`peach init` 按它建目录，页面按它显示提示。
-            self.assertEqual(path, tree.root / "peach-data")
+            self.assertEqual(path, tree.root / "medianfo-data")
 
 
 class DefaultsAreGenericTests(unittest.TestCase):
@@ -150,8 +150,8 @@ class DefaultsAreGenericTests(unittest.TestCase):
     def test_shared_root_defaults_beside_the_data_root(self):
         with TempTree() as tree:
             loaded = tree.load()
-            self.assertEqual(loaded.shared_root, tree.root / "peach-sync")
-            self.assertEqual(loaded.smb_share, "peach-sync")
+            self.assertEqual(loaded.shared_root, tree.root / "medianfo-sync")
+            self.assertEqual(loaded.smb_share, "medianfo-sync")
 
     def test_directories_default_to_their_own_names_under_the_data_root(self):
         with TempTree() as tree:
@@ -186,8 +186,8 @@ smb_host = 'file-host'
         with TempTree() as tree:
             tree.write(self.FILE)
             loaded = tree.load({
-                "PEACH_MDNS_NAME": "from-env",
-                "PEACH_SHARED_SMB_HOST": "env-host",
+                "MEDIANFO_MDNS_NAME": "from-env",
+                "MEDIANFO_SHARED_SMB_HOST": "env-host",
             })
         self.assertEqual(loaded.server.mdns_name, "from-env")
         self.assertEqual(loaded.replication.smb_host, "env-host")
@@ -197,7 +197,7 @@ smb_host = 'file-host'
         # 空字符串是「没设」，不是「设成空」：LaunchAgent 里留个空变量很常见。
         with TempTree() as tree:
             tree.write(self.FILE)
-            loaded = tree.load({"PEACH_MDNS_NAME": ""})
+            loaded = tree.load({"MEDIANFO_MDNS_NAME": ""})
         self.assertEqual(loaded.server.mdns_name, "from-file")
 
     def test_absolute_directory_moves_that_data_out_of_the_data_root(self):
@@ -320,7 +320,7 @@ class BadFileTests(unittest.TestCase):
         self.assertEqual(loaded.locations, settings_file.DEFAULT_LOCATION_ROOTS)
 
     def test_lenient_load_falls_back_to_builtin_defaults(self):
-        """坏文件不能让进程连 Peach 数据目录都不知道——发现顺序不看文件内容。"""
+        """坏文件不能让进程连 MediaNfo 数据目录都不知道——发现顺序不看文件内容。"""
         with TempTree() as tree:
             tree.write("nonsense = =\n")
             loaded = tree.load(strict=False)
@@ -373,7 +373,7 @@ class SerialisationTests(unittest.TestCase):
                 overrides={
                     "mdns_name": "peach-two", "port": 9443,
                     "review_writer_origin": "https://192.0.2.5",
-                    "smb_host": "peach-writer.local", "smb_user": "someone",
+                    "smb_host": "medianfo-writer.local", "smb_user": "someone",
                 },
                 # 反斜杠和 Windows 盘符必须原样活过一次往返：序列化器要是把 `\m`
                 # 当转义处理，挂载点就会变成另一个目录。
@@ -410,8 +410,8 @@ class SerialisationTests(unittest.TestCase):
             self.assertTrue(captured.replication.enabled)
             # 共享目录和共享名落成显式值，别让人去猜默认规则。
             self.assertEqual(captured.replication.shared_root,
-                             str(tree.root / "peach-sync"))
-            self.assertEqual(captured.replication.smb_share, "peach-sync")
+                             str(tree.root / "medianfo-sync"))
+            self.assertEqual(captured.replication.smb_share, "medianfo-sync")
 
     def test_fresh_capture_leaves_replication_off(self):
         with TempTree() as tree:
@@ -447,16 +447,16 @@ class ModuleConstantTests(unittest.TestCase):
         )
 
     def test_settings_dataclass_reports_the_configured_state(self):
-        from peach.config import PeachSettings
+        from medianfo.config import MediaNfoSettings
 
-        self.assertEqual(PeachSettings().configured, config.CONFIGURED)
+        self.assertEqual(MediaNfoSettings().configured, config.CONFIGURED)
 
     def test_share_coordinates_can_be_overridden_without_editing_source(self):
         # 主机名换了、共享改名、账号换一个，都不该要求改源码再发一次版。
         overrides = {
-            "PEACH_SHARED_SMB_HOST": "198.51.100.9",
-            "PEACH_SHARED_SMB_SHARE": "ledger-drop",
-            "PEACH_SHARED_SMB_USER": "someone",
+            "MEDIANFO_SHARED_SMB_HOST": "198.51.100.9",
+            "MEDIANFO_SHARED_SMB_SHARE": "ledger-drop",
+            "MEDIANFO_SHARED_SMB_USER": "someone",
         }
         try:
             with patch.dict(os.environ, overrides):

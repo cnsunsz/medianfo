@@ -1,6 +1,6 @@
 /* ?edit 原位交互复用官网 edit-client.js；源码与演示草稿使用各自的存储入口。 */
 (() => {
-  const source = document.body.dataset.peachCopyMode === 'source', key = 'peach.copy-edits.v1';
+  const source = document.body.dataset.peachCopyMode === 'source', key = 'medianfo.copy-edits.v1';
   let edits = {}, active = true, editing = null, saving = false;
   try { edits = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
   const originals = new WeakMap(), skip = '[data-copy-editor],script,style,textarea,input,select,svg,[contenteditable]';

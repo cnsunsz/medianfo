@@ -74,7 +74,7 @@ export function followPageUrl(view: FollowView, offset: number): string {
     + (view.dir !== 'desc' ? `&dir=${view.dir}` : '');
 }
 
-/* ── 接口形状（`src/peach/web_follow.py` 的 `q_follow`） ── */
+/* ── 接口形状（`src/medianfo/web_follow.py` 的 `q_follow`） ── */
 
 /** 条目里嵌着的一份媒体：多附件帖的每张图、每段视频。 */
 export interface FollowMediaItem {
@@ -346,7 +346,7 @@ export function entityFollowView(author: string): FollowView {
 }
 
 /* F95 的「8 条动态」可能只有一个网盘页，也可能一条实际视频都没有。Mix 是播放语义，只能由已解析、
-   可在 Peach 内播放的视频触发，不能拿回复数或外链数冒充。 */
+   可在 MediaNfo 内播放的视频触发，不能拿回复数或外链数冒充。 */
 export function videoItems(group: FollowGroup): FollowItem[] {
   return collectionItemsNewest(group).filter((item) => item.playable && item.media_kind === 'video');
 }

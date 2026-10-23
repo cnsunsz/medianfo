@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 r"""
-批处理进度同步 —— 从账本和产物反推当前状态，写进 peach-data/state/job-status.md。
+批处理进度同步 —— 从账本和产物反推当前状态，写进 medianfo-data/state/job-status.md。
 
-数字从当前数据计算；产物落在仓库外的 `peach-data/state/`，不进入 Git。
+数字从当前数据计算；产物落在仓库外的 `medianfo-data/state/`，不进入 Git。
 
 用法:
     python scripts/job_status.py            # 打印，不改文件
-    python scripts/job_status.py --write    # 写回 peach-data/state/job-status.md
+    python scripts/job_status.py --write    # 写回 medianfo-data/state/job-status.md
 """
 from __future__ import annotations
 
@@ -24,9 +24,9 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import DATABASE_PATH, GENERATED_DIR, STATE_DIR
-from peach.media_sources import SCANNABLE_LOCATIONS
-from peach.review_csv import read_rows
+from medianfo.config import DATABASE_PATH, GENERATED_DIR, STATE_DIR
+from medianfo.media_sources import SCANNABLE_LOCATIONS
+from medianfo.review_csv import read_rows
 
 # 路径由配置解析，不依赖开发机器的盘符与目录布局。
 DOC = STATE_DIR / "job-status.md"
@@ -165,7 +165,7 @@ def record_hook_event(state_path: Path, payload: dict[str, object]) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="把批处理进度同步进 peach-data/state/job-status.md")
+    parser = argparse.ArgumentParser(description="把批处理进度同步进 medianfo-data/state/job-status.md")
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--db", type=Path, default=DATABASE_PATH)
     parser.add_argument("--generated", type=Path, default=GENERATED_DIR)

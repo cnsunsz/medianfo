@@ -3,7 +3,7 @@
 写在测试里而不是文档里，是因为这两件事都反复回归过：路径写死过一轮又一轮，
 写库脚本也出现过「跑起来就直接改库」的形态。文档里的提醒不会拦住任何一次提交。
 
-判据落在 AST 上而不是 `grep`：注释和文档串里出现 `R:\\peach-data` 是在说明历史，
+判据落在 AST 上而不是 `grep`：注释和文档串里出现 `R:\\medianfo-data` 是在说明历史，
 不是在读它；反过来，`"UPDATE asset SET ..."` 拼在多行字符串里 grep 也照样能漏。
 """
 from __future__ import annotations
@@ -19,13 +19,13 @@ ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 SRC = ROOT / "src" / "peach"
 
-#: Peach 数据目录的写死形态。搬到内置盘之后 `R:\\peach-data` 已经不存在，而写死的路径不会报
+#: MediaNfo 数据目录的写死形态。搬到内置盘之后 `R:\\medianfo-data` 已经不存在，而写死的路径不会报
 #: 「配置过时」——它只会安静地建一个空库，或者往一个没人看的目录里写日志。用户主目录
 #: 下的具体位置同样算写死：它对任何别的用户都不成立。
 DATA_ROOT_LITERAL = re.compile(
-    r"R:[\\/]peach-data|[\\/](?:Users|home)[\\/][^\\/]+[\\/]Desktop", re.I)
+    r"R:[\\/]medianfo-data|[\\/](?:Users|home)[\\/][^\\/]+[\\/]Desktop", re.I)
 
-#: 只有这两个模块可以谈论平台与 Peach 数据目录的具体位置，其余一律从它们取。
+#: 只有这两个模块可以谈论平台与 MediaNfo 数据目录的具体位置，其余一律从它们取。
 PATH_AUTHORITIES = {"config.py", "platform.py"}
 
 #: 门槛（b）的例外，逐个写清理由。
@@ -92,7 +92,7 @@ def _apply_flags(path: Path) -> set[str]:
 
 
 class ScriptPathPolicyTests(unittest.TestCase):
-    """门槛（b）：Peach 数据目录只在 `peach.config` / `peach.platform` 里出现。"""
+    """门槛（b）：MediaNfo 数据目录只在 `peach.config` / `peach.platform` 里出现。"""
 
     def test_no_script_writes_a_data_root_path_by_hand(self):
         offenders = []
@@ -115,10 +115,10 @@ class ScriptPathPolicyTests(unittest.TestCase):
 
     def test_the_guard_catches_the_shape_it_describes(self):
         """门槛自身也要能被证伪，否则它可能只是一段永远为真的代码。"""
-        self.assertTrue(DATA_ROOT_LITERAL.search(r"R:\peach-data\database\ledger.db"))
+        self.assertTrue(DATA_ROOT_LITERAL.search(r"R:\medianfo-data\database\ledger.db"))
         self.assertTrue(DATA_ROOT_LITERAL.search("C:/Users/<user>/Desktop/peach"))
         self.assertTrue(DATA_ROOT_LITERAL.search("/Users/<user>/Desktop/peach"))
-        self.assertIsNone(DATA_ROOT_LITERAL.search("peach-data/generated"))
+        self.assertIsNone(DATA_ROOT_LITERAL.search("medianfo-data/generated"))
 
 
 class ScriptWriteGatePolicyTests(unittest.TestCase):

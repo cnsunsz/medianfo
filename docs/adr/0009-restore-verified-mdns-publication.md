@@ -20,7 +20,7 @@ health 均成功，但它只能可靠发布服务及真实计算机 SRV 主机�
 - 恢复迁移前的 `Zeroconf()` 全合格网卡监听与 `allow_name_change=True` 发布语义。
 - Windows/Linux 使用 Python zeroconf 全合格网卡发布器；macOS 由系统 `dns-sd -P` / mDNSResponder
   代发，避开 launchd 主体的本地网络权限门。删除 Windows ctypes DNS-SD 分支和重复的别名响应器。
-- macOS 的正式 LAN 入口为 `peach.local`，Windows 为 `peach-writer.local`；计算机名只作为诊断信息，
+- macOS 的正式 LAN 入口为 `peach.local`，Windows 为 `medianfo-writer.local`；计算机名只作为诊断信息，
   不进入产品导航。
 - 修改 mDNS 时必须对照已成功基线，一次只改变一个网络变量。
 - 验收必须包含单元测试、运行态 health、DNS-SD 服务发现、主机名解析和另一台 LAN 客户端。
@@ -29,7 +29,7 @@ health 均成功，但它只能可靠发布服务及真实计算机 SRV 主机�
 ## 已拒绝方案
 
 - **Windows `DnsServiceRegister`**：适合服务发现，但不能满足品牌主机名契约。
-- **Peach 自研 UDP 5353 别名响应器**：重复 zeroconf 已成熟实现，增加协议和共存风险。
+- **MediaNfo 自研 UDP 5353 别名响应器**：重复 zeroconf 已成熟实现，增加协议和共存风险。
 - **路由器静态 DNS**：会引入设备配置，并且把 `.local` 的 mDNS 语义混入单播 DNS。
 
 ## 后果

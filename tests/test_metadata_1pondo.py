@@ -2,9 +2,9 @@
 import json
 import unittest
 
-from peach.http import HttpResponse
-from peach.sources import FailureReason, Page, Session, SourceFailure
-from peach.sources.onepondo import ONEPONDO, STUDIO, OnePondoSource, movie_id, names_this_studio
+from medianfo.http import HttpResponse
+from medianfo.sources import FailureReason, Page, Session, SourceFailure
+from medianfo.sources.onepondo import ONEPONDO, STUDIO, OnePondoSource, movie_id, names_this_studio
 
 COVER = "https://www.1pondo.tv/moviepages/112312_478/images/str.jpg"
 DETAIL = "https://www.1pondo.tv/dyn/phpauto/movie_details/movie_id/112312_478.json"

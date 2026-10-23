@@ -9,14 +9,14 @@
 | --- | --- | --- |
 | [SmartStrm](https://github.com/Cp0204/SmartStrm/tree/01e9318d932187c65d485ecac5bcb46cbd2196bf) | `01e9318d932187c65d485ecac5bcb46cbd2196bf` 的仓库树、README、NOTICE；[FAQ](https://smartstrm.github.io/help/faq)、[代理说明](https://smartstrm.github.io/settings/proxy) | 核心闭源，实现源码未取得。文档说明稳定解析地址、OpenList 签名与播放时 302；不能据此声称复现其内部实现。 |
 | [OpenList](https://github.com/OpenListTeam/OpenList/tree/3b28270a4066ea52943a69ecddd850d83f7e8bdc) | `drivers/strm/driver.go`、`drivers/strm/util.go`；AGPL-3.0 | 列表生成指针和附属文件，播放按需解析目标。复用稳定指针与解析时机的语义，不复制驱动代码。 |
-| [Jellyfin](https://github.com/jellyfin/jellyfin/tree/dbb1f5dd5d0c73825a511a91aef051b254c637cb) | `MediaBrowser.Providers/MediaInfo/ProbeProvider.cs`、`Emby.Server.Implementations/Library/MediaSourceManager.cs`；GPL-2.0 | STRM 是文本入口，读取首个非空、非注释行；播放与媒体探测是独立阶段。Peach 主动拒绝多个目标，避免歧义。 |
+| [Jellyfin](https://github.com/jellyfin/jellyfin/tree/dbb1f5dd5d0c73825a511a91aef051b254c637cb) | `MediaBrowser.Providers/MediaInfo/ProbeProvider.cs`、`Emby.Server.Implementations/Library/MediaSourceManager.cs`；GPL-2.0 | STRM 是文本入口，读取首个非空、非注释行；播放与媒体探测是独立阶段。MediaNfo 主动拒绝多个目标，避免歧义。 |
 | [Kodi STRM 文档](https://kodi.wiki/view/Internet_video_and_audio_streams) | Internet video and audio streams | 文本 URL、NFO 与海报可分别存在，指针不等于媒体本身。 |
-| [CloudDrive2 支持列表](https://www.clouddrive2.com/en/features.html) | Storage supported today；光鸭支持的版本记录 `v1.0.11 / f58306f` | OneDrive 与光鸭可由外部工具挂载；光鸭版本记录注明只读。Peach 不引入网盘登录或上传 SDK。 |
-| [OpenList OneDrive](https://doc.oplist.org/guide/drivers/onedrive) | OneDrive 驱动说明；光鸭驱动参考 `v4.2.5 / cc87e88` | 平台登录、分享链接与目录访问交给驱动；Peach 使用已经挂载的文件系统路径。 |
+| [CloudDrive2 支持列表](https://www.clouddrive2.com/en/features.html) | Storage supported today；光鸭支持的版本记录 `v1.0.11 / f58306f` | OneDrive 与光鸭可由外部工具挂载；光鸭版本记录注明只读。MediaNfo 不引入网盘登录或上传 SDK。 |
+| [OpenList OneDrive](https://doc.oplist.org/guide/drivers/onedrive) | OneDrive 驱动说明；光鸭驱动参考 `v4.2.5 / cc87e88` | 平台登录、分享链接与目录访问交给驱动；MediaNfo 使用已经挂载的文件系统路径。 |
 
-## Peach 的采用范围
+## MediaNfo 的采用范围
 
-STRM 仅接受一个 HTTP(S) 地址，支持 UTF-8 BOM、空行和注释。扫描只登记本地指针，播放才发起上游请求；签名参数保留原始编码。HTTP Range 与 HLS 使用既有 HTTPX 传输、播放器计划和 HLS 解析库，浏览器只取得 Peach 的鉴权地址。映射有容量与有效期，不持久缓存正片。
+STRM 仅接受一个 HTTP(S) 地址，支持 UTF-8 BOM、空行和注释。扫描只登记本地指针，播放才发起上游请求；签名参数保留原始编码。HTTP Range 与 HLS 使用既有 HTTPX 传输、播放器计划和 HLS 解析库，浏览器只取得 MediaNfo 的鉴权地址。映射有容量与有效期，不持久缓存正片。
 
 本地 OpenList、CloudDrive 地址可以作为指针初始来源；重定向和播放列表只能继续访问同一来源，或经公网 HTTPS 检查的目标。浏览器 Cookie 和共享 HTTP 客户端的认证信息不转发给上游。错误回执不包含签名地址。
 

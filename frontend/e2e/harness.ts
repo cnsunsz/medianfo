@@ -1,8 +1,8 @@
 /* 真浏览器冒烟的夹具：打开页面、收集运行期问题、测布局几何。
  *
  * 只用 playwright-core 驱动本机已装的 Chrome，不下载浏览器；路径由
- * `tests/test_web_e2e.py` 探测后经 PEACH_E2E_CHROME 传进来。服务、数据库和演示库
- * 也归 Python 那一侧准备，这里只认 PEACH_E2E_ORIGIN。
+ * `tests/test_web_e2e.py` 探测后经 MEDIANFO_E2E_CHROME 传进来。服务、数据库和演示库
+ * 也归 Python 那一侧准备，这里只认 MEDIANFO_E2E_ORIGIN。
  *
  * 用例只写语义断言（没有横向溢出、等待态会结束、控制台无错误），不做截图比对：
  * 单人部署里维护基线图的成本高于它能拦住的问题。 */
@@ -47,7 +47,7 @@ export function requiredEnv(name: string): string {
 
 export async function launch(): Promise<Browser> {
   const args: string[] = [];
-  const networkLogs = process.env.PEACH_E2E_NET_LOG_DIR;
+  const networkLogs = process.env.MEDIANFO_E2E_NET_LOG_DIR;
   if (networkLogs) {
     mkdirSync(networkLogs, { recursive: true });
     const filename = `network-${process.pid}-${randomUUID()}.json`;
@@ -56,7 +56,7 @@ export async function launch(): Promise<Browser> {
   }
   return chromium.launch({
     headless: true,
-    executablePath: requiredEnv('PEACH_E2E_CHROME'),
+    executablePath: requiredEnv('MEDIANFO_E2E_CHROME'),
     args,
     // Windows 首次加载浏览器与系统组件使用独立的启动预算，页面等待由各用例限定。
     timeout: 60_000,
@@ -70,7 +70,7 @@ export async function launch(): Promise<Browser> {
  * 所以调用方先等到目标页面自己的主体出现，再调它。 */
 export async function settle(page: Page, scope = 'body'): Promise<void> {
   /* 活动页和馆藏页会持续轮询任务状态，本来就不保证进入 `networkidle`。页面导航由
-     `visit()` 等到 load，主体由调用方的 `expectBody()` 验证；这里只等 Peach 自己公开的
+     `visit()` 等到 load，主体由调用方的 `expectBody()` 验证；这里只等 MediaNfo 自己公开的
      等待态结束。 */
   try {
     await page.waitForFunction(
@@ -113,17 +113,17 @@ export async function expectBody(page: Page, where: string, body: readonly Locat
   }
 }
 
-/** Peach 配置页的主体：标题与默认的媒体库分区。 */
+/** MediaNfo 配置页的主体：标题与默认的媒体库分区。 */
 export function configurationBody(page: Page): Locator[] {
   return [
-    page.locator('#main').getByRole('heading', { name: 'Peach 配置', exact: true }),
+    page.locator('#main').getByRole('heading', { name: 'MediaNfo 配置', exact: true }),
     page.locator('#stats').getByRole('tab', { name: '媒体库与入库' }),
   ];
 }
 
 export async function visit(browser: Browser, path: string, viewport: Viewport,
   prepare?: (page: Page) => Promise<void>): Promise<Visit> {
-  const origin = requiredEnv('PEACH_E2E_ORIGIN');
+  const origin = requiredEnv('MEDIANFO_E2E_ORIGIN');
   const context: BrowserContext = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
     isMobile: viewport.mobile,
@@ -132,7 +132,7 @@ export async function visit(browser: Browser, path: string, viewport: Viewport,
   });
   // 详情页默认自动播放；这台机器旁边有人，冒烟不出声。
   await context.addInitScript(() => {
-    localStorage.setItem('peach.settings.v1', JSON.stringify({ detailAutoplay: false }));
+    localStorage.setItem('medianfo.settings.v1', JSON.stringify({ detailAutoplay: false }));
   });
   const page = await context.newPage();
   const problems: string[] = [];

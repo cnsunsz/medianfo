@@ -13,7 +13,7 @@ describe('播放器皮肤', () => {
   it('首次加载模块期间保留海报，控制条从完整皮肤开始显示', { timeout: 60_000 }, async () => {
     let release!: () => void;
     const gate = new Promise<void>(resolve => { release = resolve });
-    const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, VIEWPORTS[0]!, async page => {
+    const opened = await visit(browser, `/assets/${requiredEnv('MEDIANFO_E2E_ITEM')}`, VIEWPORTS[0]!, async page => {
       await page.route('**/vendor/videojs/10.1.0/video-player.js', async route => { await gate; await route.continue() });
     });
     try {
@@ -30,8 +30,8 @@ describe('播放器皮肤', () => {
 
   for (const viewport of VIEWPORTS) {
     it(`${viewport.name}：控制组贴右、进度圆点唯一、全屏保留控件`, { timeout: 60_000 }, async () => {
-      const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, viewport, async page => {
-        await page.addInitScript(theme => localStorage.setItem('peach.settings.v1',
+      const opened = await visit(browser, `/assets/${requiredEnv('MEDIANFO_E2E_ITEM')}`, viewport, async page => {
+        await page.addInitScript(theme => localStorage.setItem('medianfo.settings.v1',
           JSON.stringify({ detailAutoplay: false, theme })), viewport.mobile ? 'dark' : 'light');
       });
       const { page, problems } = opened;

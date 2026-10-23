@@ -25,7 +25,7 @@
 
 - Note 是紧邻字段、卡片或分区的持久上下文；底层状态改变前持续存在。
 - 2026-08-30 重新打开官方页取得当前桌面截图、可访问 DOM 与锁定 HTML；默认 Note 左侧是
-  14×14、16 viewBox 的圆圈 `i`。Peach 不复制未开放许可的 Geist 私有 SVG，继续复用本地固定版
+  14×14、16 viewBox 的圆圈 `i`。MediaNfo 不复制未开放许可的 Geist 私有 SVG，继续复用本地固定版
   Lucide `info`；图片详情、只读提示与中性 Note 因而使用同一枚圆圈 `i`。
 - `error` 表示用户必须修复的问题，`warning` 表示需要理解后果，`success` 表示已通过检查，普通中性说明使用默认或 `secondary`。
 - 页面／系统级且带动作的问题用 Banner，瞬时确认用 Toast，销毁确认用 Modal；不要把这些表面都画成 Note。
@@ -59,11 +59,11 @@
 - `Real Experience Score` 的顶部紧凑 progressbar 为 32×32px，主详情 progressbar 为
   64×64px。主详情左侧同时给数值、阈值、解释和文档链接，右侧给时间图；下方 Routes／Paths
   继续使用 tablist，并按 Poor／Needs Improvement／Great 同层分组，不再套一层 Bento。
-- Peach 不伪造体验分或时间图。统计页把横向指标带用于库存、观看、覆盖和系统盘的真实快照；
-  口味页把 Desktop／Mobile 的位置换成真实的「浏览器记录／Peach 内部」证据来源，主详情只展示
+- MediaNfo 不伪造体验分或时间图。统计页把横向指标带用于库存、观看、覆盖和系统盘的真实快照；
+  口味页把 Desktop／Mobile 的位置换成真实的「浏览器记录／MediaNfo 内部」证据来源，主详情只展示
   可解释的访问／观看计数与确定性覆盖进度。
 
-## Peach 有意差异
+## MediaNfo 有意差异
 
 ### 关注任务容器复核（2026-09-05）
 
@@ -75,10 +75,10 @@ HTTPX 取得 `https://vercel.com/geist/fieldset` 当前 HTML，SHA-256 为
 当前交互与计算样式未取得；本地桌面与手机另行验收。
 此段是人工笔记，不登记到可变上游快照注册表。
 
-- Peach 是无构建的原生 HTML／CSS／ES module，不引入 Geist React 包；复用语义、状态与可测量层级，统一实现位于 `web/js/ui-components.js`。
+- MediaNfo 是无构建的原生 HTML／CSS／ES module，不引入 Geist React 包；复用语义、状态与可测量层级，统一实现位于 `web/js/ui-components.js`。
 - `/stats` 当前没有环境与日期参数，不复制无消费者的筛选器；使用有 ARIA 的指标 tab 切换库存、
   观看、覆盖和系统盘主详情，再用同层 tablist 切换标签、最近观看和标签来源。
-- `/taste` 保留现有真实时间窗；以 radio 切换浏览器／Peach 证据，摘要指标、主详情和排行面板随
+- `/taste` 保留现有真实时间窗；以 radio 切换浏览器／MediaNfo 证据，摘要指标、主详情和排行面板随
   证据来源切换。宽屏使用一个 1100px 阅读列，窄屏指标带内部横向滚动，页面本身不得横向溢出。
 - 关注页的可关闭历史失败是页面级 Banner，不是 Note；检查失败明细、资源同步失败和口味加载失败使用持久 error Note。
 
@@ -90,7 +90,7 @@ HTML SHA-256：Note `f3471155164c8e0085419ce04e15928463cb526b4a52b51483c214fd84b
 
 - NoteAction 在提示内部放置一个操作按钮；需要处理的失败使用 filled 浅色背景。进度仅在数值变化时平滑过渡 200ms，减少动态效果偏好下关闭过渡。
 - Note 使用语义色、12px 图文间距、14px 正文，成功为蓝色。默认无填充，filled 用低饱和色底；small 用于紧凑说明。Note 持续到状态解决，不额外加关闭键；短成功回执仍用 Toast。
-- 页面后台任务使用 Project Banner：正文 14px，最小高度 40px，上下 8px、横向 24px；处理链接持续带下划线。横幅内用 32px Gauge 表示任务完成比例，这是 Peach 的用途差异；详情仍用 Progress。
+- 页面后台任务使用 Project Banner：正文 14px，最小高度 40px，上下 8px、横向 24px；处理链接持续带下划线。横幅内用 32px Gauge 表示任务完成比例，这是 MediaNfo 的用途差异；详情仍用 Progress。
 - Gauge 用于实际已用／总容量，无有效总量时显示未取得。容量统一采用 80% 警告、95% 危险阈值，颜色与文字同档；任务完成率不使用容量阈值。
 - Progress 按状态使用蓝、黄、红，而非把接近完成误判为危险；stops 仅用于真实阶段并带标签。更新准备使用后端的 65、67、90 阶段边界；浏览记录分阶段计数，不把不同单位拼成虚假的总体百分比。
 - 局部未知总量任务使用带边界的 Fieldset 内容区与 Loading Dots，已知计数时添加文字与 Progress；不重复嵌套已有任务容器。

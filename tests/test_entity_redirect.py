@@ -18,8 +18,8 @@ from urllib.parse import parse_qs, urlsplit
 
 from PIL import Image, ImageDraw
 
-from peach.entities import merge_entity, resolve_entity_id
-from peach.web_review import _use_canonical_entity_names
+from medianfo.entities import merge_entity, resolve_entity_id
+from medianfo.web_review import _use_canonical_entity_names
 
 from support.ledger import fresh_ledger
 
@@ -107,7 +107,7 @@ class EntityRedirectTests(unittest.TestCase):
         self.assertEqual(self.redirects(), [])
 
     def test_favorites_follow_merges_when_sqlite_reuses_the_highest_id(self):
-        from peach.web_contract import WebContract, dispatch_api_get, dispatch_api_post
+        from medianfo.web_contract import WebContract, dispatch_api_get, dispatch_api_post
         contract = WebContract(self.db)
         for entity_id in (12, 10):
             dispatch_api_post(contract, "/api/library-shortcuts", {
@@ -198,8 +198,8 @@ class EntityRedirectRouteTests(unittest.TestCase):
 
     def setUp(self):
         from fastapi.testclient import TestClient
-        from peach.api import create_app
-        from peach.config import PeachSettings
+        from medianfo.api import create_app
+        from medianfo.config import MediaNfoSettings
 
         self.folder = Path(tempfile.mkdtemp()).resolve()
         self.addCleanup(shutil.rmtree, self.folder, True)
@@ -218,10 +218,10 @@ class EntityRedirectRouteTests(unittest.TestCase):
         connection.commit()
         merge(connection, 11, 10, "新ありな")
         connection.close()
-        self.face = mock.patch("peach.avatar_provider.FaceProbe").start()
+        self.face = mock.patch("medianfo.avatar_provider.FaceProbe").start()
         self.face.return_value.return_value = None
         self.addCleanup(mock.patch.stopall)
-        self.app = create_app(PeachSettings(
+        self.app = create_app(MediaNfoSettings(
             db_path=database, configured=True, token="secret", avatar_root=self.avatars,
             candidate_root=self.folder / "generated", cover_root=self.folder / "covers"))
         self.client = TestClient(self.app)
@@ -372,8 +372,8 @@ class EntityRedirectRouteTests(unittest.TestCase):
         self.assertEqual({item['id']: item['n'] for item in photos['sets']}, {'code:ABC-001': 1, 2: 1})
         self.assertEqual(photos['sample_total'], 1)
         self.assertEqual(read('/api/entity', 'performer', 10)['asset_count'], 2)
-        from peach.web_catalog import _entity_asset_filter, q_facets
-        from peach.web_state import WebContract
+        from medianfo.web_catalog import _entity_asset_filter, q_facets
+        from medianfo.web_state import WebContract
 
         contract = WebContract(self.app.state.settings.db_path)
         with contract.read_connection() as connection:

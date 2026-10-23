@@ -184,7 +184,7 @@ html[data-theme-snapshot] :is(.board-filter-frame,.entitycollectionhead,.search,
    台机器上「减少动态效果」说的就是别让不由我操作的东西自己动。停住之后它还是两团
    高光，玻璃仍有厚度，只是这屋里的光不再走了。 */
 @media(prefers-reduced-motion:reduce){.board-filter-frame.board-filter-frame.board-filter-frame,.entitycollectionhead.entitycollectionhead.entitycollectionhead,.top .search.search,.top.top>.ib{animation:none}}
-/* Peach-owned media and analytics layouts. */
+/* MediaNfo-owned media and analytics layouts. */
 html.board-high-contrast .board-filter-frame.board-filter-frame.board-filter-frame,html.board-high-contrast .entitycollectionhead.entitycollectionhead.entitycollectionhead,html.board-high-contrast .top .search.search,html.board-high-contrast .top.top>.ib{background:var(--ground);backdrop-filter:none;-webkit-backdrop-filter:none;animation:none}
 :root{--board-card-foot:color-mix(in srgb,var(--ground) 92%,var(--ink))}
 
@@ -236,9 +236,9 @@ body{background:var(--page)}
 .cleanupfieldset>.geist-fieldset-footer button{font-size:13px}
 .cleanupgrid>:is(.cleanupscraping,.cleanupmediarepair){grid-column:1/-1;display:grid;gap:16px}
 /* ── 数据管理页照 Board 的 dashboard 模板排：顶上一排 plain stat card（stat-cards.tsx：132px 高、圆角 16、secondary 底、
-   内边距 16，32px 的图标格里 20px 字形，标签 Body Medium 次文字色，读数 title-1-medium 24/34）。Peach 把整张卡做成
+   内边距 16，32px 的图标格里 20px 字形，标签 Body Medium 次文字色，读数 title-1-medium 24/34）。MediaNfo 把整张卡做成
    按钮——它就是那一页的入口，读数下面那行 Caption 是同一份 payload 里的分项。五张在 1120 内一行摆下，窄了折两列、
-   再折一列。上游的卡不可点也没有悬停；悬停抬主文字色 6% 底是 Peach 自己加的，告诉人这张卡按得下去。
+   再折一列。上游的卡不可点也没有悬停；悬停抬主文字色 6% 底是 MediaNfo 自己加的，告诉人这张卡按得下去。
    骨架里那一排的网格、折行与卡头在 frontend/src/management.css 的 `.ui-cleanupstats`。 ── */
 .board-plain-stat{display:flex;flex-direction:column;justify-content:space-between;gap:8px;min-width:0;min-height:132px;margin:0;padding:16px;border:0;border-radius:16px;background:var(--color-background-secondary-default);color:var(--color-text-primary);font:var(--board-body);text-align:left;cursor:pointer;transition:background-color .15s ease}
 .board-plain-stat:hover{background:color-mix(in srgb,var(--color-text-primary) 6%,var(--color-background-secondary-default))}
@@ -395,7 +395,7 @@ body>.board-filter-frame{margin-inline:16px}
 .srctools button>svg{display:block;margin:0;flex-shrink:0;align-self:center;justify-self:center}
 .srctools button[hidden]{display:none}
 
-/* BoardUI surface tokens; Peach retains its layouts and specialized media UI. */
+/* BoardUI surface tokens; MediaNfo retains its layouts and specialized media UI. */
 :root{--board-motion:.3s cubic-bezier(.4,0,.2,1);--board-dialog-motion:.3s cubic-bezier(.32,.72,0,1);--fs-lg:16px;--fs-xl:20px;--fs-2xl:24px;--control-h:36px}
 /* 原地换一样东西的那三档：一枚字形换成另一枚、一行字换成另一行、占位换成真内容。
    三者都是同一件事的不同尺度，所以共用 `--board-motion` 那条缓动，只有时长按跨度分档：
@@ -515,7 +515,7 @@ button,input,select,textarea{font-family:inherit}
    `--color-accent-*`，换强调色就是把这十一个变量整组指到另一个色相，组件规则一个字不改。
    上游把这一段写在 `@theme` 里（`frontend/src/react/boardui/styles/theme.css` 第 25–45 行），
    默认指向 blue 那一组基元，运行时由它自己的 accent 模块整组改写。
-   Peach 这一份排在层叠层之外，所以无论 `/dist/peach-react.css` 里那份 `@layer theme` 怎么
+   MediaNfo 这一份排在层叠层之外，所以无论 `/dist/peach-react.css` 里那份 `@layer theme` 怎么
    写，页面上生效的都是这里；React 子树在 `.peach-react` 上重新声明的是语义 token，它们
    本来就引用 `--color-accent-*`，值顺着根继承进去，两边因此不会各说各话。
    色值取 Tailwind v4 色板原文（`tailwindcss/theme.css`），十二个色相绕色轮一圈、六列两行；
@@ -559,7 +559,7 @@ button,input,select,textarea{font-family:inherit}
 :root[data-theme=dark]{--control-hover:var(--color-border-button-default)}
 @media(prefers-color-scheme:dark){:root:not([data-theme]){--control-hover:var(--color-border-button-default)}}
 /* 这套里的标签不是胶囊，是一枚 8px 的圆角方片——详情面板那颗一直这么画，筛选条和资料
-   页的那两排也是。基线主题给 --tag-radius 的是整圆，那是 Peach 自己那套的写法。
+   页的那两排也是。基线主题给 --tag-radius 的是整圆，那是 MediaNfo 自己那套的写法。
    8px 比 --surface-radius 的 14px 小一档：那一档是给卡片、面板这些成块的表面的，
    套到一枚三十像素高的标签上，圆角会吃掉两端的字。改这一个 token 就够了——卡片、详情
    面板、筛选条、交集条和标签骨架都从它取值，一处改完五处一起走。 */
@@ -622,7 +622,7 @@ body[data-surface="/junk-files"] .catalog-skeleton .skeletoncard u::after{conten
    boardui.com/components/button：primary 悬停逐项不变；ghost 只把底色换深一档，
    浅色 rgb(219,234,254)→rgb(190,219,255)、暗色 rgb(28,57,142)→rgb(25,60,184)，
    全程没有边）。BoardUI 的 secondary 确实是填充加描边一起变，但它那档的悬停填充在暗色里
-   只是 60% 的 #404040 压上去，差几个色阶，必须靠边来补；Peach 不跟这条，改成把填充
+   只是 60% 的 #404040 压上去，差几个色阶，必须靠边来补；MediaNfo 不跟这条，改成把填充
    直接抬到 `--control-hover`——那是同一套面色里的下一档实色，两档都一眼看得出，
    边就不必跟着闪。`transition` 只留 `background-color`。 */
 body :is(.geist-button,.resourceaction,.geist-fieldset-footer>a,.geist-fieldset-footer>button):not(.primary,.danger,.error,.warning){box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;gap:4px;height:36px;min-height:36px;padding:8px 12px;border:1px solid var(--color-border-button-default);border-radius:10px;background:var(--color-background-primary-default);color:var(--color-text-primary);box-shadow:var(--elevation-xs);font:var(--board-body-medium);white-space:nowrap;text-decoration:none;transition:background-color .15s ease}

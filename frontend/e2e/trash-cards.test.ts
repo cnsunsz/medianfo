@@ -12,7 +12,7 @@ describe('回收站卡片', () => {
       const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height } });
       try {
         const page = await context.newPage();
-        await page.addInitScript(() => localStorage.setItem('peach.settings.v1', JSON.stringify({ detailAutoplay: false })));
+        await page.addInitScript(() => localStorage.setItem('medianfo.settings.v1', JSON.stringify({ detailAutoplay: false })));
         const reasons = ['manual', 'junk', 'duplicate', 'missing', null];
         const items = Array.from({ length: 10 }, (_, i) => ({
           id: 92000 + i, name: i === 1 ? '长标题'.repeat(40) : `示例资源 ${i}`,
@@ -44,7 +44,7 @@ describe('回收站卡片', () => {
           }
           await route.fulfill({ json: { ok: true, changed: body.ids.length } });
         });
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/trash', { waitUntil: 'load' });
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/trash', { waitUntil: 'load' });
         const cards = page.locator('#grid [data-media-card]');
         await cards.first().waitFor();
         assert.equal(await cards.count(), 10);

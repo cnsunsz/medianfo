@@ -10,7 +10,7 @@
 --
 -- 取值是 JSON 对象，键是列名，值是归属串（`user:manual`、`review:<来源>`、
 -- `auto:<来源>`、`scan:filename`、`script:<脚本名>`）。写法与覆盖规则在
--- `src/peach/field_owners.py`，它是这几列唯一的写入入口。
+-- `src/medianfo/field_owners.py`，它是这几列唯一的写入入口。
 --
 -- 为什么不建一张 `asset_field_owner` 子表：归属是字段的属性，和取值同生同死，
 -- 每次写真相字段都要跟着改。分成两张表后，「写值」与「写归属」就成了两条语句，

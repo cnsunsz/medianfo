@@ -5,7 +5,7 @@ type: Bug
 ---
 
 <!--
-请先搜索已有 issue。安全漏洞请使用私有报告：https://github.com/peach-mitao/peach/security/advisories/new
+请先搜索已有 issue。安全漏洞请使用私有报告：https://github.com/cnsunsz/medianfo/security/advisories/new
 Search existing issues first. Report security vulnerabilities privately at the link above.
 可以用中文或英文填写。/ Write in Chinese or English.
 -->
@@ -22,7 +22,7 @@ Search existing issues first. Report security vulnerabilities privately at the l
 
 ## 运行环境 / Environment
 
-- Peach 版本或构建 / Peach version or build:
+- MediaNfo 版本或构建 / MediaNfo version or build:
 - 系统版本及架构 / OS version and architecture:
 - 安装方式 / Installation: <!-- 安装包、免安装包、Docker 或源码 / Installer, portable, Docker, or source -->
 - Python 版本（源码部署，可选）/ Python version (source installs, optional):

@@ -1,5 +1,5 @@
 ---
-name: peach-surfaces
+name: medianfo-surfaces
 description: 在改完界面、API、契约、数据层或用户可见文案，准备收尾、报告完成、验收或提交前使用；用户说漏了、别的页面没改、只改了一半时也用。
 ---
 

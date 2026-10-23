@@ -31,7 +31,7 @@ describe('实体页冷启动等待态', () => {
         });
         const page = await context.newPage();
         await page.route('**/performers/90001', async route => {
-          const response = await route.fetch({ url: requiredEnv('PEACH_E2E_ORIGIN') + '/' });
+          const response = await route.fetch({ url: requiredEnv('MEDIANFO_E2E_ORIGIN') + '/' });
           await route.fulfill({ response, body: (await response.text()).replace('</head>',
             `<script type="application/json" id="peach-entity-shape">${JSON.stringify(shape)}</script></head>`) });
         });
@@ -51,7 +51,7 @@ describe('实体页冷启动等待态', () => {
           if (mode === 'refresh') {
             shapes = gate(); entity = gate(); items = gate();
             await page.reload({ waitUntil: 'load' });
-          } else await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/performers/90001', { waitUntil: 'load' });
+          } else await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/performers/90001', { waitUntil: 'load' });
           const root = page.locator('[data-skeleton="entity/performer"]');
           await root.waitFor();
           const first = await root.elementHandle();
@@ -64,8 +64,8 @@ describe('实体页冷启动等待态', () => {
           const ratio = () => root.locator('[style*="--skeleton-card-ratio"]').first().evaluate(node =>
             Number((node as HTMLElement).style.getPropertyValue('--skeleton-card-ratio')));
           assert.equal(await ratio(), jav ? .75 : 16 / 9);
-          if (process.env.PEACH_COLD_EVIDENCE) await page.screenshot({
-            path: join(process.env.PEACH_COLD_EVIDENCE, `${viewport.name}-${jav ? 'jav' : 'ordinary'}-${mode}.png`),
+          if (process.env.MEDIANFO_COLD_EVIDENCE) await page.screenshot({
+            path: join(process.env.MEDIANFO_COLD_EVIDENCE, `${viewport.name}-${jav ? 'jav' : 'ordinary'}-${mode}.png`),
             fullPage: false,
           });
           for (const release of releases.splice(0, 2)) release();

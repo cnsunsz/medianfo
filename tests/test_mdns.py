@@ -2,23 +2,23 @@ import sys
 import unittest
 from unittest.mock import MagicMock, patch
 
-from peach.mdns import (
+from medianfo.mdns import (
     DnsSdPublisher, MdnsPublisher, answers_on_network, create_mdns_publisher, lan_ipv4,
 )
 
 
 class MdnsPublisherTests(unittest.TestCase):
     def test_registers_and_unregisters_peach_local_on_all_interfaces(self):
-        with patch("peach.mdns.Zeroconf") as zeroconf_type, \
-                patch("peach.mdns.answers_on_network", return_value=True):
+        with patch("medianfo.mdns.Zeroconf") as zeroconf_type, \
+                patch("medianfo.mdns.answers_on_network", return_value=True):
             publisher = MdnsPublisher(
-                "Peach.local", 80, address_resolver=lambda: "192.0.2.10"
+                "MediaNfo.local", 80, address_resolver=lambda: "192.0.2.10"
             )
             publisher.start()
             info = zeroconf_type.return_value.register_service.call_args.args[0]
-            self.assertEqual(info.server, "peach.local.")
+            self.assertEqual(info.server, "medianfo.local.")
             self.assertEqual(info.port, 80)
-            self.assertEqual(publisher.status, "peach.local")
+            self.assertEqual(publisher.status, "medianfo.local")
             self.assertEqual(publisher.backend, "zeroconf-all-interfaces")
             publisher.stop()
         zeroconf_type.assert_called_once_with()
@@ -41,8 +41,8 @@ class MdnsPublisherTests(unittest.TestCase):
             current[0] = next(addresses, current[0])
             return current[0]
 
-        with patch("peach.mdns.Zeroconf") as zeroconf_type, \
-                patch("peach.mdns.answers_on_network", return_value=True):
+        with patch("medianfo.mdns.Zeroconf") as zeroconf_type, \
+                patch("medianfo.mdns.answers_on_network", return_value=True):
             publisher = MdnsPublisher(
                 "peach", 80, address_resolver=resolver, refresh_seconds=0,
             )
@@ -64,21 +64,21 @@ class MdnsPublisherTests(unittest.TestCase):
             except StopIteration:
                 raise RuntimeError("no publishable LAN IPv4 address") from None
 
-        with patch("peach.mdns.Zeroconf"), \
-                patch("peach.mdns.answers_on_network", return_value=True):
+        with patch("medianfo.mdns.Zeroconf"), \
+                patch("medianfo.mdns.answers_on_network", return_value=True):
             publisher = MdnsPublisher(
                 "peach", 80, address_resolver=resolver, refresh_seconds=0,
             )
             publisher.start()
-            self.assertEqual(publisher.status, "peach.local")
+            self.assertEqual(publisher.status, "medianfo.local")
             self.assertEqual(publisher.refresh(), "unavailable")
             self.assertEqual(publisher.status, "unavailable")
             self.assertIsNone(publisher.address)
 
     def test_a_pinned_address_never_republishes(self):
         """生产上显式钉住地址时复查必须是空转，不能自己换成别的网卡。"""
-        with patch("peach.mdns.Zeroconf") as zeroconf_type, \
-                patch("peach.mdns.answers_on_network", return_value=True):
+        with patch("medianfo.mdns.Zeroconf") as zeroconf_type, \
+                patch("medianfo.mdns.answers_on_network", return_value=True):
             publisher = MdnsPublisher(
                 "peach", 80, address_resolver=lambda: "192.0.2.10", refresh_seconds=0,
             )
@@ -89,8 +89,8 @@ class MdnsPublisherTests(unittest.TestCase):
         self.assertEqual(zeroconf_type.call_count, 1)
 
     def test_secure_publication_uses_https_service(self):
-        with patch("peach.mdns.Zeroconf") as zeroconf_type, \
-                patch("peach.mdns.answers_on_network", return_value=True):
+        with patch("medianfo.mdns.Zeroconf") as zeroconf_type, \
+                patch("medianfo.mdns.answers_on_network", return_value=True):
             publisher = MdnsPublisher(
                 "peach", 443, secure=True, address_resolver=lambda: "192.0.2.10"
             )
@@ -112,8 +112,8 @@ class MdnsPublisherTests(unittest.TestCase):
         self.assertIsInstance(publisher, expected)
 
     def test_explicit_address_avoids_tunnel_route(self):
-        with patch("peach.mdns.Zeroconf") as zeroconf_type, \
-                patch("peach.mdns.answers_on_network", return_value=True):
+        with patch("medianfo.mdns.Zeroconf") as zeroconf_type, \
+                patch("medianfo.mdns.answers_on_network", return_value=True):
             publisher = MdnsPublisher(
                 "peach", 80, address_resolver=lambda: "198.51.100.162", refresh_seconds=0,
             )
@@ -125,12 +125,12 @@ class MdnsPublisherTests(unittest.TestCase):
     def test_tunnel_route_falls_back_to_real_host_interface(self):
         fake_socket = MagicMock()
         fake_socket.getsockname.return_value = ("198.18.0.1", 50000)
-        with patch("peach.mdns.socket.socket", return_value=fake_socket), patch(
-            "peach.mdns.socket.gethostname", return_value="host",
+        with patch("medianfo.mdns.socket.socket", return_value=fake_socket), patch(
+            "medianfo.mdns.socket.gethostname", return_value="host",
         ), patch(
             # 前两个是虚拟网卡那种网关端点（末段 1 或 2），`lan_ipv4` 按端点评分把它们
             # 排在真实接口后面，所以第三个胜出。
-            "peach.mdns.socket.gethostbyname_ex",
+            "medianfo.mdns.socket.gethostbyname_ex",
             return_value=("host", [], ["192.0.2.2", "203.0.113.1", "198.51.100.162"]),
         ):
             self.assertEqual(lan_ipv4(), "198.51.100.162")
@@ -145,18 +145,18 @@ class ReachabilityTests(unittest.TestCase):
     """
 
     def test_runtime_status_does_not_depend_on_a_self_probe(self):
-        with patch("peach.mdns.Zeroconf"), \
-                patch("peach.mdns.answers_on_network", return_value=False) as probe:
+        with patch("medianfo.mdns.Zeroconf"), \
+                patch("medianfo.mdns.answers_on_network", return_value=False) as probe:
             publisher = MdnsPublisher(
                 "peach", 80, address_resolver=lambda: "192.0.2.10", refresh_seconds=0)
             publisher.start()
-            self.assertEqual(publisher.status, "peach.local")
+            self.assertEqual(publisher.status, "medianfo.local")
             probe.assert_not_called()
             publisher.stop()
 
     def test_probe_never_raises_on_a_dead_socket(self):
-        with patch("peach.mdns.socket.socket", side_effect=OSError("no multicast")):
-            self.assertFalse(answers_on_network("peach.local", timeout=0.1))
+        with patch("medianfo.mdns.socket.socket", side_effect=OSError("no multicast")):
+            self.assertFalse(answers_on_network("medianfo.local", timeout=0.1))
 
 
 if __name__ == "__main__":

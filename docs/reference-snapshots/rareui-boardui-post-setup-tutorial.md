@@ -13,9 +13,9 @@
 | [BoardUI Announcement](https://www.boardui.com/components/announcement) | `BoardUI/boardui@3e76e282614b147a34b9b2a510e31b97d58a3909`，`components/base/announcement/announcement.tsx` | `ec0015c2c341cfdb281a9a319970ec7e5364de1934cb1a43f814250b2cdcdaa7` | 图标、标题、说明和整行次级动作组成紧凑提示卡；使用边框与主表面，不加阴影 |
 | [BoardUI Notification](https://www.boardui.com/components/notification) | `BoardUI/boardui@3e76e282614b147a34b9b2a510e31b97d58a3909`，`components/base/notification/notification.tsx` | `10dc6985e2ab4e287266f756912bdeaf7610bf8b8a6941c8ea14ffd6b6c201fa` | `NotificationViewport` 默认固定在右下角；移动端距边 12px、桌面 24px，宽度为 `min(400px, 100vw - 24px)`，卡片用 16px 圆角、边框和下拉阴影 |
 
-## Peach 采用方式
+## MediaNfo 采用方式
 
-- 教程不放在首次设置表单；`POST /api/setup` 成功后用 `?onboarding=1` 标记一次安装后流程，进入 Peach 后显示。
+- 教程不放在首次设置表单；`POST /api/setup` 成功后用 `?onboarding=1` 标记一次安装后流程，进入 MediaNfo 后显示。
 - 任务不是可手动勾选的待办。教程读取馆藏、采集来源凭证、浏览器历史、关注来源、对应关注凭证和复核队列的实际状态，达到条件后自动打勾并移到清单末尾。
 - 下一步按钮始终指向第一项未完成任务；每项可跳过并短时撤销，全部完成或跳过后教程自动消失。
 - 教程挂在 `main` 之外的右下角固定浮窗，不参与当前页面正文排版；未处理完时跨页面持续显示。历史导入可先进入 `/taste?onboarding=1`，教程仍会保留。
@@ -24,6 +24,6 @@
 
 ## 明确差异
 
-- RareUI 示例允许直接切换任务；Peach 禁止手动改状态，避免“点过页面”被误报成已完成。
-- BoardUI Notification 是短消息；Peach 保留它的固定 viewport 与卡片外观，在卡片内增加可滚动任务清单，并且不自动消失。
-- 未复刻站点视觉资产、字体或颜色，继续使用 Peach 的 BoardUI token、按钮与图标体系。
+- RareUI 示例允许直接切换任务；MediaNfo 禁止手动改状态，避免“点过页面”被误报成已完成。
+- BoardUI Notification 是短消息；MediaNfo 保留它的固定 viewport 与卡片外观，在卡片内增加可滚动任务清单，并且不自动消失。
+- 未复刻站点视觉资产、字体或颜色，继续使用 MediaNfo 的 BoardUI token、按钮与图标体系。

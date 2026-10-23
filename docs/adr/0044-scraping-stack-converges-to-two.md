@@ -5,7 +5,7 @@
 
 ## 背景
 
-到 2026-09-22 为止，番号资料一共有三套取法并存：Peach 自写的解析器（r18.dev、一本道、FC2 与
+到 2026-09-22 为止，番号资料一共有三套取法并存：MediaNfo 自写的解析器（r18.dev、一本道、FC2 与
 两处存档站、AVBase、JavBus、javdb、Seesaa）；amane 桥子进程（fc2club、freejavbt、airav、avsox，
 ADR-0043）；Javinizer-Go v1.5.x 单来源 JSON CLI（`scripts/scrape_codes.py` 的 `--profile` 组合，
 问 dmm、libredmm、mgstage、javlibrary、jav321、tokyohot、aventertainment、caribbeancom、dlgetchu、
@@ -14,14 +14,14 @@ javstash）。三套各有自己的凭据、限流、冷却与错误分档，同
 Javinizer-Go 那一路还要求本机装一份特定大版本的二进制并单独维护 YAML 配置，账本里最后一批经它
 写入的 provenance 停在 2026-09 上旬。
 
-用户 2026-09-23 决定收敛到两套：官方与半官方站由 Peach 自己解析；社区站经 amane 桥；Javinizer-Go 退场。
+用户 2026-09-23 决定收敛到两套：官方与半官方站由 MediaNfo 自己解析；社区站经 amane 桥；Javinizer-Go 退场。
 
 ## 决策
 
 - **归属判据**：来源是发行方或发行方目录的镜像（r18.dev、一本道、FC2 商品页、fc2cmadb、JavArchive
-  这类只对一个发行面负责的站）由 Peach 自写解析器持有，因为它们的字段就是账本真相字段的直接证据，
+  这类只对一个发行面负责的站）由 MediaNfo 自写解析器持有，因为它们的字段就是账本真相字段的直接证据，
   形状变了要当天知道。转载、索引与聚合站（fc2club、freejavbt、airav、avsox 及其后继）经 amane 桥，
-  Peach 只持有站名到 `SOURCE_SPECS` 的映射与字段翻译，不再为社区站写第二份 HTML 解析器。
+  MediaNfo 只持有站名到 `SOURCE_SPECS` 的映射与字段翻译，不再为社区站写第二份 HTML 解析器。
 - **一条链**：一个番号问谁、什么顺序、何时停只由 `metadata_routes` 决定；采集任务与
   `scripts/scrape_codes.py` 用同一份 `LibraryMetadataProvider`、同一套凭据、限流与冷却，
   `scrape_codes` 只保留批量、快照落盘、健康统计与字段候选排序。`--sources` 点名的来源限于链上能问的
@@ -38,13 +38,13 @@ Javinizer-Go 那一路还要求本机装一份特定大版本的二进制并单�
 - **封面层独立于资料来源**：`jav_cover_fetch`、`best_cover`、`verified_cover` 与它们的图源汇总不随
   资料链变化；`sources/metadata/javinizer-go/**` 下的旧快照只作离线证据继续被读取（`cover_url`、
   `content_id`、厂牌），不再有任何一条路往里写 Javinizer 形状的新快照——`scrape_codes` 写进同一目录
-  的新快照 `provider` 记解析器名、`provider_version` 记 Peach 版本，`result` 形状不变。
-- **不删磁盘**：旧快照与 `peach-data/tools/javinizer/**` 下的二进制不删，历史由 Git 与磁盘各自保存。
+  的新快照 `provider` 记解析器名、`provider_version` 记 MediaNfo 版本，`result` 形状不变。
+- **不删磁盘**：旧快照与 `medianfo-data/tools/javinizer/**` 下的二进制不删，历史由 Git 与磁盘各自保存。
 
 ## 被否决的方案
 
 - 保留 Javinizer-Go 作「官方站的第三份兜底」：它问的十个来源里，dmm 与 libredmm 已由 r18.dev 覆盖，
-  mgstage 与 caribbeancom 尚无 Peach 解析器——但「尚无」的代价是再维护一份二进制、一份 YAML 与一套
+  mgstage 与 caribbeancom 尚无 MediaNfo 解析器——但「尚无」的代价是再维护一份二进制、一份 YAML 与一套
   错误分档，而它最近一年在这些站上的命中都是靠登录态；需要时按本 ADR 的归属判据自写，不靠它续命。
 - 把自写的 AVBase、JavBus、javdb 解析器与 Javinizer-Go 一起删掉：三家现在是有码与素人链的社区那一档，
   amane 桥对这三站的字段与命中率尚未按上面的验收条件量过，删了就是拿猜测顶替证据。
@@ -53,7 +53,7 @@ Javinizer-Go 那一路还要求本机装一份特定大版本的二进制并单�
 
 ## 后果
 
-- 影响面：`src/peach/metadata.py`、`metadata_policy.py`、`metadata_routes.py`、`metadata_seesaa.py`、
+- 影响面：`src/medianfo/metadata.py`、`metadata_policy.py`、`metadata_routes.py`、`metadata_seesaa.py`、
   `scripts/scrape_codes.py`、对应测试与 [docs/REUSE.md](../REUSE.md)、[docs/SOURCING.md](../SOURCING.md)。设置页没有 Javinizer-Go
   的卡片或 API，前端无改动。
 - ADR-0006 把 Javinizer-Go 定为默认查询适配器、把 `REGISTERED_SOURCES` 定为登记位，ADR-0024 的复用表
@@ -66,7 +66,7 @@ Javinizer-Go 那一路还要求本机装一份特定大版本的二进制并单�
 ## 实施：解析器契约
 
 用户 2026-09-23 决定自写解析器改用统一形状，amane 桥的站套同一形状：一个站一个类，取页与解析分开，
-按站配置进数据，一种返回模型，一张失败原因表。契约在 `src/peach/sources/base.py`：
+按站配置进数据，一种返回模型，一张失败原因表。契约在 `src/medianfo/sources/base.py`：
 
 - `SiteSource`：`fetch(code, *, session) -> Page` 与 `parse(page, code) -> SiteRecord` 分开，`query()` 串起来并把
   `_fetch` 的 HTTP 分档翻成 `SourceFailure`；配置经构造函数注入，测试只喂 `parse` 一张页面就能覆盖解析。
@@ -76,7 +76,7 @@ Javinizer-Go 那一路还要求本机装一份特定大版本的二进制并单�
 - `SiteRecord`：`source`、`provenance`、`code`、`source_url`、`title`、`performers`、`studio`、`label`、`series`、
   `director`、`release_date`、`runtime`、`tags`、`cover_urls`、`confidence`、`extra`；`payload()` 投影成来源快照那份
   dict（`id`、`maker`、`actresses[].japanese_name`、`genres`……），候选、来源链结算、封面层与账本读到的东西不变。
-- `FailureReason`：从 amane 的十六档里取 Peach 用得上的十二档（`cloudflare_challenge`、`ip_banned`、`geo_restricted`、
+- `FailureReason`：从 amane 的十六档里取 MediaNfo 用得上的十二档（`cloudflare_challenge`、`ip_banned`、`geo_restricted`、
   `auth_required`、`not_found`、`gone`、`parse_error`、`no_usable_metadata`、`rate_limited`、`timeout`、`server_error`、
   `network`）。`REASON_KINDS` 映到 `MetadataProviderError` 现有的三档，`COOLDOWN_ACTIONS` 定哪几档把整站写进
   `scraping_access` 的冷却记录，`PERMANENT_REASONS` 定哪几档不重试。传输层自己的信号（`SourcePaused`、

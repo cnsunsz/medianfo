@@ -2,7 +2,7 @@
 
 这份文档讲三件事：依赖怎么装、怎么升级；改完代码要跑哪些测试、CI 怎么分；新测试该写成什么样。
 
-Windows 发布制品的覆盖升级在 Actions 的「Windows 覆盖升级验收」手动执行：填写已发布的起始版本、目标版本及目标制品的完整构建提交。工作流分别验证 ZIP 原位解压和安装包原位安装，每种路径覆盖默认数据目录与 `PEACH_DATA_ROOT` 指定目录，并上传日志。它使用已发布制品，不重新构建或发布；在线更新和失败回滚仍由 `scripts/smoke_online_update.py` 单独验证。
+Windows 发布制品的覆盖升级在 Actions 的「Windows 覆盖升级验收」手动执行：填写已发布的起始版本、目标版本及目标制品的完整构建提交。工作流分别验证 ZIP 原位解压和安装包原位安装，每种路径覆盖默认数据目录与 `MEDIANFO_DATA_ROOT` 指定目录，并上传日志。它使用已发布制品，不重新构建或发布；在线更新和失败回滚仍由 `scripts/smoke_online_update.py` 单独验证。
 
 Release 工作流还在干净的 Windows runner 上运行 `smoke_update_tasks.py --apply`，使用临时账本验证安装接受正在运行的采集任务、暂停并保留任务标识、覆盖后自动续跑，以及配置保留。脚本默认只预演；本机可以验证 ZIP 与安装助手协议，安装包实装限干净的 Actions runner。
 
@@ -45,11 +45,11 @@ Dependabot 的 PR 一律在本地接管，不在网页上合：
 2. 加 `--apply`，按编号从小到大一个 PR 一个提交：取回分支，只把它自己对清单的改动三方合并套进来，npm 重算派生产物，uv 跑 `uv lock --check`。
 3. 两个 PR 改到相邻行时脚本停下，报出冲突文件并在 `build/adopt-pr-<编号>.txt` 备好提交说明。按它印出的步骤解冲突、重算、提交，再跑一次 `--all-open --apply`；已接管的 PR 按提交说明跳过。
 4. 跑 `test.ps1 full`，走 ready / integrate，推送 master 后按它印出的 `gh pr close` 逐个关 PR。PR 显示为 Closed 而不是 Merged，因为提交是在本地重做的。
-5. 同一轮跑 `scripts/check_reference_updates.py check --cadence weekly --diff`，查 Dependabot 管不到的上游：按 sha 钉住的 amane 是否前移，Peach 代码直接消费或逐字复制的参考来源是否变化。审阅与 `accept` 按 `peach-reference-evidence` 技能；amane 前移单开分支升级。
+5. 同一轮跑 `scripts/check_reference_updates.py check --cadence weekly --diff`，查 Dependabot 管不到的上游：按 sha 钉住的 amane 是否前移，MediaNfo 代码直接消费或逐字复制的参考来源是否变化。审阅与 `accept` 按 `peach-reference-evidence` 技能；amane 前移单开分支升级。
 
 单个 PR 用 `--pr <编号>`，流程相同。`.github/dependabot.yml` 把每个生态的 minor 与 patch 合成一个 PR，semver-major 照常一个包一个 PR，接管前先读变更说明。需要改代码的大版本在隔离工作树完成迁移和验证；TanStack Table 的大版本也由 Dependabot 检查。
 
-版本来自 `src/peach/__init__.py`，已纳入 uv 缓存键；源码版本更新后再次同步会刷新安装元数据。缓存规则采用 [uv 官方动态元数据机制](https://docs.astral.sh/uv/concepts/cache/#dynamic-metadata)。
+版本来自 `src/medianfo/__init__.py`，已纳入 uv 缓存键；源码版本更新后再次同步会刷新安装元数据。缓存规则采用 [uv 官方动态元数据机制](https://docs.astral.sh/uv/concepts/cache/#dynamic-metadata)。
 
 ### 每次发版检查
 
@@ -63,7 +63,7 @@ Dependabot 的 PR 一律在本地接管，不在网页上合：
 
 Python 静态检查使用开发依赖 Ruff，随每个正式测试域扫描全仓自有 Python 文件，覆盖应用、脚本、测试和打包入口。规则为 Pyflakes（`F`）、Ruff 支持的 Pylint 错误规则（`PLE`），以及可变默认参数、`finally` 跳转、无效表达式和循环闭包规则（`B006`、`B012`、`B018`、`B023`）。生成的 `downloads_clouddrive_pb2.py` 排除；公开导出的导入用显式同名别名声明。命名、行数、空行和复杂度偏好不属于这套 lint 门槛。
 
-文档与文案检查包含 seiso 稳定规则和最终状态检查，随正式入口执行。分类、范围、独立检查与预览规则用法见 [文档与界面文案](WRITING.md#检查与复核)。seiso 由开发依赖与锁文件固定，运行 Peach 不需要它。
+文档与文案检查包含 seiso 稳定规则和最终状态检查，随正式入口执行。分类、范围、独立检查与预览规则用法见 [文档与界面文案](WRITING.md#检查与复核)。seiso 由开发依赖与锁文件固定，运行 MediaNfo 不需要它。
 
 不是每次都跑全量：本机按改动涉及的域选测，CI 按提交类型决定覆盖多宽。
 调试先跑相关用例，冻结代码后运行一次 `auto`；不要手写逐域循环重复执行公共用例。测试失败先定向复现，修复后由 `auto` 判断哪些域需要补测。
@@ -82,7 +82,7 @@ Python 全量按文件稳定分片，Windows 四片、macOS 两片，每片使�
 
 Test 工作流的 `web-bundle` 在 Ubuntu 上统一执行 tsc、lint、Vitest、构建及产物差异检查；lint 同时检查无诊断且扫描文件数大于零。CI 的 Python 任务把这三个工具用例交给前端任务，把两个真实浏览器用例交给浏览器矩阵；同模块的契约测试仍执行。任务身份由固定工作流与 job 名识别，未知任务和本机保留完整测试。承担部分 CI 职责的运行不签发本机测试记录。
 
-浏览器用例由 `web-e2e` 的六个 Windows runner 分担，每片有自己的服务、演示库与日志。`ci_plan.py` 按 `ci-browser-timings.json` 的实测秒数分配文件，新文件使用默认权重；每个文件恰好执行一次。每片经项目入口的 `-Focus` 运行分配的浏览器文件，首启文件始终归首次设置服务。它装 Node 24、前端依赖、ffmpeg，并经 `PEACH_E2E_CHROME` 指定 Chrome。本机浏览器入口与并发语义保持完整。
+浏览器用例由 `web-e2e` 的六个 Windows runner 分担，每片有自己的服务、演示库与日志。`ci_plan.py` 按 `ci-browser-timings.json` 的实测秒数分配文件，新文件使用默认权重；每个文件恰好执行一次。每片经项目入口的 `-Focus` 运行分配的浏览器文件，首启文件始终归首次设置服务。它装 Node 24、前端依赖、ffmpeg，并经 `MEDIANFO_E2E_CHROME` 指定 Chrome。本机浏览器入口与并发语义保持完整。
 
 PR 计划按改动选择前端、vendor、wheel 与浏览器任务，文档 PR 只执行适用检查；主线、依赖、未知影响与手动验证包含全部任务。`frontend-ready` 汇总所选前端检查，失败时不启动后续完整回归；未选择前端任务的计划可正常执行。产物差异以文件统计显示。`verified` 根据计划核对必需任务，缺失、失败、取消及必需任务跳过均判失败。Actions 工作流本身由固定版 actionlint 检查语法、表达式、依赖与脚本。PR 更新取消同 PR 的过期运行，主线 Test 按提交各自保留结果。
 
@@ -90,7 +90,7 @@ Python 分片上传完整测试输出；浏览器分片上传 TAP、服务日志
 
 Release 在媒体工具编译前核对同 SHA 主线 CI，缓存键绑定媒体工具源码清单与构建脚本，缓存内容同时含二进制和对应源码包；制品与独立开箱验收仍是发布前置。Docker 只在镜像相关主线改动、匹配 PR、版本标签或手动请求时运行，验收后推送同一个本地镜像。版本发布与覆盖升级验收不取消进行中的同目标运行；覆盖升级需明确选择目标版本及完整构建提交。
 
-浏览器用例覆盖 `frontend/e2e` 下全部 `*.test.ts`，包括子目录。`setup.test.ts` 由 `SetupE2ETests` 在首次设置服务上执行，其余文件在已配置的演示库服务上按文件并发、文件内串行。并发数取 `PEACH_E2E_CONCURRENCY`；未设时本机取逻辑核数的四分之一、上限 4，CI（`GITHUB_ACTIONS=true`）为 1。并发批最多 12 个文件，串行批每批一个文件，各自取得完整 TAP 结果。测量动画、密度切换与等待态替换的文件（`tests/test_web_e2e.py` 的 `TIMING_SENSITIVE_SUITES`）在并发批之后串行；并发为 1 时按设计决定、交互回归和路由冒烟排序。每批限时 600 秒，任一批失败，整轮验证失败。并发的文件共用一个服务和演示库：用例触发的写请求只能落在别的用例不断言的状态上，否则用 `page.route` 拦下或归进串行批。控制台逐批输出文件名；完整 TAP 日志与服务访问日志 `serve.log` 保存在 `build/agent-verification/browser/`，CI 在测试结束后上传其中的 TAP 日志。
+浏览器用例覆盖 `frontend/e2e` 下全部 `*.test.ts`，包括子目录。`setup.test.ts` 由 `SetupE2ETests` 在首次设置服务上执行，其余文件在已配置的演示库服务上按文件并发、文件内串行。并发数取 `MEDIANFO_E2E_CONCURRENCY`；未设时本机取逻辑核数的四分之一、上限 4，CI（`GITHUB_ACTIONS=true`）为 1。并发批最多 12 个文件，串行批每批一个文件，各自取得完整 TAP 结果。测量动画、密度切换与等待态替换的文件（`tests/test_web_e2e.py` 的 `TIMING_SENSITIVE_SUITES`）在并发批之后串行；并发为 1 时按设计决定、交互回归和路由冒烟排序。每批限时 600 秒，任一批失败，整轮验证失败。并发的文件共用一个服务和演示库：用例触发的写请求只能落在别的用例不断言的状态上，否则用 `page.route` 拦下或归进串行批。控制台逐批输出文件名；完整 TAP 日志与服务访问日志 `serve.log` 保存在 `build/agent-verification/browser/`，CI 在测试结束后上传其中的 TAP 日志。
 
 需要外部前置条件（Node、ffmpeg、Chrome 等）的用例，本机缺条件时跳过，在 CI（`GITHUB_ACTIONS=true`）里判失败，判定集中在 `tests/support/conditions.py` 的 `missing_prerequisite`。所以 `python` 矩阵里 `core` 以外的行也装 Node，Windows 行另装 ffmpeg 与 Chrome。
 
@@ -104,7 +104,7 @@ Windows 的路径、挂载、托盘、证书、进程编码、更新、认证及
 
 纯 HTTP 请求契约可使用 `tests/support/web.py` 的 `route_client`：请求经过真实路由、中间件和依赖，不启动后台服务；调用方仍须准备完整临时账本。服务启动、恢复与关闭语义使用正常 lifespan，由集成测试覆盖。
 
-浏览器入口通过 `PEACH_E2E_NET_LOG_DIR` 保存 Chromium 网络事件日志；模式为 `HeavilyRedacted`，文件位于 `build/agent-verification/browser/network/`，CI 与 TAP 一起上传。网络请求失败仍使测试失败；排查 `ERR_NO_BUFFER_SPACE` 时同时核对 TAP 与该次浏览器的网络事件，不根据错误字样推断机器资源状态，也不添加放行重试。
+浏览器入口通过 `MEDIANFO_E2E_NET_LOG_DIR` 保存 Chromium 网络事件日志；模式为 `HeavilyRedacted`，文件位于 `build/agent-verification/browser/network/`，CI 与 TAP 一起上传。网络请求失败仍使测试失败；排查 `ERR_NO_BUFFER_SPACE` 时同时核对 TAP 与该次浏览器的网络事件，不根据错误字样推断机器资源状态，也不添加放行重试。
 
 测试应在用户可感知的行为错误时失败。页面的请求、缓存、选择、错误反馈和路由由组件测试与浏览器测试验证；CSS 层叠、主题、尺寸和交互后的样式由浏览器读取计算值。
 
@@ -158,7 +158,7 @@ macOS 按影响域验证：
 
 判失败的只有本次所选域真的会用到的工具，其余启动受限的工具只打印一行提示：受限环境里
 ffmpeg 起不来是事实，但它不该挡住一次只改文档的 `checks`。域由选中的测试源码推出来。
-确认本次无关时用 `PEACH_SKIP_PREFLIGHT=1` 整体跳过预检；分片子进程不重复预检。
+确认本次无关时用 `MEDIANFO_SKIP_PREFLIGHT=1` 整体跳过预检；分片子进程不重复预检。
 
 ## 定向调试与局部记录
 
@@ -182,7 +182,7 @@ macOS/Linux 的相同入口：
 ./scripts/test.sh auto --focus frontend/e2e/jav-detail.test.ts
 ```
 
-定向调试不签发记录，不能作为 `ready` / `integrate` 的验收证明。浏览器文件选择只在调试环境生效；正式入口拒绝残留的 `PEACH_TEST_FOCUS` / `PEACH_E2E_FILES`，防止局部运行被签成整域。某个浏览器批次失败或超时后立即结束该轮浏览器检查，保留完整 TAP 与服务日志。
+定向调试不签发记录，不能作为 `ready` / `integrate` 的验收证明。浏览器文件选择只在调试环境生效；正式入口拒绝残留的 `MEDIANFO_TEST_FOCUS` / `MEDIANFO_E2E_FILES`，防止局部运行被签成整域。某个浏览器批次失败或超时后立即结束该轮浏览器检查，保留完整 TAP 与服务日志。
 
 浏览器沿用 Playwright 的默认进程模型与静音设置，不限制渲染进程数，也不把 GPU 或音频服务强制并入浏览器进程。原生浏览器启动限时 60 秒，页面主体等待限时 15 秒，每批限时 600 秒；进程启动与页面行为分别验收。需要任务状态桩的页面通过 `visit` 的准备回调在首次导航前安装响应，等对应的 React 主体出现后再检查任务状态；进行中的任务不作为主体等待态。页面主体等待失败时保留 URL、关闭状态、已收集的运行期问题与无障碍树，夹具关闭本次浏览器上下文。
 
@@ -205,7 +205,7 @@ PR 的浏览器 CI 根据界面、Web API、认证与浏览器用例选择；普
 ## 记录的环境身份
 
 记录只在「代码、环境、范围」三项都匹配时可复用，环境那一项由 `scripts/test_evidence.py`
-的 `environment()` 算成一个摘要：解释器与已安装包、平台、`PEACH_*` 等环境变量、前端
+的 `environment()` 算成一个摘要：解释器与已安装包、平台、`MEDIANFO_*` 等环境变量、前端
 `node_modules` 锁，以及 node／npm／git／ffmpeg／ffprobe／openssl 六个外部工具。
 
 uv 只探针、不进指纹：它负责建环境，装出来的解释器与包已经逐个记在摘要里，而它自己由

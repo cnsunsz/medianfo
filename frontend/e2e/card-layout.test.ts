@@ -7,13 +7,13 @@ const FRAMES='#grid [data-media-grid] > [data-media-card] [data-media-pic], #gri
 
 /** 首页铺 20 张纯白预览图的作品，`size` 是首页版式；`patch` 按序号改其中几张。 */
 async function openHome(page:Page,size:string,patch:(i:number)=>Record<string,unknown>=()=>({})){
- await page.addInitScript(size=>localStorage.setItem('peach.settings.v1',JSON.stringify({detailAutoplay:false,homeLayout:size})),size);
+ await page.addInitScript(size=>localStorage.setItem('medianfo.settings.v1',JSON.stringify({detailAutoplay:false,homeLayout:size})),size);
  await page.route('**/api/items?*',route=>route.fulfill({json:{items:Array.from({length:20},(_,i)=>({
   id:91000+i,name:`示例作品 ${i}`,creator:'示例创作者',is_jav:i%2===0,has_thumb:true,has_cover:false,
   width:1600,height:900,location:'local',duration:120,...patch(i),
  })),total:20,has_more:false}}));
  await page.route('**/poster?*',route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900"><rect width="1600" height="900" fill="white"/></svg>'}));
- await page.goto(requiredEnv('PEACH_E2E_ORIGIN')+'/',{waitUntil:'load'});
+ await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN')+'/',{waitUntil:'load'});
  await page.locator('#grid [data-mix-card]').waitFor();
 }
 

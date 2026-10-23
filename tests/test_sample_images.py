@@ -15,11 +15,11 @@ from unittest import mock
 
 from PIL import Image
 
-from peach import sample_followup, sample_images
-from peach.http import HttpResponse
-from peach.jav_cover_fetch import NotFound
-from peach.repository import LedgerDatabase
-from peach.scraping_access import SourcePaused
+from medianfo import sample_followup, sample_images
+from medianfo.http import HttpResponse
+from medianfo.jav_cover_fetch import NotFound
+from medianfo.repository import LedgerDatabase
+from medianfo.scraping_access import SourcePaused
 from support.ledger import fresh_ledger
 
 ROOT = Path(__file__).resolve().parents[1]

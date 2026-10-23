@@ -1,5 +1,5 @@
 ﻿param(
-    [string]$OutputDirectory = (Join-Path $PSScriptRoot '..\dist\Peach'),
+    [string]$OutputDirectory = (Join-Path $PSScriptRoot '..\dist\MediaNfo'),
     [switch]$Standalone,
     # 在独立目录包之上再编一个 Inno Setup 安装包，放在输出目录的上一层。
     [switch]$Installer,
@@ -31,7 +31,7 @@ if ($LASTEXITCODE -ne 0) {
     throw 'PyInstaller is not installed in the project venv. Install it with: uv sync --locked --extra build'
 }
 
-if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot 'resources\peach.ico') -PathType Leaf)) {
+if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot 'resources\medianfo.ico') -PathType Leaf)) {
     throw 'Brand assets are missing. Run scripts/generate_brand_assets.py first.'
 }
 
@@ -51,7 +51,7 @@ if (-not $Npm) {
 if ($LASTEXITCODE -ne 0) { throw 'npm ci failed in frontend/.' }
 & $Npm.Source --prefix $FrontendPath run build
 if ($LASTEXITCODE -ne 0) { throw 'Frontend bundle build failed (frontend/).' }
-foreach ($FrontendAsset in @('peach-app.js', 'peach-app.css', 'peach-pages.js', 'peach-pages.css')) {
+foreach ($FrontendAsset in @('medianfo-app.js', 'medianfo-app.css', 'medianfo-pages.js', 'medianfo-pages.css')) {
     if (-not (Test-Path -LiteralPath (Join-Path $ProjectRoot "web\dist\$FrontendAsset") -PathType Leaf)) {
         throw "web/dist/$FrontendAsset is missing after the frontend build."
     }
@@ -73,9 +73,9 @@ try {
     $BuildCommit = $null
 }
 $global:LASTEXITCODE = 0
-$BuildVersionMatch = Select-String -LiteralPath (Join-Path $ProjectRoot 'src\peach\__init__.py') `
+$BuildVersionMatch = Select-String -LiteralPath (Join-Path $ProjectRoot 'src\medianfo\__init__.py') `
     -Pattern '__version__\s*=\s*"([^"]+)"'
-if (-not $BuildVersionMatch) { throw 'src/peach/__init__.py does not declare __version__.' }
+if (-not $BuildVersionMatch) { throw 'src/medianfo/__init__.py does not declare __version__.' }
 $BuildInfo = [ordered]@{
     commit = $BuildCommit
     version = $BuildVersionMatch.Matches[0].Groups[1].Value
@@ -84,7 +84,7 @@ $BuildInfo = [ordered]@{
 Set-Content -LiteralPath $BuildInfoPath -Value (ConvertTo-Json $BuildInfo) -Encoding utf8
 $SentryConfigPath = Join-Path $BuildPath 'sentry.json'
 Set-Content -LiteralPath $SentryConfigPath -Value (ConvertTo-Json @{
-    dsn = "$env:PEACH_SENTRY_DSN"; library_dsn = "$env:PEACH_LIBRARY_SENTRY_DSN"
+    dsn = "$env:MEDIANFO_SENTRY_DSN"; library_dsn = "$env:MEDIANFO_LIBRARY_SENTRY_DSN"
 }) -Encoding utf8
 
 $BuildMode = @('--onefile')
@@ -97,13 +97,13 @@ $CloudflaredSource = $null
 $CloudflaredManifest = $null
 $CloudflaredHash = $null
 if ($Standalone) {
-    if (-not $FFmpegPath) { $FFmpegPath = $env:PEACH_FFMPEG_BUILD }
+    if (-not $FFmpegPath) { $FFmpegPath = $env:MEDIANFO_FFMPEG_BUILD }
     if (-not $FFmpegPath) { $FFmpegPath = Join-Path $ProjectRoot 'build\ffmpeg-windows\ffmpeg' }
     & $Python -X utf8 (Join-Path $PSScriptRoot 'media_tool_bundle.py') --source $FFmpegPath --validate-only
     if ($LASTEXITCODE -ne 0) {
         throw 'Standalone build requires verified FFmpeg tools and corresponding source. Run scripts/build_ffmpeg_windows.sh first or pass -FFmpegPath.'
     }
-    if (-not $UntruncPath) { $UntruncPath = $env:PEACH_UNTRUNC_BUILD }
+    if (-not $UntruncPath) { $UntruncPath = $env:MEDIANFO_UNTRUNC_BUILD }
     if (-not $UntruncPath) { $UntruncPath = Join-Path $ProjectRoot 'build\untrunc-windows\untrunc' }
     & $Python -X utf8 (Join-Path $PSScriptRoot 'media_tool_bundle.py') --tool untrunc --source $UntruncPath --validate-only
     if ($LASTEXITCODE -ne 0) {
@@ -111,7 +111,7 @@ if ($Standalone) {
     }
     $CloudflaredCandidates = @()
     if ($CloudflaredPath) { $CloudflaredCandidates += $CloudflaredPath }
-    if ($env:PEACH_CLOUDFLARED_BUILD) { $CloudflaredCandidates += $env:PEACH_CLOUDFLARED_BUILD }
+    if ($env:MEDIANFO_CLOUDFLARED_BUILD) { $CloudflaredCandidates += $env:MEDIANFO_CLOUDFLARED_BUILD }
     $CloudflaredCandidates += (Join-Path $ProjectRoot 'vendor\cloudflared\cloudflared.exe')
     foreach ($Candidate in $CloudflaredCandidates) {
         if ($Candidate -and (Test-Path -LiteralPath $Candidate -PathType Leaf)) {
@@ -128,7 +128,7 @@ if ($Standalone) {
         throw "cloudflared SHA-256 mismatch: expected $($CloudflaredManifest.sha256), got $CloudflaredHash"
     }
 }
-& $Python -m PyInstaller --noconfirm --clean @BuildMode --windowed --name Peach `
+& $Python -m PyInstaller --noconfirm --clean @BuildMode --windowed --name MediaNfo `
     --distpath $BuildDestination --workpath $WorkPath --specpath $BuildPath `
     --paths (Join-Path $ProjectRoot 'src') --python-option 'X utf8' `
     --collect-all curl_cffi --collect-all resvg_py `
@@ -136,14 +136,14 @@ if ($Standalone) {
     --hidden-import uvicorn.logging --hidden-import uvicorn.loops.auto `
     --hidden-import uvicorn.protocols.http.auto --hidden-import uvicorn.protocols.websockets.auto `
     --hidden-import uvicorn.lifespan.on `
-    --icon (Join-Path $ProjectRoot 'resources\peach.ico') `
+    --icon (Join-Path $ProjectRoot 'resources\medianfo.ico') `
     --add-data "$(Join-Path $ProjectRoot 'web');web" `
     --add-data "$(Join-Path $ProjectRoot 'migrations');migrations" `
     --add-data "$(Join-Path $ProjectRoot 'resources');resources" `
     --add-data "${BuildInfoPath};." `
     --add-data "${SentryConfigPath};." `
     (Join-Path $ProjectRoot 'scripts\build_app_entry.py')
-if ($LASTEXITCODE -ne 0) { throw 'Peach build failed.' }
+if ($LASTEXITCODE -ne 0) { throw 'MediaNfo build failed.' }
 if ($Standalone) {
     Copy-Item -LiteralPath (Join-Path $ProjectRoot 'docs/TESTING_DESKTOP.md') -Destination (Join-Path $OutputPath '开始使用.md')
     Copy-Item -LiteralPath (Join-Path $ProjectRoot 'LICENSE') -Destination (Join-Path $OutputPath 'LICENSE.txt')
@@ -173,22 +173,22 @@ if (Test-Path -LiteralPath $WorkPath) {
 
 $InstallerPath = $null
 if ($Installer) {
-    $IsccCandidates = @($env:PEACH_ISCC, (Get-Command ISCC.exe -ErrorAction SilentlyContinue).Source,
+    $IsccCandidates = @($env:MEDIANFO_ISCC, (Get-Command ISCC.exe -ErrorAction SilentlyContinue).Source,
         (Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'),
         (Join-Path $env:LOCALAPPDATA 'Programs\Inno Setup 6\ISCC.exe'))
     $Iscc = $IsccCandidates | Where-Object { $_ -and (Test-Path -LiteralPath $_ -PathType Leaf) } | Select-Object -First 1
     if (-not $Iscc) {
-        throw 'Inno Setup 6 not found. Install it with: winget install JRSoftware.InnoSetup, or set PEACH_ISCC.'
+        throw 'Inno Setup 6 not found. Install it with: winget install JRSoftware.InnoSetup, or set MEDIANFO_ISCC.'
     }
     $InstallerOutput = Split-Path -Parent $OutputPath
     & $Iscc /Q "/DAppVersion=$($BuildInfo.version)" "/DSourceDir=$OutputPath" "/DOutputDir=$InstallerOutput" `
-        (Join-Path $PSScriptRoot 'installer\peach.iss')
+        (Join-Path $PSScriptRoot 'installer\medianfo.iss')
     if ($LASTEXITCODE -ne 0) { throw 'Installer build failed.' }
-    $InstallerPath = Join-Path $InstallerOutput "Peach-$($BuildInfo.version)-windows-x64-setup.exe"
+    $InstallerPath = Join-Path $InstallerOutput "MediaNfo-$($BuildInfo.version)-windows-x64-setup.exe"
 }
 
 [pscustomobject]@{
-    Executable = Join-Path $OutputPath 'Peach.exe'
-    Icon = Join-Path $ProjectRoot 'resources\peach.ico'
+    Executable = Join-Path $OutputPath 'MediaNfo.exe'
+    Icon = Join-Path $ProjectRoot 'resources\medianfo.ico'
     Installer = $InstallerPath
 }

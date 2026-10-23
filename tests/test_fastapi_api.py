@@ -15,7 +15,7 @@ from unittest.mock import patch
 from types import SimpleNamespace
 from urllib.parse import parse_qs, quote, urlsplit
 
-from peach import __version__
+from medianfo import __version__
 from support.ledger import fresh_ledger
 from support.mp4 import minimal_mp4
 
@@ -28,13 +28,13 @@ if HAS_DEPS:
     import httpx
     from fastapi.routing import APIRoute
     from starlette.routing import Mount
-    from peach import api as api_module
-    from peach import routes_auth
-    from peach import routes_jav_browser
-    from peach.api import create_app
-    from peach.follow_covers import PLACEHOLDER_CONTENT_TYPE
-    from peach.follow_secrets import credential_store_for
-    from peach.config import PeachSettings
+    from medianfo import api as api_module
+    from medianfo import routes_auth
+    from medianfo import routes_jav_browser
+    from medianfo.api import create_app
+    from medianfo.follow_covers import PLACEHOLDER_CONTENT_TYPE
+    from medianfo.follow_secrets import credential_store_for
+    from medianfo.config import MediaNfoSettings
 
 
 BASE_SCHEMA = """
@@ -162,7 +162,7 @@ class RobotsTests(unittest.IsolatedAsyncioTestCase):
         root = Path(cls.tmp.name).resolve()
         # 账本要真的建出来：`/api/items` 走只读连接（`mode=ro`），文件不存在就打不开，
         # 响应变成 500 并往日志里吐一整段回溯，用例却因为响应头照样在而通过。
-        cls.app = create_app(PeachSettings(
+        cls.app = create_app(MediaNfoSettings(
             configured=True, db_path=fresh_ledger(root), follow_state_root=root / "state"))
 
     @classmethod
@@ -219,7 +219,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.taste_import_root = self.root / "sources" / "taste-history" / "imports"
         self.taste_output_root = self.root / "review" / "taste-history"
         self.taste_manifest = self.root / "state" / "taste-history" / "manifest.json"
-        # 复核候选必须来自临时目录，不去读真实的 R:\peach-data\generated。
+        # 复核候选必须来自临时目录，不去读真实的 R:\medianfo-data\generated。
         self.candidate_root = self.root / "generated"
         self.candidate_root.mkdir()
         self.endcard_frame = (
@@ -247,7 +247,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         (self.logo_root / "Studio_A.img").write_bytes(b"logo")
         (self.logo_root / "Studio_A.img.ct").write_text("image/png", encoding="utf-8")
         self.page = self.root / "index.html"
-        self.page.write_text("<!doctype html><title>Peach test</title><main>ready</main>", encoding="utf-8")
+        self.page.write_text("<!doctype html><title>MediaNfo test</title><main>ready</main>", encoding="utf-8")
         # 隔离页面根包含退场路径的文件，用于验证它们不会被提供。
         (self.root / "app.js").write_text("export const retired = true;", encoding="utf-8")
         (self.root / "js").mkdir()
@@ -256,10 +256,10 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             (self.root / "js" / f"{name}.js").write_text("export const ok = 1;", encoding="utf-8")
         # 前端产物（ADR-0022）：构建结果提交进 Git，运行时由 `/dist/{name}` 提供。
         (self.root / "dist").mkdir()
-        for name in ("peach-app.js", "peach-pages.js", "peach-ui.js", "peach-react.js", "peach-entry.js",
+        for name in ("medianfo-app.js", "peach-pages.js", "peach-ui.js", "peach-react.js", "peach-entry.js",
                      "other.js"):
             (self.root / "dist" / name).write_text("export const ok = 1;", encoding="utf-8")
-        for name in ("peach-app.css", "peach-pages.css", "peach-ui.css", "peach-react.css", "peach-entry.css"):
+        for name in ("medianfo-app.css", "peach-pages.css", "peach-ui.css", "peach-react.css", "peach-entry.css"):
             (self.root / "dist" / name).write_text(".peach-react{}", encoding="utf-8")
         con = sqlite3.connect(self.db)
         con.executescript(BASE_SCHEMA)
@@ -295,7 +295,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         )
         con.commit()
         con.close()
-        self.settings = PeachSettings(
+        self.settings = MediaNfoSettings(
             db_path=self.db, configured=True, token="secret", page_path=self.page, vendor_path=self.vendor_root,
             agentation_path=self.root / "build" / "peach-agentation.js",
             allowed_media_roots=(self.media_root,), snapshot_root=self.snapshot_root,
@@ -311,7 +311,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         )
         self.app = create_app(self.settings)
         # 字节与时间表夹具不含可解码画面；编码判定由媒体域的真实样本覆盖。
-        from peach.transcodes import _MediaProfile
+        from medianfo.transcodes import _MediaProfile
         self.profile_patch = patch.object(
             self.app.state.transcode_service, "_probe",
             return_value=_MediaProfile("h264", "yuv420p", "aac"),
@@ -322,7 +322,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         # 因为某个 provider 在本机配没配过而变。要用凭据的用例自己往这里写一份。
         self.secrets_root = self.root / "secrets"
         self.credentials = credential_store_for(self.secrets_root, shared_root=None)
-        credentials_patch = patch("peach.web_follow._credential_store",
+        credentials_patch = patch("medianfo.web_follow._credential_store",
                                   return_value=self.credentials)
         credentials_patch.start()
         self.addCleanup(credentials_patch.stop)
@@ -350,7 +350,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn(str(self.media_root), json.dumps(checks))
 
     async def test_diagnostics_is_authenticated_local_and_uses_the_shared_report(self):
-        from peach import diagnostics
+        from medianfo import diagnostics
         report = {"version": __version__, "status": "warning", "checks": {}}
         with patch.object(diagnostics, "report", return_value=report) as shared:
             denied = await self.client.get("/api/diagnostics")
@@ -370,14 +370,14 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         payload = (await self.client.get("/healthz")).json()
         self.assertIn("build_commit", payload)
         self.assertIsNone(payload["build_commit"])
-        from peach.buildinfo import BuildInfo
+        from medianfo.buildinfo import BuildInfo
         with patch.object(api_module, "BUILD",
                           BuildInfo("c0ffee1234", __version__, "2026-09-07T00:00:00")):
             served = (await self.client.get("/healthz")).json()
         self.assertEqual(served["build_commit"], "c0ffee1234")
 
     async def test_sources_and_public_health_read_unknown_mount_snapshot_without_io(self):
-        from peach.mount_reachability import MountReachability, MountRoot
+        from medianfo.mount_reachability import MountReachability, MountRoot
         monitor = MountReachability([MountRoot("local", "本地磁盘", "R:/private", self.media_root)],
                                     probe=lambda path: self.fail("读取快照不得触发目录探测"))
         self.addCleanup(monitor.stop)
@@ -470,7 +470,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             self.assertNotEqual(allowed.status_code, 409)
 
     async def test_peach_logo_is_served_as_png(self):
-        response = await self.client.get("/peach-logo.png")
+        response = await self.client.get("/medianfo-logo.png")
         self.assertEqual(response.status_code, 200)
         # 类型声明逐字相等：图片是字节流，`asset_response` 不许给它挂 charset。
         self.assertEqual(response.headers["content-type"], "image/png")
@@ -480,7 +480,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
     async def test_the_favicon_is_served_without_a_session_and_revalidates(self):
         """浏览器取图标时手里没有会话，这条路径因此不设防，也不跳登录页。
 
-        发的是 `resources/peach.ico`：里面装着 16 到 256 七档尺寸，浏览器挑一档就够，
+        发的是 `resources/medianfo.ico`：里面装着 16 到 256 七档尺寸，浏览器挑一档就够，
         不必为一枚 16px 的角标下载 1024×1024 的 PNG。缓存走 ETag 复验——图标几个版本
         才动一次，每次开页重下没有道理，而复验又让换了图的那一次立刻生效。
         """
@@ -508,7 +508,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                     self.assertEqual(response.status_code, 404)
 
     async def test_main_assets_need_the_same_token_as_the_page(self):
-        for path in ("/dist/peach-app.js", "/dist/peach-app.css", "/board.css", "/app.css"):
+        for path in ("/dist/medianfo-app.js", "/dist/medianfo-app.css", "/board.css", "/app.css"):
             for method in ("GET", "HEAD"):
                 with self.subTest(path=path, method=method):
                     response = await self.client.request(method, path)
@@ -518,7 +518,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                     self.assertEqual(response.text, "需要 ?t=口令" if method == "GET" else "")
 
     async def test_main_bundle_has_authenticated_get_head_mime_and_revalidation(self):
-        for name, media in (("peach-app.js", "text/javascript"), ("peach-app.css", "text/css")):
+        for name, media in (("medianfo-app.js", "text/javascript"), ("medianfo-app.css", "text/css")):
             path = f"/dist/{name}"
             served = await self.client.get(path, params={"t": "secret"})
             self.assertEqual(served.status_code, 200, name)
@@ -538,8 +538,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(cached.content, b"")
                 self.assertEqual(cached.headers["etag"], etag)
 
-        for escape in ("..%2f..%2fapp.js", "..%5c..%5csecrets.json", "sub%2fpeach-app.js",
-                       "..%2fapp.js", "peach-app.js.map", "peach-app.mjs", "Peach-App.js", "other.js"):
+        for escape in ("..%2f..%2fapp.js", "..%5c..%5csecrets.json", "sub%2fmedianfo-app.js",
+                       "..%2fapp.js", "medianfo-app.js.map", "medianfo-app.mjs", "MediaNfo-App.js", "other.js"):
             denied = await self.client.get(f"/dist/{escape}?t=secret")
             self.assertEqual(denied.status_code, 404, f"{escape} 不该被提供")
 
@@ -600,7 +600,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self._swap_http_client(upstream)
         # patch 打在真正 import 它的模块上。`/follow-avatar` 住在 routes_media，
         # 打在 `peach.api` 上会静默失效——那个名字已经不在那里了。
-        with patch("peach.routes_media.resolve_official_avatar",
+        with patch("medianfo.routes_media.resolve_official_avatar",
                    return_value="https://pixiv.pximg.net/icon.jpeg") as resolver:
             response = await self.client.get(
                 "/follow-avatar?t=secret&service=fanbox&id=30917150")
@@ -673,7 +673,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                         "https://pbs.twimg.com/profile_images/1/a_400x400.jpg"],
             "patreon": ["https://c10.patreonusercontent.com/original.png"],
         }
-        with patch("peach.routes_media.profile_avatar_tiers",
+        with patch("medianfo.routes_media.profile_avatar_tiers",
                    side_effect=lambda service, handle, transport: tiers[service]):
             response = await self.client.get(
                 "/follow-avatar?t=secret&service=profile&id=twitter:Rekin3D,patreon:sharkarts")
@@ -688,7 +688,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         只取最热那一张的话，圆标里有一半是身体特写——最热的帖子常常就是特写。停下来
         之后不再往下取：后面那几张既不该出网，也不该留在缓存目录里。
         """
-        from peach import follow_assets, routes_media
+        from medianfo import follow_assets, routes_media
 
         covers = {f"https://api-cdn.rule34.xxx/samples/{n}/c.jpg": tiny_jpeg(n * 40)
                   for n in (1, 2, 3)}
@@ -707,9 +707,9 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                          "focus": {"axis": "y", "pct": 18}}}
         denied = await self.client.get("/work-icon?work=stellar+blade")
         self.assertEqual(denied.status_code, 401)
-        with patch("peach.routes_media.web_follow.work_icon_urls",
+        with patch("medianfo.routes_media.web_follow.work_icon_urls",
                    return_value=list(covers)) as urls:
-            with patch("peach.routes_media.web_follow.work_icon_search_urls") as search:
+            with patch("medianfo.routes_media.web_follow.work_icon_search_urls") as search:
                 with patch.object(routes_media._WORK_FACE_PROBE, "on_bytes",
                                   side_effect=seen.get):
                     response = await self.client.get(
@@ -738,7 +738,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         题材按「没有头」处理：整张封面摆出来，不写人脸记录。把画面里最大的那块皮肤
         放大成一枚认不出的圆，还不如一张认得出是哪部作品的全身。
         """
-        from peach import follow_assets, routes_media
+        from medianfo import follow_assets, routes_media
 
         covers = {f"https://api-cdn.rule34.xxx/samples/{n}/c.jpg": tiny_jpeg(n * 30)
                   for n in (4, 5, 6)}
@@ -758,7 +758,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             return {"ratio": 1.0, "px": [1000, 1000],
                     "face": {"cx": 0.4, "cy": 0.3, "w": share, "h": share,
                              "score": 0.82}}
-        with patch("peach.routes_media.web_follow.work_icon_urls",
+        with patch("medianfo.routes_media.web_follow.work_icon_urls",
                    return_value=list(covers)):
             with patch.object(routes_media._WORK_FACE_PROBE, "on_bytes",
                               side_effect=probe):
@@ -778,7 +778,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         图，脸在里面只剩十几二十个像素。占比这一关它们全过，可页面按脸放大时不许上采
         样，于是脸最多只能占到圆的三成，剩下七成是身上和背景——看起来就是一张糊图。
         """
-        from peach import follow_assets, routes_media
+        from medianfo import follow_assets, routes_media
 
         covers = {f"https://api-cdn.rule34.xxx/samples/{n}/c.jpg": tiny_jpeg(n * 20)
                   for n in (1, 2)}
@@ -797,7 +797,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             return {"ratio": 0.5625, "px": sizes[payload],
                     "face": {"cx": 0.5, "cy": 0.3, "w": 0.096, "h": 0.17,
                              "score": 0.88}}
-        with patch("peach.routes_media.web_follow.work_icon_urls",
+        with patch("medianfo.routes_media.web_follow.work_icon_urls",
                    return_value=list(covers)):
             with patch.object(routes_media._WORK_FACE_PROBE, "on_bytes",
                               side_effect=probe):
@@ -817,7 +817,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         有正脸；站上同一个标签下有成千上万帖。站点那一趟排在本库之后，而且用的是本库
         记下的标签写法——照归一化后的题材身份拼出来的标签在站上是零命中。
         """
-        from peach import follow_assets, routes_media
+        from medianfo import follow_assets, routes_media
 
         local = "https://api-cdn.rule34.xxx/samples/9/c.jpg"
         remote = "https://api-cdn.rule34.xxx/images/9/d.jpg"
@@ -836,11 +836,11 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             return {"ratio": 1.0, "px": [1000, 1000],
                     "face": {"cx": 0.5, "cy": 0.3, "w": 0.3, "h": 0.3, "score": 0.9}}
 
-        with patch("peach.routes_media.web_follow.work_icon_urls",
+        with patch("medianfo.routes_media.web_follow.work_icon_urls",
                    return_value=[local]):
-            with patch("peach.routes_media.web_follow.work_icon_tag",
+            with patch("medianfo.routes_media.web_follow.work_icon_tag",
                        return_value="the_witcher_(series)"):
-                with patch("peach.routes_media.web_follow.work_icon_search_urls",
+                with patch("medianfo.routes_media.web_follow.work_icon_search_urls",
                            return_value=[remote]) as search:
                     with patch.object(routes_media._WORK_FACE_PROBE, "on_bytes",
                                       side_effect=probe):
@@ -860,7 +860,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         那时不写 sidecar，页面退回样式表里的默认取景——留一份旧记录的话，圆标会拿
         上一张图的脸心给这一张取景，而这在界面上看不出和「本来就该这么摆」的区别。
         """
-        from peach import follow_assets, routes_media
+        from medianfo import follow_assets, routes_media
 
         covers = {f"https://api-cdn.rule34.xxx/samples/{n}/c.jpg": tiny_jpeg(n * 30)
                   for n in (7, 8)}
@@ -874,7 +874,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         cached.parent.mkdir(parents=True, exist_ok=True)
         cached.with_suffix(".face.json").write_text('{"focus":{"axis":"x","pct":90}}',
                                                     encoding="utf-8")
-        with patch("peach.routes_media.web_follow.work_icon_urls",
+        with patch("medianfo.routes_media.web_follow.work_icon_urls",
                    return_value=list(covers)):
             with patch.object(routes_media._WORK_FACE_PROBE, "on_bytes",
                               return_value=None):
@@ -885,8 +885,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                          "换了图就不能留着上一张的脸记录")
 
     async def test_source_icons_are_served_from_disk_and_only_from_the_table(self):
-        """来源图标同样经 Peach 落盘；地址只认 follow_assets.SOURCE_ICON_URLS 那张表。"""
-        from peach import follow_assets
+        """来源图标同样经 MediaNfo 落盘；地址只认 follow_assets.SOURCE_ICON_URLS 那张表。"""
+        from medianfo import follow_assets
 
         ico = b"\x00\x00\x01\x00\x01\x00" + b"\x00" * 24
         hits = []
@@ -932,7 +932,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         任意地址抓取的口子。白名单里那条后缀的子域同样不认：子域是浏览历史带进来的
         任意值，`sub.kemono.cr` 和 `kemono.cr` 在这里是两件事。
         """
-        from peach import routes_media
+        from medianfo import routes_media
 
         self.addCleanup(setattr, routes_media, "GENERATED_DIR", routes_media.GENERATED_DIR)
         routes_media.GENERATED_DIR = self.root / "site-marks"
@@ -962,7 +962,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(any(host.endswith("kemono.cr") for host in hosts[reached:]), hosts)
 
     async def test_source_favicons_keep_verified_pixels_without_upstream_discovery(self):
-        from peach.config import PROJECT_ROOT
+        from medianfo.config import PROJECT_ROOT
 
         reached = []
         def upstream(request):
@@ -978,7 +978,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_copy_editor_is_source_only_and_rejects_cross_origin_saves(self):
         from unittest.mock import patch
-        from peach import routes_pages
+        from medianfo import routes_pages
         with patch.object(routes_pages.sys, "frozen", True, create=True):
             refused = await self.client.get('/dev/copy-editor.js?t=secret')
             self.assertEqual(refused.status_code, 404)
@@ -989,7 +989,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(refused.status_code, 403)
 
     async def test_bundled_site_icons_require_auth_and_validate_names(self):
-        from peach.config import PROJECT_ROOT
+        from medianfo.config import PROJECT_ROOT
         self.assertEqual((await self.client.get('/site-icon/github.png')).status_code, 401)
         for name in ('javten', 'fc2ppvdb', 'avwikidb', 'minnano-av', 'github'):
             response = await self.client.get(f'/site-icon/{name}.png?t=secret')
@@ -1005,7 +1005,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         """两条存档链接；上游按 `colour_of(url)` 给一枚圆形图标，给 None 就 404。返回请求过的地址。"""
         from PIL import Image, ImageDraw
 
-        from peach import routes_media
+        from medianfo import routes_media
 
         self.addCleanup(setattr, routes_media, "GENERATED_DIR", routes_media.GENERATED_DIR)
         routes_media.GENERATED_DIR = self.root / "generated"
@@ -1073,7 +1073,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(page.status_code, 303)
         self.assertEqual(page.headers["location"], "/login?next=/")
 
-        asset = await self.client.get("/dist/peach-app.js")
+        asset = await self.client.get("/dist/medianfo-app.js")
         self.assertEqual(asset.status_code, 401)
         self.assertEqual(asset.text, "需要 ?t=口令")
         self.assertTrue(asset.headers["content-type"].startswith("text/plain"))
@@ -1185,7 +1185,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         payload = b'<!DOCTYPE NETSCAPE-Bookmark-file-1><DL><DT><A HREF="https://rule34.xxx/?tags=feet">private bookmark</A></DL>'
         for _ in range(2):
             imported = await self.client.post("/api/taste/import?t=secret", content=payload,
-                headers={"Content-Type": "application/octet-stream", "X-Peach-Filename": "bookmarks.html"})
+                headers={"Content-Type": "application/octet-stream", "X-MediaNfo-Filename": "bookmarks.html"})
             self.assertEqual(imported.status_code, 200, imported.text)
             dashboard = imported.json()["dashboard"]
             self.assertEqual(dashboard["summary"]["history_visits"], 0)
@@ -1206,7 +1206,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         profile.mkdir(parents=True)
         (profile / "Bookmarks").write_text(json.dumps({"roots": {"bookmark_bar": {"children": [
             {"type": "url", "url": "https://rule34.xxx/?tags=feet", "name": "private local bookmark"}]}}}), encoding="utf-8")
-        with patch("peach.taste_history.discover_history_sources", return_value=[]):
+        with patch("medianfo.taste_history.discover_history_sources", return_value=[]):
             configured = await self.client.post("/api/taste/source?t=secret", json={
                 "operation": "add", "name": "测试 Chrome", "path": str(profile)})
             self.assertEqual(configured.status_code, 200, configured.text)
@@ -1216,7 +1216,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(refreshed.json()["dashboard"]["summary"]["history_visits"], 0)
         self.assertEqual(refreshed.json()["warnings"], [])
         self.assertNotIn("private local bookmark", refreshed.text)
-        with patch("peach.taste_history.discover_history_sources", return_value=[]):
+        with patch("medianfo.taste_history.discover_history_sources", return_value=[]):
             browser = refreshed.json()["dashboard"]["browsers"][0]
             self.assertEqual(len(browser["source_keys"]), 1)
             removed = await self.client.post("/api/taste/source?t=secret", json={"operation": "delete_browser", "id": browser["id"]})
@@ -1241,7 +1241,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             "/api/taste/import?t=secret",
             content=payload,
             headers={"Content-Type": "application/octet-stream",
-                     "X-Peach-Filename": "history.json"},
+                     "X-MediaNfo-Filename": "history.json"},
         )
         self.assertEqual(imported.status_code, 200, imported.text)
         dashboard = imported.json()["dashboard"]
@@ -1659,10 +1659,10 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_unexpected_contract_errors_are_logged_but_not_exposed(self):
         with patch(
-            "peach.routes_api.web_contract.dispatch_api_get",
+            "medianfo.routes_api.web_contract.dispatch_api_get",
             side_effect=RuntimeError("private C:\\ledger.db detail"),
         ):
-            with self.assertLogs("peach.routes_api", level="ERROR") as captured:
+            with self.assertLogs("medianfo.routes_api", level="ERROR") as captured:
                 response = await self.client.get("/api/items?t=secret")
         self.assertEqual(response.status_code, 500)
         self.assertEqual(response.json(), {"error": "internal server error"})
@@ -1732,7 +1732,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
     async def test_opencode_models_endpoint_is_explicit_and_normalized(self):
         denied = await self.client.get("/api/providers/opencode-go/models")
         self.assertEqual(denied.status_code, 401)
-        with patch("peach.api.OpenCodeGoClient.list_models", return_value=[{
+        with patch("medianfo.api.OpenCodeGoClient.list_models", return_value=[{
             "id": "kimi-k3", "object": "model", "owned_by": "opencode",
         }]) as discover:
             response = await self.client.get(
@@ -1829,8 +1829,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(page.status_code, 200)
         self.assertIn('<meta name="color-scheme" content="light dark">', page.text)
         self.assertIn('<link rel="stylesheet" href="/dist/peach-pages.css">', page.text)
-        self.assertIn('localStorage.getItem("peach.settings.v1")', page.text)
-        self.assertLess(page.text.index('localStorage.getItem("peach.settings.v1")'),
+        self.assertIn('localStorage.getItem("medianfo.settings.v1")', page.text)
+        self.assertLess(page.text.index('localStorage.getItem("medianfo.settings.v1")'),
                         page.text.index('<link rel="stylesheet"'), "主题预读要排在任何样式之前")
 
     async def test_refused_browser_logins_come_back_to_the_page_and_others_get_json(self):
@@ -1934,7 +1934,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                      "/posts/190", "/sources", "/settings", "/works/ABC-001"):
             response = await self.client.get(path)
             self.assertEqual(response.status_code, 200, path)
-            self.assertIn("Peach test", response.text)
+            self.assertIn("MediaNfo test", response.text)
 
         diagnostic = await self.client.get('/diagnostics?tab=x', follow_redirects=False)
         self.assertEqual(diagnostic.status_code, 307)
@@ -2045,7 +2045,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             with self.subTest(path=path):
                 response = await self.client.get(path)
                 self.assertEqual(response.status_code, 200)
-                self.assertIn("Peach test", response.text)
+                self.assertIn("MediaNfo test", response.text)
                 head = await self.client.head(path)
                 self.assertEqual(head.status_code, 200)
                 self.assertEqual(head.content, b"")
@@ -2296,8 +2296,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("img.kemono.cr", disposition)
 
     async def test_follow_image_and_preview_segments_replay_from_disk(self):
-        from peach.preview_cache import PreviewCache
-        from peach.remote_media_cache import cache_for
+        from medianfo.preview_cache import PreviewCache
+        from medianfo.remote_media_cache import cache_for
         item = SimpleNamespace(id=27, provider="simpcity", url="https://simpcity.cr/post/27",
             thumb_url="https://cdn.example/image.png", media_url="https://cdn.example/image.png", metadata={}, hidden_media=())
         cache = cache_for(self.app.state.web_contract)
@@ -2313,8 +2313,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         fake = httpx.Client(transport=httpx.MockTransport(upstream))
         self.app.state.http_transport.client = fake
         try:
-            with patch("peach.routes_media.FollowStore.item", return_value=item), \
-                 patch("peach.follow_stream.resolves_publicly", return_value=True):
+            with patch("medianfo.routes_media.FollowStore.item", return_value=item), \
+                 patch("medianfo.follow_stream.resolves_publicly", return_value=True):
                 image = await self.client.get("/follow-image?id=27&t=secret")
                 replay = await self.client.get("/follow-image?id=27&t=secret")
                 self.assertEqual(image.content, replay.content)
@@ -2332,8 +2332,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             fake.close()
 
     async def test_official_mp4_preview_preserves_type_range_and_local_replay(self):
-        from peach.preview_cache import PreviewCache
-        from peach.remote_media_cache import cache_for
+        from medianfo.preview_cache import PreviewCache
+        from medianfo.remote_media_cache import cache_for
         cache = cache_for(self.app.state.web_contract)
         ref = PreviewCache(cache).register('EXM-001', 'https://www.prestige-av.com/api/media/public.mp4', playlist=False, media_type='video/mp4')
         body = b'\0\0\0\x18ftypisom' + b'\0' * 64
@@ -2349,7 +2349,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         fake = httpx.Client(transport=httpx.MockTransport(upstream))
         self.app.state.http_transport.client = fake
         try:
-            with patch('peach.follow_stream.resolves_publicly', return_value=False):
+            with patch('medianfo.follow_stream.resolves_publicly', return_value=False):
                 response = await self.client.get(f'/jav-preview/EXM-001/{ref}?t=secret')
                 self.assertEqual(response.status_code, 200)
                 self.assertEqual(response.headers['content-type'], 'video/mp4')
@@ -2369,8 +2369,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             fake.close()
 
     async def test_preview_fixed_sources_and_hls_keep_unknown_hosts_guarded(self):
-        from peach.preview_cache import PreviewCache
-        from peach.remote_media_cache import cache_for
+        from medianfo.preview_cache import PreviewCache
+        from medianfo.remote_media_cache import cache_for
         cache = cache_for(self.app.state.web_contract)
         previews = PreviewCache(cache)
         calls = []
@@ -2386,7 +2386,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         fake = httpx.Client(transport=httpx.MockTransport(upstream))
         self.app.state.http_transport.client = fake
         try:
-            with patch('peach.follow_stream.resolves_publicly', return_value=False):
+            with patch('medianfo.follow_stream.resolves_publicly', return_value=False):
                 ref = previews.register('EXM-010', 'https://jdforrepam.com/api/preview/root.m3u8', playlist=True)
                 playlist = await self.client.get(f'/jav-preview/EXM-010/{ref}?t=secret')
                 self.assertEqual(playlist.status_code, 200)
@@ -2419,8 +2419,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         fake = httpx.Client(transport=httpx.MockTransport(upstream))
         self.app.state.http_transport.client = fake
         try:
-            with patch('peach.routes_media.FollowStore.item', return_value=item), \
-                    patch('peach.follow_stream.resolves_publicly', return_value=True):
+            with patch('medianfo.routes_media.FollowStore.item', return_value=item), \
+                    patch('medianfo.follow_stream.resolves_publicly', return_value=True):
                 failed = await self.client.get('/follow-image?id=28&t=secret')
                 self.assertEqual(failed.status_code, 404)
                 self.assertEqual(failed.content, b'')
@@ -2448,8 +2448,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         fake = httpx.Client(transport=httpx.MockTransport(upstream))
         self.app.state.http_transport.client = fake
         try:
-            with patch('peach.routes_media.FollowStore.item', return_value=item), \
-                    patch('peach.follow_stream.resolves_publicly', return_value=False):
+            with patch('medianfo.routes_media.FollowStore.item', return_value=item), \
+                    patch('medianfo.follow_stream.resolves_publicly', return_value=False):
                 known = await self.client.get('/follow-image?id=29&t=secret')
                 self.assertEqual(known.status_code, 200)
                 self.assertEqual(known.content, b'poster')
@@ -2490,7 +2490,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
 
             def cover(self, _item, _media=None):
                 if self.fail:
-                    from peach.follow_covers import FollowCoverUnavailable
+                    from medianfo.follow_covers import FollowCoverUnavailable
                     raise FollowCoverUnavailable("test")
                 return frame
 
@@ -2515,11 +2515,11 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(fallback.headers['cache-control'], 'no-store')
 
     async def test_rule34video_cover_uses_only_posters_from_its_work(self):
-        from peach.follow_covers import FollowCoverService
-        from peach.follow_store import FollowStore
-        from peach.follow_sources import FollowCandidate, SourceFetch
-        from peach.follow_stream import FollowMediaResolver
-        from peach.http import HttpResponse
+        from medianfo.follow_covers import FollowCoverService
+        from medianfo.follow_store import FollowStore
+        from medianfo.follow_sources import FollowCandidate, SourceFetch
+        from medianfo.follow_stream import FollowMediaResolver
+        from medianfo.http import HttpResponse
         from PIL import Image
 
         connection = sqlite3.connect(self.db)
@@ -2565,7 +2565,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                 'fields': {'code': 'id', 'title': 'title'}, 'content_types': ['censored'], 'enabled': False}
         with patch.object(self.app.state.web_contract, 'follow_secrets_root', root):
             self.assertEqual((await self.client.get('/api/custom-metadata')).status_code, 401)
-            with patch('peach.custom_metadata.fetch_json', return_value={'id': 'ABW-001', 'title': '标题'}):
+            with patch('medianfo.custom_metadata.fetch_json', return_value={'id': 'ABW-001', 'title': '标题'}):
                 preview = await self.client.post('/api/custom-metadata', json=dict(body, action='preview', code='ABW-001'),
                                                  headers={'X-Token': 'secret'})
             self.assertEqual(preview.status_code, 200, preview.text)
@@ -2698,14 +2698,14 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_unknown_ledger_duration_still_slices_by_the_probed_duration(self):
         """账本没记时长（或记成 -1）的 HEVC MP4 也按片切：时长取 ffprobe 报的，不走整片转码。"""
-        from peach.transcodes import _MediaProfile
+        from medianfo.transcodes import _MediaProfile
         con = sqlite3.connect(self.db)
         con.execute("UPDATE asset SET duration=-1 WHERE id=1")
         con.commit()
         con.close()
         # 探测结果由 `_probe` 给，但“走不走探测”由 `resolver.ffprobe()` 定：它返回 None 时判据
         # 在探测之前就退回 Range。两个都接手，这条用例才在装与不装 ffmpeg 的机器上讲同一件事。
-        from peach.ffmpeg import BinaryChoice
+        from medianfo.ffmpeg import BinaryChoice
         with patch.object(self.app.state.transcode_service.resolver, "ffprobe",
                           return_value=BinaryChoice(Path("ffprobe"), "test")), \
                 patch.object(self.app.state.transcode_service, "_probe",
@@ -2763,7 +2763,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_a_repaired_header_takes_a_broken_timestamp_file_off_the_transcode_path(self):
         """时间戳错乱的片子一旦有了修好的头，就该按 Range 无损播，不再实时转码。"""
-        from peach.mp4repair import RepairedHeader
+        from medianfo.mp4repair import RepairedHeader
 
         source = self.media_root / "decode-order.mp4"
         source.write_bytes(b"OLDHEAD" + bytes(range(64)))
@@ -2938,7 +2938,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
     async def test_photo_detail_reveal_resolves_the_asset_id_on_the_server(self):
         source = self._seed_photo()
         headers = {"X-Token": "secret"}
-        with patch("peach.routes_api.reveal_path", return_value=True) as reveal:
+        with patch("medianfo.routes_api.reveal_path", return_value=True) as reveal:
             response = await self.client.post(
                 "/api/reveal", headers=headers,
                 json={"id": 9, "path": "C:/client-must-not-control-this"},
@@ -2949,21 +2949,21 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
     async def test_reveal_by_path_stays_inside_peach_own_data_root(self):
         """页面上印着全路径的那几处（凭据文件、问题日志、要删的数据目录）按 `path` 定位。
 
-        递回来的那一串只是候选：服务端拿同一份设置把 Peach 数据目录重算一遍再比对，所以往上爬
-        出去的、Peach 数据目录外面的一律不开。媒体文件不走这条——它的路径压根没发给过前端。
+        递回来的那一串只是候选：服务端拿同一份设置把 MediaNfo 数据目录重算一遍再比对，所以往上爬
+        出去的、MediaNfo 数据目录外面的一律不开。媒体文件不走这条——它的路径压根没发给过前端。
         """
-        from peach import settings_file
+        from medianfo import settings_file
 
-        data_root = self.root / "peach-data"
+        data_root = self.root / "medianfo-data"
         log = data_root / "state" / "library-processing-one.issues.jsonl"
         log.parent.mkdir(parents=True)
         log.write_text("", encoding="utf-8")
         outside = self.root / "elsewhere.txt"
         outside.write_text("", encoding="utf-8")
-        config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(data_root)})
+        config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(data_root)})
         headers = {"X-Token": "secret"}
-        with patch("peach.settings_file.active", return_value=config), \
-                patch("peach.routes_api.reveal_path", return_value=True) as reveal:
+        with patch("medianfo.settings_file.active", return_value=config), \
+                patch("medianfo.routes_api.reveal_path", return_value=True) as reveal:
             opened = await self.client.post("/api/reveal", headers=headers, json={"path": str(log)})
             refused = await self.client.post("/api/reveal", headers=headers, json={"path": str(outside)})
             climbing = await self.client.post(
@@ -2974,11 +2974,11 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(opened.status_code, 200)
         reveal.assert_called_once_with(log.resolve())
         self.assertEqual(refused.status_code, 403)
-        self.assertEqual(climbing.status_code, 403, "`..` 爬出 Peach 数据目录的一样不开")
+        self.assertEqual(climbing.status_code, 403, "`..` 爬出 MediaNfo 数据目录的一样不开")
         self.assertEqual(gone.status_code, 410)
         # 410 与 403 在页面那层的通用错误映射里都没有说法，原因得由这条自己写成中文。
         self.assertEqual(gone.json()["message"], "这个位置已经不在了")
-        self.assertIn("不归 Peach 管", refused.json()["message"])
+        self.assertIn("不归 MediaNfo 管", refused.json()["message"])
 
     async def test_photo_thumbnail_is_generated_once_and_cached(self):
         source = self._seed_photo()
@@ -3091,7 +3091,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             connection.execute("DELETE FROM code_sample_image WHERE position IN (2,4)")
             connection.execute("UPDATE asset SET code='ssis-057' WHERE id=11")
             connection.commit()
-        with patch("peach.sample_images.downloader") as download, patch("peach.javdb_public.PUBLIC_API.movie") as movie:
+        with patch("medianfo.sample_images.downloader") as download, patch("medianfo.javdb_public.PUBLIC_API.movie") as movie:
             response = await self.client.get("/api/item?id=11", headers={"X-Token": "secret"})
         self.assertEqual(response.status_code, 200)
         payload = response.json()
@@ -3128,7 +3128,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             return download
 
         headers = {"X-Token": "secret"}
-        with patch("peach.sample_images.downloader", side_effect=factory):
+        with patch("medianfo.sample_images.downloader", side_effect=factory):
             first = await self.client.get("/sample-thumb?code=SSIS-057&n=2", headers=headers)
             again = await self.client.get("/sample-thumb?code=ssis-057&n=2", headers=headers)
             full = await self.client.get("/sample-image?code=SSIS-057&n=2", headers=headers)
@@ -3155,7 +3155,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             return download
 
         headers = {"X-Token": "secret"}
-        with patch("peach.sample_images.downloader", side_effect=factory):
+        with patch("medianfo.sample_images.downloader", side_effect=factory):
             first = await self.client.get("/sample-thumb?code=SSIS-057&n=1", headers=headers)
             again = await self.client.get("/sample-thumb?code=SSIS-057&n=1", headers=headers)
         self.assertEqual((first.status_code, again.status_code), (404, 404))
@@ -3175,7 +3175,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         missing = Path(self.tmp.name).resolve() / "nothing-here"
-        self.settings = PeachSettings(
+        self.settings = MediaNfoSettings(
             configured=False,
             db_path=missing / "database" / "ledger.db",
             page_path=missing / "web" / "index.html",
@@ -3218,15 +3218,15 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
 
     @asynccontextmanager
     async def ledger_client(self, database):
-        from peach import settings_file
-        config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(database.parent.parent)})
+        from medianfo import settings_file
+        config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(database.parent.parent)})
         config = replace(config, locations={}, mounts={})
         settings = replace(self.settings, configured=True, db_path=database,
                            page_path=ROOT / "web/index.html", secrets_root=database.parent / "secrets",
                            tunnel_state_root=database.parent / "tunnel-state",
                            tunnel_log_root=database.parent / "logs")
-        with patch("peach.settings_file.load_config", return_value=config), \
-                patch("peach.routes_configuration.managed_configuration", return_value=False), \
+        with patch("medianfo.settings_file.load_config", return_value=config), \
+                patch("medianfo.routes_configuration.managed_configuration", return_value=False), \
                 self.assertNoLogs("peach", level="ERROR"):
             app = create_app(settings)
             async with app.router.lifespan_context(app), httpx.AsyncClient(
@@ -3253,7 +3253,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
                         else:
                             connection.execute("UPDATE schema_migration SET checksum='wrong' WHERE version=(SELECT MAX(version) FROM schema_migration)")
                 original = database.read_bytes() if database.exists() else None
-                with self.assertLogs("peach.api", level="WARNING") as captured:
+                with self.assertLogs("medianfo.api", level="WARNING") as captured:
                     async with self.ledger_client(database) as (app, client):
                         self.assertIsNone(app.state.web_contract.downloads._thread)
                         self.assertFalse(app.state.follow_scheduler._started)
@@ -3283,7 +3283,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(app.state.web_contract.feed_scheduler._started)
 
     async def test_service_startup_replays_an_interrupted_library_request_with_its_scope(self):
-        from peach import job_recovery, settings_file
+        from medianfo import job_recovery, settings_file
         parent = self.settings.db_path.parent
         parent.mkdir(parents=True)
         database = fresh_ledger(parent)
@@ -3294,15 +3294,15 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
         path.write_text(json.dumps(record), encoding='utf-8')
         media = parent.parent / 'media'
         media.mkdir()
-        config = replace(settings_file.load_config(environ={'PEACH_DATA_ROOT': str(parent.parent)}),
+        config = replace(settings_file.load_config(environ={'MEDIANFO_DATA_ROOT': str(parent.parent)}),
                          present=True, locations={'local': (str(media),)})
         invoked = threading.Event()
         def process(*_args, **kwargs):
             self.assertEqual(kwargs['stage'], 'previews')
             invoked.set()
             return {'status': 'complete'}
-        with patch('peach.settings_file.active', return_value=config), patch(
-                'peach.web_library_processing.process_library', side_effect=process):
+        with patch('medianfo.settings_file.active', return_value=config), patch(
+                'medianfo.web_library_processing.process_library', side_effect=process):
             async with self.ledger_client(database) as (app, _client):
                 self.assertTrue(await asyncio.to_thread(invoked.wait, 5))
                 thread = app.state.web_contract.library_processing_job.thread
@@ -3310,13 +3310,13 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(job_recovery.read(database, 'library-processing')['status'], 'complete')
 
     async def test_cancelled_installation_resumes_the_paused_task_in_the_existing_service(self):
-        from peach import settings_file, update_tasks
+        from medianfo import settings_file, update_tasks
         parent = self.settings.db_path.parent
         parent.mkdir(parents=True)
         database = fresh_ledger(parent)
         media = parent.parent / 'media'
         media.mkdir()
-        config = replace(settings_file.load_config(environ={'PEACH_DATA_ROOT': str(parent.parent)}),
+        config = replace(settings_file.load_config(environ={'MEDIANFO_DATA_ROOT': str(parent.parent)}),
                          present=True, locations={'local': (str(media),)})
         entered, checkpoint, completed = threading.Event(), threading.Event(), threading.Event()
         calls = []
@@ -3327,10 +3327,10 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
             kwargs['report']({'stage': '生成预览图'})
             completed.set()
             return {'status': 'complete'}
-        with patch('peach.settings_file.active', return_value=config), patch(
-                'peach.web_library_processing.process_library', side_effect=process):
+        with patch('medianfo.settings_file.active', return_value=config), patch(
+                'medianfo.web_library_processing.process_library', side_effect=process):
             async with self.ledger_client(database) as (app, _client):
-                from peach.web_library_processing import w_library_processing
+                from medianfo.web_library_processing import w_library_processing
                 job = app.state.web_contract.library_processing_job
                 w_library_processing(app.state.web_contract, {'stage': 'previews'})
                 self.assertTrue(await asyncio.to_thread(entered.wait, 5))
@@ -3382,7 +3382,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
 
         context = self.ledger_client(database)
         shutdown = None
-        with patch("peach.api.web_contract.dispatch_api_get", side_effect=query):
+        with patch("medianfo.api.web_contract.dispatch_api_get", side_effect=query):
             try:
                 app, _client = await context.__aenter__()
                 self.assertTrue(await asyncio.to_thread(opened.wait, 5))
@@ -3417,7 +3417,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn('data-page="setup"', response.text)
 
     async def test_a_configured_machine_still_reports_true(self):
-        app = create_app(PeachSettings(configured=True, db_path=self.settings.db_path))
+        app = create_app(MediaNfoSettings(configured=True, db_path=self.settings.db_path))
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url="http://test",
         ) as client:
@@ -3447,7 +3447,7 @@ PUBLIC_ROUTES = {
     # 它们发的是随仓库分发的品牌资源，不读账本。
     ("GET,HEAD", "/favicon.ico"),
     ("GET,HEAD", "/favicon.svg"),
-    ("GET,HEAD", "/peach-logo.png"),
+    ("GET,HEAD", "/medianfo-logo.png"),
     # 入口页的页面包（ADR-0094）。登录页在拿到会话之前就要画出来，首启、登录与错误三页都由它画。
     # 只放这两个文件：它们提交进 Git、随仓库分发，不读账本、不含配置与凭据，内容不随登录与否
     # 变化，也不 import 别的产物；其余 `/dist/*` 仍走要会话的 `/dist/{name}`。
@@ -3457,7 +3457,7 @@ PUBLIC_ROUTES = {
     ("GET", "/integrations/peach-jav.user.js"),
     # 拒绝收录的声明。爬虫没有会话，被 401 挡住等于这份声明根本没被读到。
     ("GET,HEAD", "/robots.txt"),
-    # CloudDrive2 的文件通知。推送方是另一个进程，没有也不该有 Peach 的会话，所以它带的
+    # CloudDrive2 的文件通知。推送方是另一个进程，没有也不该有 MediaNfo 的会话，所以它带的
     # 是独立共享密钥（ADR-0041）。这一条因此不挂 require_*，但自己有三道门：通道没开、
     # 来源不在回环与私网、密钥对不上，任意一条不成立都回 404，见 `test_push_discovery`。
     ("POST", "/api/inbox/clouddrive"),
@@ -3491,7 +3491,7 @@ def _api_routes(routes):
 class RouteAuthContractTests(unittest.TestCase):
     """每条路由都要挂上鉴权依赖，例外只能出自上面那张逐条核实过的白名单。
 
-    Peach 的闸门是依赖注入（`routes_auth` 的三个 `require_*`），不是中间件：新加
+    MediaNfo 的闸门是依赖注入（`routes_auth` 的三个 `require_*`），不是中间件：新加
     一条路由时忘记写 `Depends(require_auth)`，服务照常起、测试照常绿，那条路径就
     此对局域网敞开。这是「只改了自己测试的那条路径」在鉴权面上的形态。
     """
@@ -3502,7 +3502,7 @@ class RouteAuthContractTests(unittest.TestCase):
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory()
         root = Path(cls.tmp.name).resolve()
-        cls.app = create_app(PeachSettings(
+        cls.app = create_app(MediaNfoSettings(
             configured=True, db_path=root / "ledger.db",
             follow_state_root=root / "state"))
         cls.guards = {getattr(routes_auth, name) for name in cls.GUARD_NAMES}
@@ -3557,17 +3557,17 @@ class LoginPageWithoutSessionTests(unittest.IsolatedAsyncioTestCase):
     """设了访问密码的实例上，没有会话也画得出登录页：它要的资源都能取，别的产物照旧要会话。"""
 
     PAGE_ASSETS = ("/dist/peach-pages.css", "/dist/peach-pages.js", "/vendor/inter/5.3.0/index.css",
-                   "/peach-logo.png", "/favicon.ico")
-    SESSION_ASSETS = ("/dist/peach-app.js", "/dist/peach-app.css", "/app.css", "/board.css")
+                   "/medianfo-logo.png", "/favicon.ico")
+    SESSION_ASSETS = ("/dist/medianfo-app.js", "/dist/medianfo-app.css", "/app.css", "/board.css")
 
     async def asyncSetUp(self):
-        from peach import access
+        from medianfo import access
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         root = Path(tmp.name).resolve()
         access_path = root / "access.json"
         access.save(access_path, "entry-password")
-        app = create_app(PeachSettings(configured=True, token="entry-token", access_path=access_path,
+        app = create_app(MediaNfoSettings(configured=True, token="entry-token", access_path=access_path,
                                        db_path=fresh_ledger(root), follow_state_root=root / "state"))
         self.addCleanup(app.state.http_transport.close)
         self.client = httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://testserver")

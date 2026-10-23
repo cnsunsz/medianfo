@@ -15,10 +15,10 @@ describe('Video.js 10 播放链', () => {
   let files: Map<string, Buffer>;
   before(async () => {
     fixture = realpathSync(mkdtempSync(join(tmpdir(), 'peach-v10-hls-')));
-    execFileSync(requiredEnv('PEACH_E2E_FFMPEG'), ['-hide_banner', '-loglevel', 'error', '-f', 'lavfi',
+    execFileSync(requiredEnv('MEDIANFO_E2E_FFMPEG'), ['-hide_banner', '-loglevel', 'error', '-f', 'lavfi',
       '-i', 'testsrc2=size=160x90:rate=15', '-t', '3', '-an', '-c:v', 'libx264', '-pix_fmt', 'yuv420p',
       '-f', 'hls', '-hls_time', '1', '-hls_list_size', '0', '-hls_segment_filename', join(fixture, 'part-%d.ts'), join(fixture, 'video.m3u8')]);
-    execFileSync(requiredEnv('PEACH_E2E_FFMPEG'), ['-hide_banner', '-loglevel', 'error', '-f', 'lavfi',
+    execFileSync(requiredEnv('MEDIANFO_E2E_FFMPEG'), ['-hide_banner', '-loglevel', 'error', '-f', 'lavfi',
       '-i', 'testsrc2=size=160x90:rate=15', '-t', '3', '-an', '-c:v', 'libx264', '-pix_fmt', 'yuv420p',
       '-f', 'dash', 'video.mpd'], { cwd: fixture });
     files = new Map(readdirSync(fixture).map(name => [name, readFileSync(join(fixture, name))]));
@@ -71,7 +71,7 @@ describe('Video.js 10 播放链', () => {
 
   for (const viewport of VIEWPORTS) {
     it(`${viewport.name}：播放、暂停、倍速、进度、字幕与卸载`, { timeout: 60_000 }, async () => {
-      const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, viewport);
+      const opened = await visit(browser, `/assets/${requiredEnv('MEDIANFO_E2E_ITEM')}`, viewport);
       const { page, problems } = opened;
       try {
         await page.locator('#stage .video-js .vjs-peach-bezel').waitFor({ state: 'attached' });

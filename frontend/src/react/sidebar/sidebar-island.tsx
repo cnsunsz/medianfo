@@ -152,7 +152,7 @@ function Navigation({ host: at, epoch, version }: { host: SidebarHost; epoch: nu
             data-dragging={dragging === key ? '' : undefined}
             data-drop={drop?.key === key ? (drop.after ? 'after' : 'before') : undefined}
             onClick={() => at.navTo(key)} onPointerEnter={glide.hover} {...drag(key)}>
-            {key === '' ? <img data-sidebar-home-logo="" src="/peach-logo.png" alt="" /> : <Icon name={glyph} />}
+            {key === '' ? <img data-sidebar-home-logo="" src="/medianfo-logo.png" alt="" /> : <Icon name={glyph} />}
             <span>{label}</span>
           </button>
         ))}

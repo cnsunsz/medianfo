@@ -32,7 +32,7 @@ JSON 导出里的 `stops[]` 一致。共十二档，每档四枚。
 | Emerald | `#f0fbef` | `#8fe3b0` | `#22c79a` | `#0b5f51` |
 | Solar flare | `#fff6de` | `#ffc24b` | `#f4664d` | `#8a2e5e` |
 | Orchid | `#fbeffb` | `#e794c9` | `#9678ce` | `#4a3894` |
-| Peach glow | `#fff3ec` | `#ffc9a3` | `#f08a8c` | `#b65e8c` |
+| MediaNfo glow | `#fff3ec` | `#ffc9a3` | `#f08a8c` | `#b65e8c` |
 | Electric tide | `#dffbff` | `#6fd8f2` | `#4c5be0` | `#2a2450` |
 | Sunset | `#ffe9c4` | `#ffae3f` | `#f0574d` | `#5d2a66` |
 | Mint ice | `#f2fdf9` | `#a8f0dc` | `#52cbb0` | `#147a5f` |
@@ -40,21 +40,21 @@ JSON 导出里的 `stops[]` 一致。共十二档，每档四枚。
 | Rose gold | `#fff4e8` | `#fbc9ac` | `#e79ba7` | `#8e5a74` |
 
 色标各自的位置、`soften`、`noise` 与 `speed` 未取得：圆点只按色标数等分，读不出各档自己
-的位置值，而这几项在 Peach 里本来就交给用户那几条拉条。
+的位置值，而这几项在 MediaNfo 里本来就交给用户那几条拉条。
 
-### Peach 的取法
+### MediaNfo 的取法
 
 `web/js/home-glow.js` 按这张表加了对应的十二档，每档取色标 2、3、4。第一枚不取：十一档
 是铺满画布的近白底色、Midnight bloom 那档是近黑底色，在它的 mesh 模型里那是画布本身，
-而 Peach 没有底色层——三枚光晕各自向 `transparent` 收边，身后就是页面自己的面，把那一枚
-搬过来在深色玻璃上等于没有、在浅色玻璃上是一团脏。不透明度不跟着走，统一用 Peach 默认
+而 MediaNfo 没有底色层——三枚光晕各自向 `transparent` 收边，身后就是页面自己的面，把那一枚
+搬过来在深色玻璃上等于没有、在浅色玻璃上是一团脏。不透明度不跟着走，统一用 MediaNfo 默认
 档那一组（62 / 52 / 52），那是这块玻璃自己的浓淡。档名中文自拟，按颜色取。
 
-## Peach 借了什么
+## MediaNfo 借了什么
 
 只借三点，都不涉及它的代码或位图：
 
-1. **参数模型**：一档配色 = 若干色标（hex 加位置）+ 柔化 + 噪点。Peach 的 `homeGlow` 落成
+1. **参数模型**：一档配色 = 若干色标（hex 加位置）+ 柔化 + 噪点。MediaNfo 的 `homeGlow` 落成
    三枚光斑（颜色、不透明度、圆心、椭圆半轴、收边位置），开关、强度、噪点单列，
    见 `web/app.js` 的 `HOME_GLOW_PRESETS`。
 2. **`in oklab` 插值**：`web/css/01-base.css` 的 `.glowlayer::before` 三层渐变都走它，由
@@ -67,5 +67,5 @@ JSON 导出里的 `stops[]` 一致。共十二档，每档四枚。
 
 ## 与本快照的差异
 
-Peach 最终只保留光斑层：它那种铺满画布的底色场和压在上面的遮罩，Peach 都不画，三枚光斑
+MediaNfo 最终只保留光斑层：它那种铺满画布的底色场和压在上面的遮罩，MediaNfo 都不画，三枚光斑
 各自向 `transparent` 收边，底下就是页面自己的 `--page`。

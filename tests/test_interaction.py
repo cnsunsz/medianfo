@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from peach.interaction import _windows_reveal, reveal_path
+from medianfo.interaction import _windows_reveal, reveal_path
 
 
 class RevealPathTests(unittest.TestCase):
@@ -25,7 +25,7 @@ class RevealPathTests(unittest.TestCase):
 
         shell32.SHParseDisplayName.side_effect = parse
         shell32.SHOpenFolderAndSelectItems.return_value = 0
-        with patch("peach.interaction.ctypes.WinDLL",
+        with patch("medianfo.interaction.ctypes.WinDLL",
                    side_effect=lambda name: ole32 if name == "ole32" else shell32):
             _windows_reveal(Path(r"B:\创作者 a\c,d.mp4"))
         self.assertEqual(shell32.SHParseDisplayName.call_args.args[0],
@@ -37,20 +37,20 @@ class RevealPathTests(unittest.TestCase):
 
     def test_windows_reveal_delegates_to_the_native_shell(self):
         source = Path(r"B:\创作者 a\c,d.mp4")
-        with (patch("peach.interaction.os.name", "nt"),
-              patch("peach.interaction._windows_reveal") as reveal):
+        with (patch("medianfo.interaction.os.name", "nt"),
+              patch("medianfo.interaction._windows_reveal") as reveal):
             self.assertTrue(reveal_path(source))
         reveal.assert_called_once_with(source)
 
     def test_macos_reveals_in_finder(self):
         source = Path("/Volumes/Media/media/a.mp4")
-        with (patch("peach.interaction.os.name", "posix"),
-              patch("peach.interaction.sys.platform", "darwin"),
-              patch("peach.interaction.subprocess.Popen") as launch):
+        with (patch("medianfo.interaction.os.name", "posix"),
+              patch("medianfo.interaction.sys.platform", "darwin"),
+              patch("medianfo.interaction.subprocess.Popen") as launch):
             self.assertTrue(reveal_path(source))
         launch.assert_called_once_with(["open", "-R", str(source)], close_fds=True)
 
     def test_unsupported_platform_returns_false_instead_of_guessing(self):
-        with (patch("peach.interaction.os.name", "posix"),
-              patch("peach.interaction.sys.platform", "linux")):
+        with (patch("medianfo.interaction.os.name", "posix"),
+              patch("medianfo.interaction.sys.platform", "linux")):
             self.assertFalse(reveal_path(Path("/srv/a.mp4")))

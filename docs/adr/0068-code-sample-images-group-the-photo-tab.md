@@ -11,7 +11,7 @@
 地址，只是没有落进账本。用户的原话是「这些都是番号预览图，我接受，你也可以看看有没有更好的写真大图来源」。
 
 交互参考 beeg 的 `?media=photos`：一组一张集卡，卡上是集封面和张数，点开进灯箱翻页。已登记的证据是
-`beeg-profile-layout`（有 `tg_photo_sets` 才出图片键）；集卡的具体版式未取得，不臆造，沿用 Peach 已有的卡。
+`beeg-profile-layout`（有 `tg_photo_sets` 才出图片键）；集卡的具体版式未取得，不臆造，沿用 MediaNfo 已有的卡。
 
 ## 决策
 

@@ -1,5 +1,5 @@
 /* 可操作的那几样共用控件：动作忙态、Geist Switch、自绘拉条、补充信息卡与拖动排序。
-   由共享源码直接引用，随 `peach-app.js` 发出；已接过忙态拦截的根是模块级状态，只有一份。 */
+   由共享源码直接引用，随 `medianfo-app.js` 发出；已接过忙态拦截的根是模块级状态，只有一份。 */
 import { esc, icon } from '../core';
 
 import { wireAnchoredMenu } from './anchored-menu';

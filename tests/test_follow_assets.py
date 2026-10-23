@@ -9,7 +9,7 @@ import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach import follow_assets   # noqa: E402
+from medianfo import follow_assets   # noqa: E402
 
 PNG = b"\x89PNG\r\n\x1a\n" + b"\x00" * 24
 ICO = b"\x00\x00\x01\x00\x01\x00" + b"\x00" * 24
@@ -169,7 +169,7 @@ class ShrinkImageTests(unittest.TestCase):
         return bytes(buffer)
 
     def _size(self, payload):
-        from peach.face_detect import decode
+        from medianfo.face_detect import decode
 
         image = decode(payload)
         height, width = image.shape[:2]
@@ -250,7 +250,7 @@ class TrimLetterboxTests(unittest.TestCase):
         return bytes(buffer)
 
     def _size(self, payload):
-        from peach.face_detect import decode
+        from medianfo.face_detect import decode
 
         image = decode(payload)
         height, width = image.shape[:2]
@@ -323,7 +323,7 @@ class SourceIconTableTests(unittest.TestCase):
         raw = re.search(r"export const SOURCE_ICON_PROVIDERS = new Set\(\[(.*?)\]\);", listing, re.S).group(1)
         listed = {item.strip().strip("'") for item in raw.split(",") if item.strip()}
         self.assertEqual(listed, set(follow_assets.SOURCE_ICON_URLS))
-        # 页面里没有任何一条站点图标的远端地址：图标全部经 Peach 落盘后再给页面，
+        # 页面里没有任何一条站点图标的远端地址：图标全部经 MediaNfo 落盘后再给页面，
         # 图标地址怎么拼在 `frontend/test/react/follow-marks.test.ts`。
         for path in sorted((root / "frontend" / "src").rglob("*")):
             if path.suffix in {".js", ".ts", ".tsx"}:

@@ -73,7 +73,7 @@ begin
     Exit;
   end;
 
-  Installed := FileExists(AddBackslash(ProgramDirectory) + 'Peach.exe') and
+  Installed := FileExists(AddBackslash(ProgramDirectory) + 'MediaNfo.exe') and
     FileExists(AddBackslash(ProgramDirectory) + 'unins000.exe');
   if not Installed and FindFirst(AddBackslash(ProgramDirectory) + '*', Found) then
   begin

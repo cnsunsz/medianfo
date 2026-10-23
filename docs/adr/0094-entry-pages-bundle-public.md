@@ -29,7 +29,7 @@ ADR-0031 定下首次运行页由独立页面包 `peach-pages.js` / `peach-pages
 排在 `/dist/{name}` 之前，不挂 `require_asset_auth`，仍经 `asset_response` 给 ETag 与 `no-cache`；两条登记进
 `test_fastapi_api.PUBLIC_ROUTES`。放行它们是安全的：它们是提交进 Git、随仓库分发的静态产物，仓库本身公开，
 不读账本、不含配置与凭据，内容不随登录与否变化。页面包不 import 任何别的产物，图标只引用早已公开的
-`/peach-logo.png`，Inter 来自无鉴权挂载的 `/vendor/`。其余 `/dist/*`（`peach-ui.js`、`peach-react.js`、
+`/medianfo-logo.png`，Inter 来自无鉴权挂载的 `/vendor/`。其余 `/dist/*`（`peach-ui.js`、`peach-react.js`、
 `peach-entry.js` 等）、`/js/*`、`/app.css`、`/board.css` 仍要会话；`peach-entry.js` 外置的 `/js/core.js`、
 `/js/ui-sounds.js` 不放行，错误页也不再加载它们。
 

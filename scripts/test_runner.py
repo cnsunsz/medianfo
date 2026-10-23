@@ -1,4 +1,4 @@
-"""Run Peach's unittest suite by a documented product scope."""
+"""Run MediaNfo's unittest suite by a documented product scope."""
 from __future__ import annotations
 
 import argparse
@@ -161,7 +161,7 @@ SCOPE_TEST_IDS: dict[str, tuple[str, ...]] = {
 
 # `auto` 域按改动文件选域：每个文件先查 `AUTO_SCOPE_FILES` 的整路径，再按
 # `AUTO_SCOPE_PREFIXES` 取第一个命中的前缀，多个文件取并集。表里没有的
-# `tests/test_*.py` 直接按文件名归域，`src/peach/` 下的其余模块按「模块名 ↔ 测试文件名」
+# `tests/test_*.py` 直接按文件名归域，`src/medianfo/` 下的其余模块按「模块名 ↔ 测试文件名」
 # 推断（`media.py` → `test_media.py` → media）。Markdown 归 checks。
 #
 # 一个文件可以落到多个域：读它的测试登记在哪个域，改它就得跑到哪个域。
@@ -174,80 +174,80 @@ AUTO_SCOPE_FILES: dict[str, tuple[str, ...]] = {
     "scripts/untrunc-sources.json": ("tooling", "packaging"),
     "scripts/build_untrunc_windows.sh": ("tooling", "packaging"),
     "scripts/media_tool_bundle.py": ("tooling", "packaging"),
-    "src/peach/seed_corrections.py": ("metadata", "tooling"),
-    "src/peach/seed_validation.py": ("metadata", "tooling"),
-    "src/peach/preview_cache.py": ("follow", "catalog", "media", "web"),
-    "src/peach/preview_transport.py": ("catalog", "media", "web"),
-    "src/peach/dev_copy.py": ("web",),
+    "src/medianfo/seed_corrections.py": ("metadata", "tooling"),
+    "src/medianfo/seed_validation.py": ("metadata", "tooling"),
+    "src/medianfo/preview_cache.py": ("follow", "catalog", "media", "web"),
+    "src/medianfo/preview_transport.py": ("catalog", "media", "web"),
+    "src/medianfo/dev_copy.py": ("web",),
     "scripts/dev/copy-editor.js": ("web",),
     # 路由页面同时被目录、工具与前端三个域的测试读源码。
-    "src/peach/routes_pages.py": ("catalog", "tooling", "web"),
+    "src/medianfo/routes_pages.py": ("catalog", "tooling", "web"),
     # 托盘既是 sync 域的服务编排，也被版本与桌面设置那些 tooling 测试读源码。
-    "src/peach/tray.py": ("sync", "tooling"),
-    "src/peach/menubar.py": ("sync", "tooling"),
+    "src/medianfo/tray.py": ("sync", "tooling"),
+    "src/medianfo/menubar.py": ("sync", "tooling"),
     # 托盘子服务与隧道的 cloudflared 共用这份 Job Object；两边的测试都要跑到。
-    "src/peach/process_job.py": ("tooling", "sync"),
+    "src/medianfo/process_job.py": ("tooling", "sync"),
     # 托盘重启的实现由 `test_restart_windows_tray.py` 验，模块名推不出来。
-    "src/peach/windows_restart.py": ("tooling",),
+    "src/medianfo/windows_restart.py": ("tooling",),
     # 托盘「重启服务」按路径拉起这个脚本（`--source --force`），托盘测试也要跑到。
     "scripts/restart_windows_tray.py": ("tooling", "sync"),
-    "src/peach/jav_poster_crop.py": ("metadata", "web"),
+    "src/medianfo/jav_poster_crop.py": ("metadata", "web"),
     # genre 词表按名字只推得出 metadata。复核队列与 API 那两处的用例拿「词表没收的词」
     # 当素材：词表一收那个词，`test_web_review.py`（catalog）与 `test_fastapi_api.py`
     # （web）就红，而改词表的人跑不到那两个域——2026-09-21 就是这样把 master 跑红的。
-    "src/peach/genre_taxonomy.py": ("metadata", "catalog", "web"),
+    "src/medianfo/genre_taxonomy.py": ("metadata", "catalog", "web"),
     # 标签词表是 genre 投影的落点，复核页与目录页也按它筛选。
-    "src/peach/catalog_rules.py": ("metadata", "catalog", "web"),
+    "src/medianfo/catalog_rules.py": ("metadata", "catalog", "web"),
     # 来源顺序一变，`test_scripts.py` 里钉住的 field_rank 就跟着挪，而那份用例
     # 住在 tooling——按名字只推得出 metadata，不指明就跑不到。
-    "src/peach/metadata_policy.py": ("metadata", "tooling"),
+    "src/medianfo/metadata_policy.py": ("metadata", "tooling"),
     # 处理任务的主体测试是 `test_metadata_library.py`，它登记在 metadata 与 web 两个域；
     # `test_stale_candidates.py` 在 metadata，`test_web_e2e.py` 在 web 里整条跑它。
     # 模块名与测试文件名对不上，按名字推不出来，不指明就退化成 full。
-    "src/peach/library_processing.py": ("metadata", "web"),
-    "src/peach/local_poster.py": ("metadata", "web"),
-    "src/peach/processing_control.py": ("media", "metadata", "web"),
+    "src/medianfo/library_processing.py": ("metadata", "web"),
+    "src/medianfo/local_poster.py": ("metadata", "web"),
+    "src/medianfo/processing_control.py": ("media", "metadata", "web"),
     # 刮削后继：主体测试 `test_followups.py` 与 `test_studio_followup.py`，按名字推不出来。
-    "src/peach/avatar_followup.py": ("catalog", "media", "tooling"),
-    "src/peach/avatar_offsite_cover_face.py": ("catalog", "media", "tooling"),
-    "src/peach/studio_followup.py": ("catalog", "metadata"),
-    "src/peach/creator_identity_followup.py": ("catalog", "metadata"),
+    "src/medianfo/avatar_followup.py": ("catalog", "media", "tooling"),
+    "src/medianfo/avatar_offsite_cover_face.py": ("catalog", "media", "tooling"),
+    "src/medianfo/studio_followup.py": ("catalog", "metadata"),
+    "src/medianfo/creator_identity_followup.py": ("catalog", "metadata"),
     # 补样张后继的主体测试是 `test_sample_images.py`，出图路由与番号集在 `test_fastapi_api.py`。
-    "src/peach/sample_followup.py": ("catalog", "metadata", "media"),
-    "src/peach/sample_images.py": ("catalog", "metadata", "media"),
+    "src/medianfo/sample_followup.py": ("catalog", "metadata", "media"),
+    "src/medianfo/sample_images.py": ("catalog", "metadata", "media"),
     # 厂牌判据由命令行与后继共用，两边的测试分住 catalog、metadata 与 web。
-    "src/peach/studio_icons.py": ("catalog", "metadata", "web"),
-    "src/peach/studio_sites.py": ("catalog", "metadata"),
-    "src/peach/company_profiles.py": ("catalog", "metadata", "web"),
-    "src/peach/fc2_sellers.py": ("catalog", "metadata", "web"),
+    "src/medianfo/studio_icons.py": ("catalog", "metadata", "web"),
+    "src/medianfo/studio_sites.py": ("catalog", "metadata"),
+    "src/medianfo/company_profiles.py": ("catalog", "metadata", "web"),
+    "src/medianfo/fc2_sellers.py": ("catalog", "metadata", "web"),
     "scripts/import_fc2_sellers.py": ("catalog", "metadata", "tooling"),
     "scripts/harvest_company_profiles.py": ("catalog", "metadata", "web", "tooling"),
     # 失效标记由资料页、网页链接体检、维护脚本与种子导出共用。
-    "src/peach/link_status.py": ("catalog", "metadata", "tooling", "web"),
+    "src/medianfo/link_status.py": ("catalog", "metadata", "tooling", "web"),
     "scripts/revert_auto_landing.py": ("catalog", "metadata", "tooling"),
     # 实体事实种子包（ADR-0073）：导出导入的逻辑与命令行，测试都在 `test_seed_pack.py`；
     # 扫描结算后自动导入的后继（ADR-0075）在 `test_seed_followup.py`。
-    "src/peach/seed_pack.py": ("metadata", "tooling"),
+    "src/medianfo/seed_pack.py": ("metadata", "tooling"),
     "scripts/seed_pack.py": ("metadata", "tooling"),
-    "src/peach/seed_followup.py": ("metadata", "tooling"),
+    "src/medianfo/seed_followup.py": ("metadata", "tooling"),
     # 推广附件命名词库：垃圾复核队列（`test_ad_judgement.py`）与回收站脚本（`test_trash_junk.py`）都读它。
     "resources/junk/promo_attachment_names.json": ("catalog", "tooling"),
     # 补女优资料后继的解析与读写层、一次补完的脚本，测试都在 `test_performer_profile_followup.py`。
     "scripts/run_performer_profiles.py": ("metadata",),
-    "src/peach/avwikidb.py": ("metadata",),
-    "src/peach/performer_profiles.py": ("metadata",),
+    "src/medianfo/avwikidb.py": ("metadata",),
+    "src/medianfo/performer_profiles.py": ("metadata",),
     # 女优页头的视图：主体测试在 `test_performer_header.py`（metadata），资料接口与骨架
     # 形状的用例在 catalog 与 web 两个域里经 `q_entity` 读它。
-    "src/peach/performer_header.py": ("metadata", "catalog", "web"),
+    "src/medianfo/performer_header.py": ("metadata", "catalog", "web"),
     # 推送发现横跨扫描登记（tooling）与 HTTP 端点（catalog），按名字只推得出一个域。
-    "src/peach/push_discovery.py": ("tooling", "catalog"),
+    "src/medianfo/push_discovery.py": ("tooling", "catalog"),
     # 个人记录的判据与搬运（ADR-0087）：资源同步与列表在 catalog，扫描登记与撤回脚本在 tooling。
-    "src/peach/personal_records.py": ("catalog", "tooling"),
-    "src/peach/record_rehome.py": ("catalog", "tooling"),
-    "src/peach/web_orphan_records.py": ("catalog", "web"),
-    "src/peach/web_library_shortcuts.py": ("catalog", "web"),
+    "src/medianfo/personal_records.py": ("catalog", "tooling"),
+    "src/medianfo/record_rehome.py": ("catalog", "tooling"),
+    "src/medianfo/web_orphan_records.py": ("catalog", "web"),
+    "src/medianfo/web_library_shortcuts.py": ("catalog", "web"),
     # 入口页共用件的测试住在首启与配置来源那两份 tooling 测试里。
-    "src/peach/web_entry.py": ("catalog", "tooling", "web"),
+    "src/medianfo/web_entry.py": ("catalog", "tooling", "web"),
     # 这几份文档有测试在读它们的正文：改文档也要跑到那条测试。
     "README.md": ("checks", "tooling"),
     "README.en.md": ("checks", "tooling"),
@@ -258,28 +258,28 @@ AUTO_SCOPE_FILES: dict[str, tuple[str, ...]] = {
     "Dockerfile": ("packaging", "tooling"),
     ".dockerignore": ("packaging", "tooling"),
     "compose.yaml": ("packaging", "tooling"),
-    "src/peach/server.py": ("packaging", "tooling"),
+    "src/medianfo/server.py": ("packaging", "tooling"),
     "scripts/smoke_docker.py": ("packaging", "tooling"),
 }
 
 # 脚本默认归 tooling；有自己领域测试的脚本两边都跑：领域测试验它的判据，
 # tooling 里的脚本策略门槛验它的形态。
 AUTO_SCOPE_PREFIXES: tuple[tuple[str, str | tuple[str, ...]], ...] = (
-    ("src/peach/media.py", "media"),
-    ("src/peach/hardware_transcode.py", "media"),
+    ("src/medianfo/media.py", "media"),
+    ("src/medianfo/hardware_transcode.py", "media"),
     # 关键帧与 ctts 都从 moov 读，测试住在 `test_segments.py` 里。
-    ("src/peach/mp4index.py", "media"),
-    ("src/peach/mp4repair.py", "media"),
-    ("src/peach/mp4recover.py", "media"),
+    ("src/medianfo/mp4index.py", "media"),
+    ("src/medianfo/mp4repair.py", "media"),
+    ("src/medianfo/mp4recover.py", "media"),
     # 批量修复是播放链路的任务，但住在 web 层，两个域都要跑到。
-    ("src/peach/web_media_repair.py", ("media", "web")),
-    ("src/peach/desktop_startup.py", "tooling"),
-    ("src/peach/desktop_uninstall.py", "tooling"),
-    ("src/peach/peach_proxy.py", "tooling"),
-    ("src/peach/gfriends.py", "metadata"),
+    ("src/medianfo/web_media_repair.py", ("media", "web")),
+    ("src/medianfo/desktop_startup.py", "tooling"),
+    ("src/medianfo/desktop_uninstall.py", "tooling"),
+    ("src/medianfo/peach_proxy.py", "tooling"),
+    ("src/medianfo/gfriends.py", "metadata"),
     # 站点解析器契约与套了契约的站（ADR-0044）：测试住在 `test_metadata_sources.py` 与
     # `test_community_catalog.py`，都在 metadata 域；按包内模块名推不出来。
-    ("src/peach/sources/", "metadata"),
+    ("src/medianfo/sources/", "metadata"),
     ("scripts/localize_performer_names.py", ("metadata", "tooling")),
     ("scripts/localize_series_names.py", ("metadata", "tooling")),
     ("scripts/localize_studio_names.py", ("metadata", "tooling")),
@@ -308,24 +308,24 @@ AUTO_SCOPE_PREFIXES: tuple[tuple[str, str | tuple[str, ...]], ...] = (
     ("scripts/setup_macos_port80.sh", ("sync", "tooling")),
     # 订阅源的解析与建壳验在 `test_feeds*.py`，两份都登记在 catalog：壳的边界是
     # 「它不是 asset」，看得住这条的是目录域那批测试。
-    ("src/peach/feeds.py", "catalog"),
-    ("src/peach/feed_followup.py", "catalog"),
+    ("src/medianfo/feeds.py", "catalog"),
+    ("src/medianfo/feed_followup.py", "catalog"),
     # 云下载的任务模型、两个客户端与生成的 protobuf 代码，测试都是 `test_downloads*.py`。
-    ("src/peach/downloads", "catalog"),
-    ("src/peach/follow", "follow"),
-    ("src/peach/fanbox.py", "follow"),
-    ("src/peach/web_follow.py", "follow"),
-    ("src/peach/sync", "sync"),
-    ("src/peach/platform.py", "sync"),
-    ("src/peach/mount.py", "sync"),
-    ("src/peach/mdns.py", "sync"),
-    ("src/peach/netwatch.py", "sync"),
-    ("src/peach/certs.py", "sync"),
+    ("src/medianfo/downloads", "catalog"),
+    ("src/medianfo/follow", "follow"),
+    ("src/medianfo/fanbox.py", "follow"),
+    ("src/medianfo/web_follow.py", "follow"),
+    ("src/medianfo/sync", "sync"),
+    ("src/medianfo/platform.py", "sync"),
+    ("src/medianfo/mount.py", "sync"),
+    ("src/medianfo/mdns.py", "sync"),
+    ("src/medianfo/netwatch.py", "sync"),
+    ("src/medianfo/certs.py", "sync"),
     # 产地的判据住在 `regions.py`，验它的测试叫 `test_content_region.py`：
     # 模块名与测试文件名对不上，按名字推不出来，只能在这里指明。
-    ("src/peach/regions.py", "catalog"),
-    ("src/peach/web_", "catalog"),
-    ("src/peach/routes_", "catalog"),
+    ("src/medianfo/regions.py", "catalog"),
+    ("src/medianfo/web_", "catalog"),
+    ("src/medianfo/routes_", "catalog"),
     ("web/", "web"),
     ("frontend/", "web"),
     ("scripts/", "tooling"),
@@ -368,7 +368,7 @@ def scopes_of_test_file(name: str) -> tuple[str, ...]:
 
 
 def scopes_of_module(stem: str) -> tuple[str, ...]:
-    """`src/peach/<stem>.py` 按测试文件名推断域：`test_<stem>.py` 或 `test_<stem>_*.py`。"""
+    """`src/medianfo/<stem>.py` 按测试文件名推断域：`test_<stem>.py` 或 `test_<stem>_*.py`。"""
     exact, prefix = f"test_{stem}.py", f"test_{stem}_"
     return tuple(scope for scope, patterns in SCOPES.items() if scope not in {"core", "packaging"}
                  if any(fnmatch.fnmatch(exact, pattern) or pattern.startswith(prefix)
@@ -458,7 +458,7 @@ def mapped_scopes(path: str) -> tuple[str, ...]:
     for prefix, scope in AUTO_SCOPE_PREFIXES:
         if path.startswith(prefix):
             return (scope,) if isinstance(scope, str) else scope
-    if path.startswith("src/peach/") and path.endswith(".py"):
+    if path.startswith("src/medianfo/") and path.endswith(".py"):
         return scopes_of_module(name.removesuffix(".py"))
     return ()
 
@@ -486,12 +486,12 @@ def scopes_for_changes(paths: Iterable[str], *, contents: dict | None = None,
             for scope in scopes:
                 picked.setdefault(scope, []).append(path)
     if full_reasons:
-        return ("full",), "Peach auto scope: full <- " + "; ".join(full_reasons)
+        return ("full",), "MediaNfo auto scope: full <- " + "; ".join(full_reasons)
     if not picked:
-        return ("checks",), "Peach auto scope: checks <- 没有改动文件，检查公共门槛"
+        return ("checks",), "MediaNfo auto scope: checks <- 没有改动文件，检查公共门槛"
     ordered = tuple(scope for scope in SCOPES if scope in picked)
     detail = "; ".join(f"{scope}: {', '.join(picked[scope])}" for scope in ordered)
-    return ordered, f"Peach auto scope: {', '.join(ordered)} <- {detail}"
+    return ordered, f"MediaNfo auto scope: {', '.join(ordered)} <- {detail}"
 
 
 def changed_files(root: Path = ROOT, base: str = "master") -> list[str]:
@@ -514,7 +514,7 @@ def resolve_auto_scope() -> tuple[tuple[str, ...], str]:
     try:
         paths = changed_files()
     except (OSError, subprocess.CalledProcessError) as error:
-        return ("full",), f"Peach auto scope: full <- git 不可用（{error}）"
+        return ("full",), f"MediaNfo auto scope: full <- git 不可用（{error}）"
     return scopes_for_changes(paths, contents=changed_contents(ROOT, "master", paths))
 
 
@@ -701,8 +701,8 @@ def environment_preflight(scopes: tuple[str, ...], timings: Path | None = None,
     blocked = test_evidence.unspawnable_tools()
     if not blocked:
         return
-    if os.environ.get("PEACH_SKIP_PREFLIGHT") == "1":
-        print(f"跳过外部工具预检（PEACH_SKIP_PREFLIGHT=1）：{'、'.join(blocked)}", flush=True)
+    if os.environ.get("MEDIANFO_SKIP_PREFLIGHT") == "1":
+        print(f"跳过外部工具预检（MEDIANFO_SKIP_PREFLIGHT=1）：{'、'.join(blocked)}", flush=True)
         return
     needed = tools_needed_by(scopes)
     fatal = tuple(name for name in blocked if name in needed)
@@ -711,10 +711,10 @@ def environment_preflight(scopes: tuple[str, ...], timings: Path | None = None,
         print(f"本次范围不需要这些启动受限的工具，只作提示：{'、'.join(spared)}", flush=True)
     if not fatal:
         return
-    print(f"Peach 测试环境无法启动 PATH 中的工具：{'、'.join(fatal)}。"
+    print(f"MediaNfo 测试环境无法启动 PATH 中的工具：{'、'.join(fatal)}。"
           "Windows Codex 任务请让 scripts/test.ps1 通过受控提权在正常 PowerShell 权限下运行；"
           "其他环境请先修复这些工具的执行权限。不要改单测或跳过用例。"
-          "确认本次无关时用 PEACH_SKIP_PREFLIGHT=1 跳过预检。", flush=True)
+          "确认本次无关时用 MEDIANFO_SKIP_PREFLIGHT=1 跳过预检。", flush=True)
     if timings is not None:
         timings.write_text(json.dumps({"success": False, "count": 0, "timings": []}),
                            encoding="utf-8")
@@ -762,8 +762,8 @@ def main(argv: list[str] | None = None) -> int:
             parser.error("定向调试不能与分片一起使用")
         from . import test_focus
         return test_focus.run(sys.modules[__name__], args)
-    if os.environ.get("PEACH_TEST_FOCUS") or os.environ.get("PEACH_E2E_FILES"):
-        parser.error("定向调试环境不能签发正式记录；请清除 PEACH_TEST_FOCUS 与 PEACH_E2E_FILES")
+    if os.environ.get("MEDIANFO_TEST_FOCUS") or os.environ.get("MEDIANFO_E2E_FILES"):
+        parser.error("定向调试环境不能签发正式记录；请清除 MEDIANFO_TEST_FOCUS 与 MEDIANFO_E2E_FILES")
     requested: tuple[str, ...] = tuple(dict.fromkeys(args.scopes or ("auto",)))
     if "auto" in requested and len(requested) > 1:
         parser.error("auto 不能与别的域同时指定")
@@ -777,7 +777,7 @@ def main(argv: list[str] | None = None) -> int:
         print(explanation, flush=True)
     environment_preflight(scopes, args.timings, shard_count=args.shard_count)
     files = {path for scope in scopes for path in selected_files(scope)}
-    print(f"Peach test scope: {' '.join(scopes)} ({len(files)} files)", flush=True)
+    print(f"MediaNfo test scope: {' '.join(scopes)} ({len(files)} files)", flush=True)
     if args.shard_count > 1:
         # CI 的每片独立 runner；局部分片绝不签发本机全量证明。
         result = unittest.TextTestRunner(verbosity=2, resultclass=TimedResult).run(
@@ -913,7 +913,7 @@ def retain_inflight(context, scopes, passed, previous, baseline, count):
 
 if __name__ == "__main__":
     # 故障注入的默认错误日志属于当前测试进程，不能写进真实数据目录。
-    from peach import error_reporting
+    from medianfo import error_reporting
     with tempfile.TemporaryDirectory(prefix='peach-test-errors-') as error_logs:
         error_reporting._log_dir = Path(error_logs)
         raise SystemExit(main())

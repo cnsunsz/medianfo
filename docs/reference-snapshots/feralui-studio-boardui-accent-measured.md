@@ -36,7 +36,7 @@ SPA，可读的只有构建产物，页面主体由运行时生成；BoardUI 一
 | 浮动容器 | `fixed right-4 bottom-4`（桌面 right-6 bottom-6），纵向 `flex-col gap-2`，先配色钮后明暗钮 |
 | 触发钮 | 40×40 圆形，`bg-background-primary-default` 白底、1px `border-button-default`（浅色实测 `rgb(235,235,235)`）、`shadow-dropdown`（`0 1px 1px rgba(0,0,0,.04), 0 4px 4px rgba(0,0,0,.02)`）、`backdrop-blur-sm`（8px）；图标是 Remix `palette` 20px、次级图标色，悬停变主图标色与 hover 底；右下角 `size-2.5`（10px）圆点，`bg-accent-500` 当前强调色，`ring-2` 环色等于按钮底色，位置 `-right-1 -bottom-1`（实测距钮右下各 6px 内）。`aria-label="Accent color"`、`aria-expanded` |
 | 弹层卡 | 248px 宽、196px 高（20 色时）、圆角 24px、内边距 10px、白底 1px 边、同 `shadow-dropdown`，入场 `opacity-0 scale-95 blur-[2px]` → 正常，`duration-150 ease-out` |
-| 弹层内容 | 头部行 `px-1 pb-2` 左「Accent color」caption 灰字，右「↻ Reset」文字键（12px 图标）；主体 `grid grid-cols-6 gap-1.5 px-1`（间距 6px），每格 28px 圆球 `radial-gradient(circle closest-side, 亮 0%, 暗 100%)` 加三层白色高光叠片（顶部 38.5% 高的椭圆高光、更小的一片、底部反光），悬停 `scale-110 duration-150`；底部一枚全宽次级按钮「Copy theme CSS」。选中态实测未标出（`aria-pressed` 缺失），Peach 自己补选中环 |
+| 弹层内容 | 头部行 `px-1 pb-2` 左「Accent color」caption 灰字，右「↻ Reset」文字键（12px 图标）；主体 `grid grid-cols-6 gap-1.5 px-1`（间距 6px），每格 28px 圆球 `radial-gradient(circle closest-side, 亮 0%, 暗 100%)` 加三层白色高光叠片（顶部 38.5% 高的椭圆高光、更小的一片、底部反光），悬停 `scale-110 duration-150`；底部一枚全宽次级按钮「Copy theme CSS」。选中态实测未标出（`aria-pressed` 缺失），MediaNfo 自己补选中环 |
 
 ## Accent 换色的机制与它的引用来源
 
@@ -53,24 +53,24 @@ SPA，可读的只有构建产物，页面主体由运行时生成；BoardUI 一
 | 十一级里每一级都真的有人引用（50 与 200 各 1–2 处，500 最多 11 处） | 构建产物 `web/dist/peach-react.css` |
 | 弹层里到底是哪二十个色相 | **未取得**：没有回到 boardui.com 复抓，上面那张表只记了「20 色时」的卡高 |
 
-Peach 因此不照抄它那二十档，也不猜 `accent.ts` 的写法：十一级色阶按 `:root[data-accent=…]`
+MediaNfo 因此不照抄它那二十档，也不猜 `accent.ts` 的写法：十一级色阶按 `:root[data-accent=…]`
 一档一条写在 `web/board.css` 里，排在层叠层之外，无论 `/dist/peach-react.css` 那份
 `@layer theme` 怎么写都压得住；`.peach-react` 上的语义 token 引用的是同名变量，值顺着根
 继承进去，两边因此不会各说各话，`tests/test_frontend_build.py::BoardTokenTests` 那条逐字
 比对也照旧成立。色相取 Tailwind v4 色板原文十二个，blue 的 400 用 BoardUI 自己那枚
 `#3392ff` 覆盖值。
 
-## Peach 主动保留的差异
+## MediaNfo 主动保留的差异
 
 | 差异 | 为什么 |
 | --- | --- |
 | 分组标题与参数标签用中文、不大写、不加字距 | 全站文案是中文，中文没有大小写；照抄 `text-transform:uppercase` 只会让英文参数名和中文参数名在同一列里长成两种东西 |
-| 颜色一律走 token（`--ink` / `--line` / `--ground` / `--muted`）经 `color-mix` 得到，不写 `rgba(33,30,26,.52)` 这类字面值 | feralui 只有一套深色皮；Peach 两档主题都要成立，写死的玻璃色在浅色一档上会变成一块脏灰。`tests/test_web_ui.py` 也会拒绝样式分区里的字面色 |
+| 颜色一律走 token（`--ink` / `--line` / `--ground` / `--muted`）经 `color-mix` 得到，不写 `rgba(33,30,26,.52)` 这类字面值 | feralui 只有一套深色皮；MediaNfo 两档主题都要成立，写死的玻璃色在浅色一档上会变成一块脏灰。`tests/test_web_ui.py` 也会拒绝样式分区里的字面色 |
 | 圆角只用 `--badge/control/surface/floating/pill/tag-radius` 或 50%，不抄 18px / 16px / 12px / 24px | 圆角在这套界面里是词汇不是数值，见 `web/css/01-base.css` 顶部那段说明；侧栏弹层的 24px 例外落在 `web/board.css` 里，那一层本来就带 Board 的字面圆角 |
 | 焦点环用 `--tungsten`，不用 ink | 蓝在这套色板里只给焦点、链接与数据；拉条自绘之后焦点环得自己画，规矩照旧 |
 | 不做色相环 / 原生取色器，只给 7 色系 × 6 明度的命名色板 | 用户点名原生取色器太丑；命名色板还顺带让「挑颜色」这件事留在这套界面的颜色词汇里 |
-| 侧栏圆钮的弹层向上开、贴着侧栏底，不是 `fixed right-4 bottom-4` 的浮动件 | BoardUI 把它当示例站的角落挂件；Peach 的侧栏底部已经是设置与主题的落脚处，配色钮排在同一行里才说得出它管的是这套界面 |
+| 侧栏圆钮的弹层向上开、贴着侧栏底，不是 `fixed right-4 bottom-4` 的浮动件 | BoardUI 把它当示例站的角落挂件；MediaNfo 的侧栏底部已经是设置与主题的落脚处，配色钮排在同一行里才说得出它管的是这套界面 |
 | 选中态自己补 `aria-pressed` 与双环 | BoardUI 实测没有标出选中，那不是可以照抄的部分——一排圆球里哪一枚是当前档，读屏和眼睛都得能读出来 |
 | 光晕变量写在 `.glowlayer` 这枚空 div 上，不写 `<html>` | 与参考产品无关的自有约束：自定义属性是继承的，写在根上整棵树都要重算样式，实测每帧 12.7–16.6ms，拖动必掉帧 |
 | 强调色只给十二档，不给二十档 | 上游那二十档是哪些色相未取得；十二个色相绕色轮一圈已经够挑，六列两行也正好铺满这张 248px 的卡 |
-| 弹层里在光晕之外多一组强调色，卡穿的是站内那身液态玻璃 | 上游那枚是示例站角落里的浮动挂件，只管强调色；Peach 这一枚是侧栏底部「换一套外观」的唯一入口，两组挨着才说得出它们是一件事 |
+| 弹层里在光晕之外多一组强调色，卡穿的是站内那身液态玻璃 | 上游那枚是示例站角落里的浮动挂件，只管强调色；MediaNfo 这一枚是侧栏底部「换一套外观」的唯一入口，两组挨着才说得出它们是一件事 |

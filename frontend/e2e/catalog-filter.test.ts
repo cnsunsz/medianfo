@@ -70,7 +70,7 @@ async function openHome(browser: Browser, path = '/', viewport = DESKTOP): Promi
     const ids = url.searchParams.get('tag') ? CATALOG.slice(0, 3) : CATALOG;
     return route.fulfill({ json: {
       items: ids.map((id) => ({ id, name: `sample_${id}.mp4`, title: `演示作品 ${id}`, is_jav: false, medium: 'video',
-        location: 'local', has_thumb: true, duration: 3600, studio: 'Peach Studio', performers: [], tags: [] })),
+        location: 'local', has_thumb: true, duration: 3600, studio: 'MediaNfo Studio', performers: [], tags: [] })),
       total: ids.length, has_more: false,
     } });
   });
@@ -120,7 +120,7 @@ describe('首页筛选条', () => {
 
   for (const viewport of [DESKTOP, PHONE]) {
     it(`${viewport.name} 筛选条件与作品卡片悬停面保持间距`, { timeout: 60_000 }, async () => {
-      const opened = await openHome(browser, '/?studio=Peach%20Studio', viewport);
+      const opened = await openHome(browser, '/?studio=MediaNfo%20Studio', viewport);
       try {
         await opened.page.mouse.move(0, 0);
         const controls = await opened.page.locator(`${FILTER} [data-filter-glass]`).evaluate(frame => {
@@ -149,12 +149,12 @@ describe('首页筛选条', () => {
   }
 
   it('点头像条一格打开那一位的资料页；地址里的厂牌筛选出一颗交集条，撤掉它重取一次列表', { timeout: 60_000 }, async () => {
-    const opened = await openHome(browser, '/?studio=Peach%20Studio');
+    const opened = await openHome(browser, '/?studio=MediaNfo%20Studio');
     try {
       const { page, counts } = opened;
-      await chips(page).filter({ hasText: '厂牌 Peach Studio' }).waitFor();
+      await chips(page).filter({ hasText: '厂牌 MediaNfo Studio' }).waitFor();
       const before = counts.items.length;
-      await chips(page).filter({ hasText: 'Peach Studio' }).getByRole('button', { name: '撤掉 厂牌 Peach Studio' }).click();
+      await chips(page).filter({ hasText: 'MediaNfo Studio' }).getByRole('button', { name: '撤掉 厂牌 MediaNfo Studio' }).click();
       await page.waitForFunction(() => !new URLSearchParams(location.search).has('studio'));
       await page.locator(READOUT, { hasText: `${CATALOG.length} 个符合` }).waitFor();
       assert.equal(await chips(page).count(), 0, '撤掉之后交集条上还有东西');
@@ -274,7 +274,7 @@ describe('首页筛选条', () => {
       assert.equal(await choice('small').isChecked(), true);
       await page.locator(`${FILTER} label:has(input[name="home-layout"][value="big"])`).click();
       assert.equal(await choice('big').isChecked(), true);
-      const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('peach.settings.v1') || '{}'));
+      const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('medianfo.settings.v1') || '{}'));
       assert.equal(saved.homeLayout, 'big');
       assert.equal(counts.items.length, before, '换版式不该重取列表');
       assert.deepEqual(withoutPlayer(opened.problems), []);

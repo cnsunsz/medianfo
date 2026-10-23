@@ -19,10 +19,10 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach import frame_capture
-from peach.config import DATABASE_PATH, FFMPEG_DIR, GENERATED_DIR, LOG_DIR, STATE_DIR
-from peach.ffmpeg import FFmpegResolver
-from peach.jobs import (
+from medianfo import frame_capture
+from medianfo.config import DATABASE_PATH, FFMPEG_DIR, GENERATED_DIR, LOG_DIR, STATE_DIR
+from medianfo.ffmpeg import FFmpegResolver
+from medianfo.jobs import (
     ACTIVE_ASSET_SQL,
     DiskGuard,
     DiskSpaceDenied,
@@ -31,10 +31,10 @@ from peach.jobs import (
     require_free_space,
     job_main,
 )
-from peach.platform import system_volume
-from peach.media import resolve_case_insensitive
-from peach.media_processing_policy import metadata_only
-from peach.strm import background_rows, skip_background_read
+from medianfo.platform import system_volume
+from medianfo.media import resolve_case_insensitive
+from medianfo.media_processing_policy import metadata_only
+from medianfo.strm import background_rows, skip_background_read
 
 
 def build_parser() -> argparse.ArgumentParser:

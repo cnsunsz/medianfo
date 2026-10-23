@@ -18,15 +18,15 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from peach import metadata_policy as rm_policy
-from peach import review_csv as rm_candidates
-from peach import web_contract as rm_web
-from peach import web_review as rm_review
-from peach.entities import upsert_asset_entity
-from peach.genre_taxonomy import map_genres
-from peach.metadata_alias_resolve import stage_name
-from peach.metadata_auto_apply import _fc2_seller_as_label, _refresh_auto_batch, auto_apply_metadata
-from peach.field_owners import (
+from medianfo import metadata_policy as rm_policy
+from medianfo import review_csv as rm_candidates
+from medianfo import web_contract as rm_web
+from medianfo import web_review as rm_review
+from medianfo.entities import upsert_asset_entity
+from medianfo.genre_taxonomy import map_genres
+from medianfo.metadata_alias_resolve import stage_name
+from medianfo.metadata_auto_apply import _fc2_seller_as_label, _refresh_auto_batch, auto_apply_metadata
+from medianfo.field_owners import (
     EXPECTED_REVISION_FIELD,
     USER_MANUAL,
     RevisionConflict,
@@ -1572,7 +1572,7 @@ class ReviewQueueTests(unittest.TestCase):
             con.close()
         self.assertEqual(titles[131], whole)
         self.assertEqual(titles[132], masked, "没有别家原文可对时照旧用站方给的那句")
-        from peach.catalog_rules import fill_masked_title
+        from medianfo.catalog_rules import fill_masked_title
         self.assertEqual(fill_masked_title("【無修正】＊＊ちゃん", ["[FC2] 【無修正】ゆあちゃん 中出し"]),
                          "【無修正】ゆあちゃん")
         self.assertIsNone(fill_masked_title("****", [whole]), "全是码的一句对不出位置")
@@ -1596,7 +1596,7 @@ class ReviewQueueTests(unittest.TestCase):
         finally:
             con.close()
         self.assertEqual(title, "ゆあちゃんラスト作品！カメラマンあり撮影")
-        from peach.catalog_rules import strip_scrape_mark
+        from medianfo.catalog_rules import strip_scrape_mark
         self.assertEqual(strip_scrape_mark("【取り消し確定？】**zs*yj*ospnIカップ"), "【取り消し確定？】Iカップ")
         self.assertEqual(strip_scrape_mark("【真夏THE LAST**】特別な"), "【真夏THE LAST**】特別な")
         self.assertEqual(strip_scrape_mark("完全顔出し都立**超スジ"), "完全顔出し都立**超スジ")
@@ -2450,10 +2450,10 @@ class ReviewQueueTests(unittest.TestCase):
         source_dir = self.candidates / "studio-logos"
         source_dir.mkdir()
         (source_dir / "Deep_s.png").write_bytes(b"PNGDATA")
-        # `saved` 列写的是旧 Peach 数据目录 R:\peach-data\...，本机上并不存在，
+        # `saved` 列写的是旧 MediaNfo 数据目录 R:\medianfo-data\...，本机上并不存在，
         # 必须按文件名在当前候选目录里解析，否则批准永远失败。
         sep = chr(92)
-        stale = sep.join(["R:", "peach-data", "generated", "studio-logos", "Deep_s.png"])
+        stale = sep.join(["R:", "medianfo-data", "generated", "studio-logos", "Deep_s.png"])
         self.write_logo_candidates([
             {"studio": "Deep's", "handle": "deeps_official", "platform": "x",
              "resolved_url": "https://example.invalid/a.png", "saved": stale,

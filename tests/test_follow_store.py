@@ -7,9 +7,9 @@ from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from peach.follow import FollowSourceError
-from peach.follow_sources import FollowCandidate, SourceFetch
-from peach.follow_store import (
+from medianfo.follow import FollowSourceError
+from medianfo.follow_sources import FollowCandidate, SourceFetch
+from medianfo.follow_store import (
     FollowStore, ReleaseGroup, author_display_text, f95_author_handles,
     f95_author_name, normalized_author_name,
 )
@@ -272,7 +272,7 @@ class RecordTests(_StoreCase):
         self.assertEqual(sidecar["request_url"], "https://rule34video.test/lazyprocrastinator")
 
     def test_an_unusable_evidence_root_does_not_lose_the_candidates(self):
-        """Mac 上 `peach-data/sources` 指向外置盘。盘不在时它是一条断链，
+        """Mac 上 `medianfo-data/sources` 指向外置盘。盘不在时它是一条断链，
         `mkdir(exist_ok=True)` 会抛 `FileExistsError`（链接在、目标不在）。
         发现跟归档盘无关，不该让整次检查连同已抓到的候选一起炸掉。
 

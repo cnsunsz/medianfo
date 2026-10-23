@@ -10,10 +10,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from peach import browser_transport
-from peach.browser_transport import (BrowserTransport, BrowserUnavailable, ChallengeUnsolved, PageTimeout,
+from medianfo import browser_transport
+from medianfo.browser_transport import (BrowserTransport, BrowserUnavailable, ChallengeUnsolved, PageTimeout,
                                      _WebSocket, find_browser, proxy_flags)
-from peach.http import HttpRequest
+from medianfo.http import HttpRequest
 
 PAGE_HTML = "<html><head><title>FC2-PPV-1 | FC2PPV Database</title></head><body>ok</body></html>"
 
@@ -601,8 +601,8 @@ class BrowserLookupTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             fake = Path(folder) / "browser.exe"
             fake.write_bytes(b"")
-            self.assertEqual(find_browser({"PEACH_BROWSER": str(fake)}, "Windows"), str(fake))
-            self.assertIsNone(find_browser({"PEACH_BROWSER": str(fake) + ".missing"}, "Windows"))
+            self.assertEqual(find_browser({"MEDIANFO_BROWSER": str(fake)}, "Windows"), str(fake))
+            self.assertIsNone(find_browser({"MEDIANFO_BROWSER": str(fake) + ".missing"}, "Windows"))
 
     def test_each_platform_looks_in_its_own_places(self):
         with tempfile.TemporaryDirectory() as folder:

@@ -19,9 +19,9 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import DATABASE_PATH, FFMPEG_DIR, LOG_DIR, STATE_DIR
-from peach.ffmpeg import FFmpegResolver
-from peach.jobs import (
+from medianfo.config import DATABASE_PATH, FFMPEG_DIR, LOG_DIR, STATE_DIR
+from medianfo.ffmpeg import FFmpegResolver
+from medianfo.jobs import (
     ACTIVE_ASSET_SQL,
     DiskGuard,
     DiskSpaceDenied,
@@ -30,9 +30,9 @@ from peach.jobs import (
     require_free_space,
     job_main,
 )
-from peach.platform import system_volume
-from peach.media import resolve_case_insensitive
-from peach.media_probe import UPDATE, context_fields, probe_file
+from medianfo.platform import system_volume
+from medianfo.media import resolve_case_insensitive
+from medianfo.media_probe import UPDATE, context_fields, probe_file
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -130,7 +130,7 @@ def run(args: argparse.Namespace) -> int:
         if args.limit:
             sql += " LIMIT ?"
             parameters += (args.limit,)
-        from peach.strm import background_rows
+        from medianfo.strm import background_rows
         tasks = background_rows(connection.execute(sql, parameters).fetchall(), 1)
         connection.close()
         total = len(tasks)

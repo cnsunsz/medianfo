@@ -9,8 +9,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from peach import timeline_sheets
-from peach.jobs import DiskSpaceDenied
+from medianfo import timeline_sheets
+from medianfo.jobs import DiskSpaceDenied
 from support.ledger import fresh_ledger
 
 

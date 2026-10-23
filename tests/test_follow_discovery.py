@@ -7,15 +7,15 @@ import unittest
 import urllib.parse
 from pathlib import Path
 
-from peach import follow_discovery
-from peach.follow import FollowSourceError
-from peach.follow_discovery import (
+from medianfo import follow_discovery
+from medianfo.follow import FollowSourceError
+from medianfo.follow_discovery import (
     CREATOR_INDEX_TTL_SECONDS, DEFAULT_PROVIDERS, MAX_TERM_LENGTH, CreatorIndex,
     archive_suggestions, discover, discovery_plan, forum_queries, identity_key,
     rule34video_slugs, search_variants, spelling_variants, suggest_term, tag_suggestions,
 )
-from peach.follow_secrets import Credential
-from peach.http import HttpResponse
+from medianfo.follow_secrets import Credential
+from medianfo.http import HttpResponse
 from support.backoff import no_real_backoff
 
 

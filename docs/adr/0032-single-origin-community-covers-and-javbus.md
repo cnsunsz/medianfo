@@ -25,7 +25,7 @@ MIDE-594 官方各版本只回「准备中」占位图，这类片一直没有�
 一次请求，图源记 `javbus`，番号页 404 或页上番号不一致记「没有」。
 
 **三、Cookie 由用户提供。** JavBus 有年龄门，javdb 有登录墙。两家在采集设置里接受 Cookie，公开采集
-随请求带上（`scraping_access.SOURCES` 的 `session`）。Peach 不读浏览器的 Cookie 库；JavBus 回的页上
+随请求带上（`scraping_access.SOURCES` 的 `session`）。MediaNfo 不读浏览器的 Cookie 库；JavBus 回的页上
 没有「識別碼」时报「多半是年龄确认页」，让用户去贴 Cookie，不记成没有。
 
 **四、社区站快照不当官方候选。** Javinizer-Go 的 JavBus、javdb 等社区站快照只借厂牌判断走哪条
@@ -39,7 +39,7 @@ MIDE-594 官方各版本只回「准备中」占位图，这类片一直没有�
 
 ## 被否决的方案
 
-- **Peach 自带固定的年龄确认 Cookie。** 厂牌回查脚本 `localize_studio_names.py` 带过 `age=verified`；
+- **MediaNfo 自带固定的年龄确认 Cookie。** 厂牌回查脚本 `localize_studio_names.py` 带过 `age=verified`；
   2026-09-15 实测番号页不带 Cookie 回答题式年龄验证页，固定值能否过门未取得实证，用户自己过门后的
   Cookie 更可靠。
 - **继续坚持两个图源。** 只有一家收录的片会一直没有封面。

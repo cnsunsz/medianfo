@@ -50,12 +50,12 @@ from urllib.parse import quote, urljoin, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach import javdb   # noqa: E402
-from peach.config import STATE_DIR   # noqa: E402
-from peach.jobs import job_main   # noqa: E402
-from peach.page_cache import HttpStatusError, Site   # noqa: E402
-from peach.review_csv import write_rows   # noqa: E402
-from peach.social_links import (   # noqa: E402
+from medianfo import javdb   # noqa: E402
+from medianfo.config import STATE_DIR   # noqa: E402
+from medianfo.jobs import job_main   # noqa: E402
+from medianfo.page_cache import HttpStatusError, Site   # noqa: E402
+from medianfo.review_csv import write_rows   # noqa: E402
+from medianfo.social_links import (   # noqa: E402
     canonical_url, classify, handle, load_performers, name_key, platform, under,
     x_profile_state,
 )

@@ -4,8 +4,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from peach import face_detect
-from peach.face_detect import (
+from medianfo import face_detect
+from medianfo.face_detect import (
     MODEL_SHA256,
     FaceModelUnavailable,
     ensure_model,

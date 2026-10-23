@@ -35,12 +35,12 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.catalog_rules import promo_free_key, strip_promo_markers
-from peach.config import DATABASE_PATH, GENERATED_DIR
-from peach.migrations import sqlite_backup
-from peach.platform import translate_ledger_path
-from peach.review_csv import write_rows
-from peach.scan import medium_of
+from medianfo.catalog_rules import promo_free_key, strip_promo_markers
+from medianfo.config import DATABASE_PATH, GENERATED_DIR
+from medianfo.migrations import sqlite_backup
+from medianfo.platform import translate_ledger_path
+from medianfo.review_csv import write_rows
+from medianfo.scan import medium_of
 
 
 PLAN_FIELDS = ["kind", "ledger_dir", "target_dir", "assets", "verified"]

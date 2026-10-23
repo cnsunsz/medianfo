@@ -5,14 +5,14 @@ from unittest.mock import Mock, patch
 
 import httpx
 
-from peach import release_updates
-from peach.http import HttpResponse
-from peach.versioning import VersionManager
+from medianfo import release_updates
+from medianfo.http import HttpResponse
+from medianfo.versioning import VersionManager
 
 
 def release(version, **extra):
     return dict(tag_name=f"v{version}", prerelease=True, draft=False,
-                assets=[{"name": f"Peach-{version}-windows-x64.zip", "state": "uploaded"}], **extra)
+                assets=[{"name": f"MediaNfo-{version}-windows-x64.zip", "state": "uploaded"}], **extra)
 
 
 class ReleaseUpdateTests(unittest.TestCase):
@@ -37,11 +37,11 @@ class ReleaseUpdateTests(unittest.TestCase):
     def test_prefers_app_update_when_all_tool_assets_are_uploaded(self):
         row = release("1.0.0")
         row["assets"] += [
-            {"name": "Peach-1.0.0-windows-x64-update.zip", "state": "uploaded", "size": 123, "digest": "sha256:" + "a" * 64},
-            {"name": "Peach-1.0.0-windows-x64-setup.exe", "state": "uploaded"},
+            {"name": "MediaNfo-1.0.0-windows-x64-update.zip", "state": "uploaded", "size": 123, "digest": "sha256:" + "a" * 64},
+            {"name": "MediaNfo-1.0.0-windows-x64-setup.exe", "state": "uploaded"},
         ]
         self.assertEqual(self.check([row])["package_kind"], "full")
-        row["assets"] += [{"name": f"Peach-1.0.0-windows-x64-tools-{tool}.zip", "state": "uploaded"}
+        row["assets"] += [{"name": f"MediaNfo-1.0.0-windows-x64-tools-{tool}.zip", "state": "uploaded"}
                           for tool in ("ffmpeg", "untrunc", "cloudflared")]
         result = self.check([row])
         self.assertEqual(result["package_kind"], "update")
@@ -62,7 +62,7 @@ class ReleaseUpdateTests(unittest.TestCase):
 
     def test_standalone_tray_checks_releases_without_git(self):
         execute = Mock(side_effect=AssertionError("Git must not run"))
-        with patch("peach.distribution.standalone", return_value=True), patch.object(
+        with patch("medianfo.distribution.standalone", return_value=True), patch.object(
                 release_updates, "check", return_value=dict(state="available", latest_version="1.0.0", message="有新版本可下载。")) as check:
             result = VersionManager(execute=execute).check()
         check.assert_called_once()

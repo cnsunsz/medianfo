@@ -21,9 +21,9 @@ from types import SimpleNamespace
 from unittest import mock
 
 
-from peach import push_discovery as push
-from peach import routes_configuration
-from peach import scan
+from medianfo import push_discovery as push
+from medianfo import routes_configuration
+from medianfo import scan
 from support.ledger import fresh_ledger
 
 CLOUD_ROOT = "B:\\"
@@ -111,7 +111,7 @@ class CloudDriveConfigTests(unittest.TestCase):
         for name in ("file_system_watcher", "mount_point_watcher"):
             self.assertEqual(set(config[name]), {"url", "method", "enabled", "headers", "body"}, name)
         # 默认模板里那行 `authorization = "basic usernamepassword"` 不能留：它是示例值，
-        # 发出来只会在 Peach 的访问日志里留一串假凭据。
+        # 发出来只会在 MediaNfo 的访问日志里留一串假凭据。
         self.assertNotIn("authorization", config["global_params"]["default_headers"])
 
     def test_a_trailing_slash_on_the_origin_does_not_double_up_the_path(self):
@@ -122,7 +122,7 @@ class CloudDriveConfigTests(unittest.TestCase):
         """配置里那段正文，按 CloudDrive2 代入占位符之后要能被本模块解析回路径。
 
         两处各写一份的话，改了正文模板而没改解析器（或者反过来）是静默的：推送照发，
-        Peach 收下来解析出零条路径，看上去就是「推送没生效」。
+        MediaNfo 收下来解析出零条路径，看上去就是「推送没生效」。
         """
         body = tomllib.loads(push.clouddrive_config("https://h", "t"))["file_system_watcher"]["body"]
         for placeholder, value in (("{action}", "create"), ("{is_dir}", "false"),
@@ -266,7 +266,7 @@ class QueueTests(unittest.TestCase):
                                     debounce=0.0, settle=0.0)
         queue.submit("local", "p", 0.0)
         queue.tick(0.0)
-        with self.assertLogs("peach.push_discovery", level="ERROR") as captured:
+        with self.assertLogs("medianfo.push_discovery", level="ERROR") as captured:
             queue.tick(0.0)
         self.assertIn("数据库忙", "\n".join(captured.output))
         self.assertEqual(queue.snapshot()["failed"], 1)
@@ -552,9 +552,9 @@ class WebhookRouteTests(_ServiceCase):
 
     def setUp(self):
         super().setUp()
-        from peach.api import create_app
-        from peach.config import PeachSettings
-        self.app = create_app(PeachSettings(
+        from medianfo.api import create_app
+        from medianfo.config import MediaNfoSettings
+        self.app = create_app(MediaNfoSettings(
             db_path=self.db, configured=True, token="",
             follow_state_root=self.root / "state", secrets_root=self.root / "secrets"))
         self.addCleanup(self.app.state.http_transport.close)

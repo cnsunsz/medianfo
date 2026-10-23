@@ -24,8 +24,8 @@ def main() -> int:
     app = args.app.resolve(strict=True)
     with tempfile.TemporaryDirectory(prefix="peach-macos-smoke-") as directory:
         root = Path(directory).resolve()
-        shutil.copytree(app, root / "Peach.app", symlinks=True)
-        executable = root / "Peach.app" / "Contents" / "MacOS" / "Peach"
+        shutil.copytree(app, root / "MediaNfo.app", symlinks=True)
+        executable = root / "MediaNfo.app" / "Contents" / "MacOS" / "MediaNfo"
         data, media = root / "data", root / "media"
         media.mkdir()
         environment = smoke_environment(data)
@@ -57,7 +57,7 @@ def main() -> int:
                     headers={"Origin": base})
                 with opener.open(request, timeout=10) as response:
                     assert response.status == 200
-                for path in ("/", "/dist/peach-app.js", "/dist/peach-app.css", "/api/items",
+                for path in ("/", "/dist/medianfo-app.js", "/dist/medianfo-app.css", "/api/items",
                              "/healthz?ready=1"):
                     with opener.open(base + path, timeout=30) as response:
                         assert response.status == 200, path

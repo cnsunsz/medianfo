@@ -2,7 +2,7 @@
  *
  * 这些节点由命令式模块画，不进 React 渲染，也不在 `.peach-react` 里：画面框在两座详情岛的
  * 媒体格里（`[data-stage-media]`），右键菜单建在 body 上、舞台开着时挪进舞台。选择器全用
- * `data-*`；播放器皮肤的 `video-js` 与 `vjs-*` 类用于 Peach 控件和布局
+ * `data-*`；播放器皮肤的 `video-js` 与 `vjs-*` 类用于 MediaNfo 控件和布局
  * （`test/legacy-class-names.test.ts` 按前缀放行）。
  *
  * 引入顺序排在各岛样式之后、舞台样式之前（`src/react/styles.css`）。舞台里压过播放器的几条
@@ -12,7 +12,7 @@
  * `backdrop-filter` 只写标准属性：带前缀那条由构建按目标补上。两条都手写的话，产物里只剩带前缀
  * 那条，当前 Chromium 不认，模糊整条丢掉。 */
 
-/* Video.js 10 控件使用 light DOM，几何归 Peach 皮肤。 */
+/* Video.js 10 控件使用 light DOM，几何归 MediaNfo 皮肤。 */
 .video-js{display:block;position:relative;box-sizing:border-box;color:#fff;background:#000;font-size:10px;line-height:1;font-family:inherit}
 .video-js>video-player{display:contents}
 .video-js>video-player>media-container{display:block;width:100%;height:100%;position:absolute;inset:0}
@@ -61,8 +61,8 @@ video.video-js{vertical-align:top;font-size:10px;line-height:1;font-family:Arial
 [data-stage-media] .video-js .vjs-tech{object-fit:contain;max-height:none}
 /* 中心提示圆自己就是画面中央的播放态入口，原生大播放键留着只会跟它抢同一块地方。 */
 [data-stage-media] .video-js .vjs-big-play-button{display:none}
-/* Peach 的控件在 `player.ready` 里才装上（提示圆是其中一枚）。在那之前控制条是 Video.js 原装那一排：
-   没有时间、没有右侧胶囊，播放键也没换上 Peach 的字形，机器一忙这一段就看得见。装上之前先藏着。 */
+/* MediaNfo 的控件在 `player.ready` 里才装上（提示圆是其中一枚）。在那之前控制条是 Video.js 原装那一排：
+   没有时间、没有右侧胶囊，播放键也没换上 MediaNfo 的字形，机器一忙这一段就看得见。装上之前先藏着。 */
 [data-stage-media] .video-js:not(:has(.vjs-peach-bezel)) .vjs-control-bar{visibility:hidden}
 /* YouTube e937390a `FsY` spinner DOM 与当前四段动画；复用 Video.js 的 waiting/seeking 状态。 */
 [data-stage-media] .video-js .vjs-loading-spinner{z-index:18;left:50%;top:50%;width:64px;height:64px;margin:0;padding:0;border:0;border-radius:0;background:transparent;opacity:1;transform:translate(-50%,-50%)}
@@ -94,7 +94,7 @@ video.video-js{vertical-align:top;font-size:10px;line-height:1;font-family:Arial
   transition:transform .1s cubic-bezier(.05,0,0,1)}
 [data-stage-media] .video-js [data-peach-explicit-icon]:active>.vjs-peach-control-icon{transform:translate(-50%,-50%) scale(.9)}
 /* 上游 delhi-modern 的播放键是 56px 圆里放一个 36px 的图标框（`svg{padding:10px}`），
-   图标本体 26 个单位。Peach 的键是 40px，同比例给 26px 的框，画出来 18.6px。 */
+   图标本体 26 个单位。MediaNfo 的键是 40px，同比例给 26px 的框，画出来 18.6px。 */
 [data-stage-media] .video-js .vjs-control-bar>.vjs-play-control>.vjs-peach-control-icon{width:26px;height:26px}
 /* 播放↔暂停靠插值同一条路径完成，不是换图：上游那两条路径的记号结构逐位相同（233 个记号、
    116 个数字，命令序列都是 MLCCLCCLCCLCCZMLCCVCCLCCVLCCZ），所以浏览器插 `d` 得到的中间
@@ -274,8 +274,8 @@ video.video-js{vertical-align:top;font-size:10px;line-height:1;font-family:Arial
    底色 rgba(255,255,255,.1)、悬停 .2、按下 .3，过渡 .2s cubic-bezier(.05,0,0,1)；
    1.0 下面挂一行 14px 行高的说明。滑条轨道 4px 高，已过部分 #fff、余下 #909090，
    把手 16px 白圆上移 6px；已过比例由脚本写进自定义属性，上游同样是自定义属性驱动。
-   字号、字重和圆角走 Peach 自己的 token：上游读数那档 18px/900 和说明那档 10px 都不在
-   Peach 的字号刻度上，900 也不在 Geist 的三档字重里；胶囊和轨道的圆角本来就大于自身高度的
+   字号、字重和圆角走 MediaNfo 自己的 token：上游读数那档 18px/900 和说明那档 10px 都不在
+   MediaNfo 的字号刻度上，900 也不在 Geist 的三档字重里；胶囊和轨道的圆角本来就大于自身高度的
    一半，`--pill-radius` 渲染出来与上游那两个字面值一模一样。 */
 .vjs-peach-speed-panel{box-sizing:border-box;display:flex;flex-direction:column;padding:24px 16px 16px}
 .vjs-peach-speed-display{display:flex;justify-content:center;margin-bottom:24px;
@@ -332,7 +332,7 @@ video.video-js{vertical-align:top;font-size:10px;line-height:1;font-family:Arial
    8px 圆角（--surface-radius）、5px 9px 内距、13px/15px 500 字重（--fs-sm）、
    text-shadow 0 0 2px #000；快捷键徽标 1px rgba(255,255,255,.3) 边、4px 圆角（--badge-radius）、
    最小宽 11px、左外边距 4px，空了就收起。控制条上每个按钮共用这一套。
-   底色是 Peach 主动偏离上游的一处：上游 rgba(0,0,0,.3) 加 blur 落在亮画面上只剩一块低对比
+   底色是 MediaNfo 主动偏离上游的一处：上游 rgba(0,0,0,.3) 加 blur 落在亮画面上只剩一块低对比
    灰板，悬停时看着像凭空多出来一块阴影。提示和播放器其它悬浮件同档，一律 rgba(0,0,0,.6)。 */
 .vjs-peach-tooltip{position:absolute;z-index:5;right:50%;bottom:calc(100% + 12px);transform:translateX(50%);
   display:none;align-items:center;padding:5px 9px;border-radius:var(--surface-radius);background:rgba(0,0,0,.6);
@@ -357,7 +357,7 @@ video.video-js{vertical-align:top;font-size:10px;line-height:1;font-family:Arial
 }
 /* 窄屏梯度照搬 YouTube delhi-modern：base.js 9470c977 里 `v.width<528` 打开 ytp-xsmall-width-mode，
    右侧只留设置键和展开键，按钮从 48 收到 36、图标 24 收到 18；展开后铺开全部按钮。
-   YouTube 展开时把时间显示改成 visibility:hidden 占着位，Peach 改成 display:none 让出宽度——
+   YouTube 展开时把时间显示改成 visibility:hidden 占着位，MediaNfo 改成 display:none 让出宽度——
    它的控制条比 YouTube 窄，留着那段空位就又超框了。 */
 .vjs-peach-expand{display:none}
 .video-js.vjs-peach-xsmall .vjs-peach-right-controls>.vjs-control{flex:0 0 36px;width:36px!important;min-width:36px}

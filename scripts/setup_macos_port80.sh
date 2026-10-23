@@ -1,8 +1,8 @@
 #!/bin/sh
 # 让 http(s)://peach.local/ 不带端口也能打开。
 #
-# macOS 和其他 Unix 一样，1024 以下的端口只有 root 能监听。Peach 在 macOS 上跑在
-# 非特权的 8900（见 peach.tray.MACOS_PORT），所以 `peach.local:8900` 通、
+# macOS 和其他 Unix 一样，1024 以下的端口只有 root 能监听。MediaNfo 在 macOS 上跑在
+# 非特权的 8900（见 medianfo.tray.MACOS_PORT），所以 `peach.local:8900` 通、
 # `peach.local` 不通。
 #
 # 与其让整个服务以 root 跑，不如让内核把 80 转到 8900：pf 的 rdr 规则，服务本身
@@ -22,19 +22,19 @@
 #   sh scripts/setup_macos_port80.sh check       # 只验证，不需要 root
 set -eu
 
-# 和 src/peach/appid.py 的 MACOS_PF_ANCHOR 必须一致；shell 里 import 不了 Python，
+# 和 src/medianfo/appid.py 的 MACOS_PF_ANCHOR 必须一致；shell 里 import 不了 Python，
 # 这两行由 tests/test_tray.py 钉住。
-ANCHOR_NAME="io.github.longmeidao.peach"
+ANCHOR_NAME="io.github.cnsunsz.medianfo"
 # 已部署机器上装着的遗留 anchor 名（peach.appid.LEGACY_MACOS_PF_ANCHORS）。留着不清
 # 会让 /etc/pf.conf 里多一条指向已删除文件的 load anchor，整份包过滤规则加载不起来。
-LEGACY_ANCHOR_NAMES="gg.lmd.peach"
+LEGACY_ANCHOR_NAMES="io.github.longmeidao.peach gg.lmd.peach"
 ANCHOR_FILE="/etc/pf.anchors/${ANCHOR_NAME}"
 DAEMON="/Library/LaunchDaemons/${ANCHOR_NAME}.pf.plist"
-TARGET_PORT="${PEACH_PORT:-8900}"
-TLS_PORT="${PEACH_TLS_PORT:-8443}"
+TARGET_PORT="${MEDIANFO_PORT:-8900}"
+TLS_PORT="${MEDIANFO_TLS_PORT:-8443}"
 ACTION="${1:-install}"
 # 默认路由的网卡。转发目标取它的动态地址，所以换 Wi-Fi 也不用重装。
-IFACE="${PEACH_IFACE:-$(route -n get default 2>/dev/null | awk '/interface:/{print $2}')}"
+IFACE="${MEDIANFO_IFACE:-$(route -n get default 2>/dev/null | awk '/interface:/{print $2}')}"
 IFACE="${IFACE:-en0}"
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT

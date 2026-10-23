@@ -17,7 +17,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from unittest import mock
 
-from peach import distribution, onboarding, settings_file
+from medianfo import distribution, onboarding, settings_file
 
 NATIVE_WINDOWS = os.name == "nt"
 HAS_HTTP_DEPS = all(importlib.util.find_spec(name) for name in ("fastapi", "httpx"))
@@ -46,7 +46,7 @@ class _Case(unittest.TestCase):
         self.media = self.root / "media"
         self.media.mkdir()
         self.config = settings_file.load_config(
-            project_root=self.root / "app", environ={"PEACH_DATA_ROOT": str(self.root / "peach-data")})
+            project_root=self.root / "app", environ={"MEDIANFO_DATA_ROOT": str(self.root / "medianfo-data")})
 
 
 class QuestionTests(_Case):
@@ -55,7 +55,7 @@ class QuestionTests(_Case):
         self.assertEqual([q.key for q in asked],
                          ["data_root", "media_dir", "host", "port", "mdns_name"])
         by_key = {q.key: q for q in asked}
-        self.assertEqual(by_key["data_root"].default, str(self.root / "peach-data"))
+        self.assertEqual(by_key["data_root"].default, str(self.root / "medianfo-data"))
         self.assertEqual(by_key["host"].default, "2")
         self.assertEqual(by_key["port"].default, "8900")
         self.assertEqual(by_key["mdns_name"].default, "peach")
@@ -80,7 +80,7 @@ class ValidatorTests(_Case):
         windows_abspath = ntpath.abspath
         with mock.patch.object(Path, "is_dir", return_value=True), \
                 mock.patch.object(Path, "resolve", return_value=redirected), \
-                mock.patch("peach.onboarding.os.path.abspath", side_effect=windows_abspath):
+                mock.patch("medianfo.onboarding.os.path.abspath", side_effect=windows_abspath):
             validate = onboarding.media_dir_validator(windows=True)
             for raw in (mapped, mapped + r"\子目录\.."):
                 with self.subTest(raw=raw):
@@ -91,7 +91,7 @@ class ValidatorTests(_Case):
         windows_abspath = ntpath.abspath
         with mock.patch.object(Path, "is_dir", return_value=True), \
                 mock.patch.object(Path, "resolve", return_value=Path(shared)), \
-                mock.patch("peach.onboarding.os.path.abspath", side_effect=windows_abspath):
+                mock.patch("medianfo.onboarding.os.path.abspath", side_effect=windows_abspath):
             with self.assertRaisesRegex(ValueError, "不是盘符路径"):
                 onboarding.media_dir_validator(windows=True)(shared)
 
@@ -126,7 +126,7 @@ class ValidatorTests(_Case):
 
     def test_mdns_name_is_a_dns_label(self):
         self.assertEqual(onboarding.validate_mdns_name("peach-two"), "peach-two")
-        for raw in ("", "-peach", "peach.local", "pea ch"):
+        for raw in ("", "-peach", "medianfo.local", "pea ch"):
             with self.assertRaises(ValueError):
                 onboarding.validate_mdns_name(raw)
 
@@ -165,7 +165,7 @@ class AskUntilValidTests(_Case):
 
 class ConfigureTests(_Case):
     def _answers(self, **overrides):
-        base = dict(data_root=self.root / "peach-data", media_dirs=(self.media,),
+        base = dict(data_root=self.root / "medianfo-data", media_dirs=(self.media,),
                     host="127.0.0.1", port=8900, mdns_name="peach")
         base.update(overrides)
         return onboarding.Answers(**base)
@@ -248,7 +248,7 @@ class ConfigureTests(_Case):
         prepared = onboarding.configure(self.config, self._answers(), windows=True)
         settings_file.write(prepared)
         loaded = settings_file.load_config(
-            project_root=self.root / "app", environ={"PEACH_DATA_ROOT": str(self.root / "peach-data")})
+            project_root=self.root / "app", environ={"MEDIANFO_DATA_ROOT": str(self.root / "medianfo-data")})
         self.assertTrue(loaded.present)
         self.assertEqual(loaded.locations, {"local": (str(self.media),)})
         self.assertEqual(loaded.mounts, {})
@@ -263,11 +263,11 @@ class InterviewTests(_Case):
         answers = onboarding.interview(self.config, ask, windows=NATIVE_WINDOWS, home=self.home,
                                        report=lambda _: None)
         self.assertEqual(answers, onboarding.Answers(
-            data_root=self.root / "peach-data", media_dirs=(self.media, second), host="0.0.0.0",
+            data_root=self.root / "medianfo-data", media_dirs=(self.media, second), host="0.0.0.0",
             port=8900, mdns_name="peach-two"))
         # 媒体目录问完一个就问「再加一个」，回车结束；追加的目录和第一个走同一套校验。
         self.assertEqual([prompt for prompt, _ in ask.seen], [
-            "数据目录（Peach 数据库、缓存和设置文件都放在这里）",
+            "数据目录（MediaNfo 数据库、缓存和设置文件都放在这里）",
             "媒体目录（必须已经存在，可以在外置硬盘上）",
             "再加一个媒体目录（不加就直接回车）",
             "再加一个媒体目录（不加就直接回车）",
@@ -312,18 +312,18 @@ class ApplyTests(_Case):
         (self.media / "sub" / "a.mp4").write_bytes(b"0" * 10)
         patcher = mock.patch.object(onboarding.certs, "bootstrap_certificates")
         self.certs = patcher.start()
-        self.certs.return_value.ca_cert = self.root / "peach-data" / "secrets" / "tls" / "ca.crt"
+        self.certs.return_value.ca_cert = self.root / "medianfo-data" / "secrets" / "tls" / "ca.crt"
         self.addCleanup(patcher.stop)
 
     def _answers(self, **overrides):
-        base = dict(data_root=self.root / "peach-data", media_dirs=(self.media,),
+        base = dict(data_root=self.root / "medianfo-data", media_dirs=(self.media,),
                     host="127.0.0.1", port=8900, mdns_name="peach")
         base.update(overrides)
         return onboarding.Answers(**base)
 
     def test_apply_builds_the_whole_tree_and_writes_the_settings_file(self):
         applied = onboarding.apply(self.config, self._answers(), windows=NATIVE_WINDOWS)
-        data_root = self.root / "peach-data"
+        data_root = self.root / "medianfo-data"
         for key in settings_file.DIRECTORY_KEYS:
             self.assertTrue((data_root / key).is_dir(), key)
         self.assertTrue((data_root / "secrets" / "tls").is_dir())
@@ -362,7 +362,7 @@ class ApplyTests(_Case):
             onboarding.apply(self.config, self._answers(), windows=NATIVE_WINDOWS)
         onboarding.apply(self.config, self._answers(port=9100),
                          windows=NATIVE_WINDOWS, force=True)
-        loaded, _ = onboarding.resolve_config(self.root / "peach-data", environ={})
+        loaded, _ = onboarding.resolve_config(self.root / "medianfo-data", environ={})
         self.assertEqual(loaded.server.port, 9100)
 
     def test_the_first_scan_marker_is_consumed_exactly_once(self):
@@ -383,7 +383,7 @@ class ApplyTests(_Case):
         self.assertEqual(config.path, elsewhere / "config.toml")
 
     def test_a_broken_settings_file_falls_back_and_hands_over_the_error(self):
-        data_root = self.root / "peach-data"
+        data_root = self.root / "medianfo-data"
         data_root.mkdir()
         (data_root / "config.toml").write_text("[server\nport = ", encoding="utf-8")
         config, broken = onboarding.resolve_config(data_root, environ={})
@@ -392,7 +392,7 @@ class ApplyTests(_Case):
 
 
 class _SetupHttpCase(_Case):
-    """首启服务的 HTTP 夹具：临时 Peach 数据目录、证书生成打桩、没有口令的应用。"""
+    """首启服务的 HTTP 夹具：临时 MediaNfo 数据目录、证书生成打桩、没有口令的应用。"""
 
     def setUp(self):
         super().setUp()
@@ -403,15 +403,15 @@ class _SetupHttpCase(_Case):
         active = mock.patch.object(settings_file, "active", lambda: self.config)
         active.start()
         self.addCleanup(active.stop)
-        self.data_root = self.root / "peach-data"
+        self.data_root = self.root / "medianfo-data"
 
     def _client(self, *, configured: bool = False, client=("127.0.0.1", 12345), base_url="http://test"):
         import httpx
 
-        from peach.api import create_app
-        from peach.config import PeachSettings
+        from medianfo.api import create_app
+        from medianfo.config import MediaNfoSettings
 
-        app = create_app(PeachSettings(
+        app = create_app(MediaNfoSettings(
             db_path=self.data_root / "database" / "ledger.db",
             configured=configured, token="",
         ))
@@ -438,7 +438,7 @@ class _SetupHttpCase(_Case):
         return asyncio.run(run())
 
     def _loaded(self):
-        return settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.data_root)})
+        return settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.data_root)})
 
 
 @unittest.skipUnless(HAS_HTTP_DEPS, "需要 fastapi 与 httpx")
@@ -478,12 +478,12 @@ class SetupJsonContractTests(_SetupHttpCase):
         return response.json()
 
     def test_remote_reporting_defaults_on_and_opt_out_is_saved_in_selected_data_root(self):
-        from peach import remote_reporting
+        from medianfo import remote_reporting
         response = self._send("GET", self.QUESTIONS)
         self.assertTrue(response.json()["remote_reporting"]["usage"])
         self.assertTrue(response.json()["remote_reporting"]["errors"])
         self._submit(remote_reporting={"usage": False, "errors": False})
-        config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.data_root)})
+        config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.data_root)})
         self.assertFalse(remote_reporting.consent(config)["usage"])
         self.assertFalse(remote_reporting.consent(config)["errors"])
 
@@ -498,16 +498,16 @@ class SetupJsonContractTests(_SetupHttpCase):
         response = self._get("/")
         self.assertEqual(response.status_code, 200)
         body = response.text
-        self.assertIn("<title>Peach · 首次运行</title>", body)
+        self.assertIn("<title>MediaNfo · 首次运行</title>", body)
         self.assertIn('<link rel="icon" href="/favicon.ico" type="image/x-icon">', body)
-        self.assertLess(body.index('localStorage.getItem("peach.settings.v1")'), body.index("/dist/peach-pages.css"))
+        self.assertLess(body.index('localStorage.getItem("medianfo.settings.v1")'), body.index("/dist/peach-pages.css"))
         for symbol in ("folder-search", "hard-drive", "database"):
             self.assertIn(f'<symbol id="i-{symbol}"', body)
         self.assertNotIn("/dist/peach-entry.js", body)
         self.assertNotIn("<form", body)
         # 首启服务没有口令，页面包、Inter 与站标得放行。
         for path in ("/dist/peach-pages.js", "/dist/peach-pages.css", "/vendor/inter/5.3.0/index.css",
-                     "/peach-logo.png"):
+                     "/medianfo-logo.png"):
             with self.subTest(path):
                 self.assertEqual(self._get(path).status_code, 200)
 
@@ -538,11 +538,11 @@ class SetupJsonContractTests(_SetupHttpCase):
         import subprocess
         import sys
         from urllib.request import ProxyHandler, build_opener
-        from peach.tray import AlreadyRunning, ServiceManager, SetupGate, SingleInstance, _peach_executable
+        from medianfo.tray import AlreadyRunning, ServiceManager, SetupGate, SingleInstance, _medianfo_executable
 
         selected = self.root / "自选数据目录"
-        executable = _peach_executable()
-        environment = {"PEACH_DATA_ROOT": str(self.config.data_root)}
+        executable = _medianfo_executable()
+        environment = {"MEDIANFO_DATA_ROOT": str(self.config.data_root)}
 
         def launch_service(command, **kwargs):
             python = sys.executable
@@ -553,7 +553,7 @@ class SetupJsonContractTests(_SetupHttpCase):
 
         manager = ServiceManager((), log_dir=self.config.directory("logs"), popen=launch_service)
         self.addCleanup(manager.stop_owned)
-        instance = SingleInstance(self.config.directory("state") / "peach-tray.lock")
+        instance = SingleInstance(self.config.directory("state") / "medianfo-tray.lock")
         instance.acquire()
         self.addCleanup(instance.close)
         gate = SetupGate(manager, self.config, waiting=True,
@@ -563,7 +563,7 @@ class SetupJsonContractTests(_SetupHttpCase):
             holder.bind(("127.0.0.1", 0))
             port = holder.getsockname()[1]
         with mock.patch.object(distribution, "standalone", return_value=True), \
-                mock.patch("peach.tray._peach_executable", return_value=executable):
+                mock.patch("medianfo.tray._medianfo_executable", return_value=executable):
             response = self._send("POST", self.SUBMIT,
                                   json=self._body(data_root=str(selected), port=str(port), scan_now=False),
                                   base_url="http://127.0.0.1:8900")
@@ -586,7 +586,7 @@ class SetupJsonContractTests(_SetupHttpCase):
                 SingleInstance(instance.path).acquire()
         self.assertTrue((selected / "database" / "ledger.db").is_file())
         self.assertFalse((self.config.data_root / "database" / "ledger.db").exists())
-        self.assertEqual(manager.child_environment()["PEACH_DATA_ROOT"], str(selected))
+        self.assertEqual(manager.child_environment()["MEDIANFO_DATA_ROOT"], str(selected))
 
     def test_two_directories_are_declared_together(self):
         second = self.root / "more"
@@ -606,13 +606,13 @@ class SetupJsonContractTests(_SetupHttpCase):
         self.assertEqual((loaded.server.host, loaded.server.mdns_name), ("127.0.0.1", "peach"))
 
     def test_password_fields_are_ignored_while_the_switch_is_off(self):
-        from peach import access
+        from medianfo import access
         self._submit(access_enabled=False, access_password="should-not-be-used",
                      access_confirm="should-not-be-used")
         self.assertEqual(access.load(self.data_root / "secrets" / "access.json")["mode"], "open")
 
     def test_the_setup_service_opens_the_folder_dialog_for_each_row(self):
-        with mock.patch("peach.folder_picker.pick_folder", return_value=str(self.media)) as picker:
+        with mock.patch("medianfo.folder_picker.pick_folder", return_value=str(self.media)) as picker:
             response = self._send("POST", "/api/pick-folder", json={"initial": "E:/old"})
         self.assertEqual(response.status_code, 200, response.text)
         self.assertEqual(response.json(), {"path": str(self.media)})
@@ -664,7 +664,7 @@ class SetupJsonContractTests(_SetupHttpCase):
     def test_the_questions_list_missing_mount_software_with_download_links(self):
         rows = [{"name": "CloudDrive", "available": True, "download_url": "https://www.clouddrive2.com/download.html"},
                 {"name": "WinFsp", "available": False, "download_url": "https://winfsp.dev/rel/"}]
-        with mock.patch("peach.media_configuration.mount_dependencies", return_value=rows):
+        with mock.patch("medianfo.media_configuration.mount_dependencies", return_value=rows):
             data = self._send("GET", self.QUESTIONS).json()
         self.assertEqual(data["cloud"]["dependencies"], [{
             "name": "WinFsp", "message": "未检测到 WinFsp。",
@@ -699,7 +699,7 @@ class SetupJsonContractTests(_SetupHttpCase):
         cases = (
             ("已配置", {"configured": True}, 404, "not found"),
             ("非回环调用方", {"client": ("198.51.100.7", 51000)}, 403, "setup is loopback-only"),
-            ("别的页面发来", {"headers": {"Origin": "http://elsewhere.example"}}, 403, "请从 Peach 设置页提交"),
+            ("别的页面发来", {"headers": {"Origin": "http://elsewhere.example"}}, 403, "请从 MediaNfo 设置页提交"),
         )
         for name, kwargs, status, message in cases:
             with self.subTest(name):
@@ -804,8 +804,8 @@ class SetupJsonContractTests(_SetupHttpCase):
         self.assertEqual(data, {"data_root": "数据目录写不进去"})
 
     def test_a_valid_json_submission_returns_the_entry_address_and_runtime_facts(self):
-        from peach import access
-        from peach.web_entry import runtime_fact_entries
+        from medianfo import access
+        from medianfo.web_entry import runtime_fact_entries
         response = self._send("POST", self.SUBMIT, json=self._body(
             access_enabled=True, access_password="correct-password", access_confirm="correct-password"))
         self.assertEqual(response.status_code, 200, response.text)
@@ -823,7 +823,7 @@ class SetupJsonContractTests(_SetupHttpCase):
         self.assertNotIn("correct-password", response.text, "回话里不带密码")
 
     def test_the_history_guide_without_a_scan_leads_to_the_taste_page(self):
-        with mock.patch('peach.web_stats.w_taste_refresh') as refresh:
+        with mock.patch('medianfo.web_stats.w_taste_refresh') as refresh:
             response = self._send("POST", self.SUBMIT, json=self._body(scan_now=False, history_guide=True))
         self.assertEqual(response.status_code, 200, response.text)
         data = response.json()
@@ -844,7 +844,7 @@ class SetupJsonContractTests(_SetupHttpCase):
 
 class StandaloneConfigurationTests(_Case):
     def test_automatic_update_settings_roundtrip_and_access_boundaries(self):
-        from peach.automatic_updates import AutomaticUpdates
+        from medianfo.automatic_updates import AutomaticUpdates
         path = "/api/configuration/automatic-updates"
         headers = {"X-Token": "test-token"}
         with self.client() as client:
@@ -862,7 +862,7 @@ class StandaloneConfigurationTests(_Case):
             self.assertEqual(client.post(path, headers=headers, json={}).status_code, 403)
 
     def test_release_update_endpoints_require_local_authenticated_access(self):
-        with self.client() as client, mock.patch("peach.release_updates.check", return_value={"state": "current"}) as check:
+        with self.client() as client, mock.patch("medianfo.release_updates.check", return_value={"state": "current"}) as check:
             self.assertEqual(client.get("/api/configuration/updates").status_code, 401)
             response = client.get("/api/configuration/updates", headers={"X-Token": "test-token"})
             self.assertEqual(response.json(), {"state": "current"})
@@ -873,34 +873,34 @@ class StandaloneConfigurationTests(_Case):
                 self.assertEqual(client.get(f"/api/configuration/{path}",headers={"X-Token":"test-token"}).status_code,403)
 
     def test_missing_media_tools_have_download_links_in_the_runtime_facts(self):
-        from peach.web_entry import runtime_fact_entries
+        from medianfo.web_entry import runtime_fact_entries
         for missing_ffmpeg, missing_probe in ((True, True), (False, True), (False, False)):
             with self.subTest(ffmpeg=missing_ffmpeg, probe=missing_probe), mock.patch(
-                    "peach.ffmpeg.FFmpegResolver.ffmpeg", return_value=None if missing_ffmpeg else object()), mock.patch(
-                    "peach.ffmpeg.FFmpegResolver.ffprobe", return_value=None if missing_probe else object()):
+                    "medianfo.ffmpeg.FFmpegResolver.ffmpeg", return_value=None if missing_ffmpeg else object()), mock.patch(
+                    "medianfo.ffmpeg.FFmpegResolver.ffprobe", return_value=None if missing_probe else object()):
                 # 两样都在时 FFmpeg 不占一行，取不到就按没有下载入口算。
                 fact = next((row for row in runtime_fact_entries(self.config) if row['term'] == 'FFmpeg'), {})
                 self.assertEqual(fact.get('download_url') == 'https://ffmpeg.org/download.html',
                                  missing_ffmpeg or missing_probe)
 
     def test_mount_downloads_follow_os_and_detected_installation(self):
-        from peach.media_configuration import mount_dependencies
-        from peach.routes_pages import missing_mount_dependencies
+        from medianfo.media_configuration import mount_dependencies
+        from medianfo.routes_pages import missing_mount_dependencies
 
         def names(*, windows):
             return [row['download_label'] for row in missing_mount_dependencies(windows=windows)]
-        with mock.patch("peach.media_configuration._windows_installed_names", return_value=[]), mock.patch(
-                "peach.media_configuration.shutil.which", return_value=None):
+        with mock.patch("medianfo.media_configuration._windows_installed_names", return_value=[]), mock.patch(
+                "medianfo.media_configuration.shutil.which", return_value=None):
             windows = mount_dependencies(system='win32')
             self.assertEqual([row['name'] for row in windows], ['CloudDrive', 'WinFsp'])
             self.assertTrue(all(not row['available'] for row in windows))
             self.assertIn('下载 WinFsp', names(windows=True))
             self.assertNotIn('下载 macFUSE', names(windows=True))
-        with mock.patch("peach.media_configuration._windows_installed_names", return_value=['clouddrive', 'winfsp 2026']):
+        with mock.patch("medianfo.media_configuration._windows_installed_names", return_value=['clouddrive', 'winfsp 2026']):
             self.assertTrue(all(row['available'] for row in mount_dependencies(system='win32')))
             self.assertEqual(names(windows=True), [])
-        with mock.patch("peach.media_configuration.Path.is_dir", return_value=False), mock.patch(
-                "peach.media_configuration.shutil.which", return_value=None):
+        with mock.patch("medianfo.media_configuration.Path.is_dir", return_value=False), mock.patch(
+                "medianfo.media_configuration.shutil.which", return_value=None):
             self.assertEqual([row['name'] for row in mount_dependencies(system='darwin')], ['CloudDrive', 'macFUSE'])
             self.assertIn('下载 macFUSE', names(windows=False))
             self.assertNotIn('下载 WinFsp', names(windows=False))
@@ -911,19 +911,19 @@ class StandaloneConfigurationTests(_Case):
         self.config = replace(self.config, locations={"local": (str(self.media),)},
                               mounts={}, server=settings_file.ServerSettings(port=9123))
         settings_file.write(self.config)
-        self.config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.config.data_root)})
+        self.config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.config.data_root)})
         self.addCleanup(mock.patch.stopall)
-        mock.patch("peach.distribution.standalone", return_value=True).start()
-        mock.patch("peach.settings_file.load_config", side_effect=lambda: settings_file._merge(
+        mock.patch("medianfo.distribution.standalone", return_value=True).start()
+        mock.patch("medianfo.settings_file.load_config", side_effect=lambda: settings_file._merge(
             self.config.data_root, self.config.path, True, True,
             settings_file._read_document(self.config.path), {})).start()
 
     @contextmanager
     def client(self, *, token="test-token", address="127.0.0.1", base_url="http://localhost", server=None):
         from fastapi.testclient import TestClient
-        from peach.api import create_app
-        from peach.config import PeachSettings
-        app = create_app(PeachSettings(configured=True, token=token, mdns_name="peach-writer",
+        from medianfo.api import create_app
+        from medianfo.config import MediaNfoSettings
+        app = create_app(MediaNfoSettings(configured=True, token=token, mdns_name="medianfo-writer",
                          follow_state_root=self.root / "state",
                          db_path=self.config.data_root / "database" / "ledger.db"))
         if server:
@@ -938,12 +938,12 @@ class StandaloneConfigurationTests(_Case):
     def test_local_mdns_connection_shares_configuration_access_for_read_save_and_picker(self):
         headers = {"X-Token": "test-token"}
         with self.client(address="192.0.2.10", server="192.0.2.10",
-                         base_url="https://peach-writer.local") as client:
+                         base_url="https://medianfo-writer.local") as client:
             self.assertTrue(client.get("/healthz").json()["configurable"])
             self.assertEqual(client.get("/api/configuration").status_code, 401)
             response = client.get("/api/configuration", headers=headers)
             self.assertEqual(response.status_code, 200)
-            with mock.patch("peach.folder_picker.pick_folder", return_value=str(self.media)):
+            with mock.patch("medianfo.folder_picker.pick_folder", return_value=str(self.media)):
                 picked = client.post("/api/pick-folder", headers=headers, json={})
             self.assertEqual(picked.status_code, 200, picked.text)
             saved = client.post("/api/configuration", headers=headers, json={
@@ -952,12 +952,12 @@ class StandaloneConfigurationTests(_Case):
 
     def test_configuration_connection_gate_rejects_remote_and_untrusted_hosts(self):
         cases = [
-            ("192.0.2.11", "192.0.2.10", "peach-writer.local", False),
+            ("192.0.2.11", "192.0.2.10", "medianfo-writer.local", False),
             ("192.0.2.10", "192.0.2.10", "example.org", False),
             ("192.0.2.10", "192.0.2.10", "192.0.2.10", True),
-            ("127.0.0.1", "127.0.0.1", "peach-writer.local", True),
+            ("127.0.0.1", "127.0.0.1", "medianfo-writer.local", True),
             ("::1", "::1", "localhost", True),
-            ("0.0.0.0", "0.0.0.0", "peach-writer.local", False),
+            ("0.0.0.0", "0.0.0.0", "medianfo-writer.local", False),
         ]
         for peer, server, host, allowed in cases:
             with self.subTest(peer=peer, host=host), self.client(
@@ -971,10 +971,10 @@ class StandaloneConfigurationTests(_Case):
                         self.assertEqual(client.post(path, headers=headers, json={}).status_code, 403)
 
     def test_tray_managed_source_configuration_keeps_the_https_origin_and_managed_port(self):
-        from peach.routes_configuration import RELOAD_NAME
-        with mock.patch("peach.distribution.standalone", return_value=False), mock.patch.dict(
-                os.environ, {"PEACH_TRAY_MANAGED": "1"}), self.client(
-                address="192.0.2.10", server="192.0.2.10", base_url="https://peach-writer.local") as client:
+        from medianfo.routes_configuration import RELOAD_NAME
+        with mock.patch("medianfo.distribution.standalone", return_value=False), mock.patch.dict(
+                os.environ, {"MEDIANFO_TRAY_MANAGED": "1"}), self.client(
+                address="192.0.2.10", server="192.0.2.10", base_url="https://medianfo-writer.local") as client:
             headers = {"X-Token": "test-token"}
             self.assertTrue(client.get("/healthz").json()["configurable"])
             snapshot = client.get("/api/configuration", headers=headers).json()
@@ -982,22 +982,22 @@ class StandaloneConfigurationTests(_Case):
             self.assertFalse(snapshot["port_editable"])
             body = {"revision": snapshot["revision"], "media_dirs": [str(self.media)], "port": "9124"}
             self.assertEqual(client.post("/api/configuration", headers=headers, json=body).status_code, 400)
-            with mock.patch("peach.onboarding.check_available_port") as check:
+            with mock.patch("medianfo.onboarding.check_available_port") as check:
                 saved = client.post("/api/configuration", headers=headers, json={**body, "port": "9123"})
             check.assert_not_called()
             self.assertEqual(saved.status_code, 200, saved.text)
-            self.assertEqual(saved.json()["url"], "https://peach-writer.local/")
+            self.assertEqual(saved.json()["url"], "https://medianfo-writer.local/")
             self.assertTrue((self.config.directory("state") / RELOAD_NAME).is_file())
-        with mock.patch("peach.distribution.standalone", return_value=False), mock.patch.dict(
-                os.environ, {"PEACH_TRAY_MANAGED": ""}), self.client() as client:
+        with mock.patch("medianfo.distribution.standalone", return_value=False), mock.patch.dict(
+                os.environ, {"MEDIANFO_TRAY_MANAGED": ""}), self.client() as client:
             self.assertFalse(client.get("/healthz").json()["configurable"])
             self.assertFalse(client.get("/api/configuration", headers=headers).json()["editable"])
             self.assertEqual(client.post("/api/configuration", headers=headers, json=body).status_code, 409)
 
     def test_a_dev_serve_counts_as_configurable_without_a_tray(self):
-        """裸 serve 调试（--no-auth 置 PEACH_DEV=1）免掉「先去托管主机」的前提。"""
-        with mock.patch.dict(os.environ, {"PEACH_DEV": "1", "PEACH_TRAY_MANAGED": ""}), \
-                mock.patch("peach.distribution.standalone", return_value=False), \
+        """裸 serve 调试（--no-auth 置 MEDIANFO_DEV=1）免掉「先去托管主机」的前提。"""
+        with mock.patch.dict(os.environ, {"MEDIANFO_DEV": "1", "MEDIANFO_TRAY_MANAGED": ""}), \
+                mock.patch("medianfo.distribution.standalone", return_value=False), \
                 self.client() as client:
             self.assertTrue(client.get("/healthz").json()["configurable"])
             headers = {"X-Token": "test-token"}
@@ -1005,8 +1005,8 @@ class StandaloneConfigurationTests(_Case):
 
     def test_the_configuration_page_is_a_screen_of_the_app_and_its_data_a_json_contract(self):
         """`/configuration` 是主站外壳里的一屏，表单由 island 画；真相只在 `/api/configuration`。"""
-        from peach.routes_configuration import RELOAD_NAME
-        with self.client() as client, mock.patch("peach.onboarding.check_available_port") as available:
+        from medianfo.routes_configuration import RELOAD_NAME
+        with self.client() as client, mock.patch("medianfo.onboarding.check_available_port") as available:
             headers = {"X-Token": "test-token"}
             page = client.get("/configuration", headers=headers)
             self.assertEqual(page.status_code, 200)
@@ -1043,7 +1043,7 @@ class StandaloneConfigurationTests(_Case):
     def test_the_snapshot_counts_libraries_the_way_the_library_switcher_groups_them(self):
         """摘要卡的媒体库数量由服务端给出：库名相同的目录算一个库，跨来源也一样。"""
         from dataclasses import replace
-        from peach import media_libraries
+        from medianfo import media_libraries
         first, second, third = (str(self.media / name) for name in ("a", "b", "c"))
         self.config = replace(self.config, locations={"local": (first, second), "115": (third,)},
                               library_names={first: "电影", third: "电影"})
@@ -1055,7 +1055,7 @@ class StandaloneConfigurationTests(_Case):
         self.assertEqual(snapshot["library_count"], len(media_libraries.libraries(self.config)))
 
     def test_field_errors_come_back_per_row_and_nothing_is_written(self):
-        from peach.routes_configuration import revision
+        from medianfo.routes_configuration import revision
         before = self.config.path.read_bytes()
         with self.client() as client:
             response = client.post("/api/configuration", headers={"X-Token": "test-token"}, json={
@@ -1070,7 +1070,7 @@ class StandaloneConfigurationTests(_Case):
         self.assertEqual(before, self.config.path.read_bytes())
 
     def test_cloud_configuration_saves_all_sources_and_requests_configured_scan(self):
-        from peach.routes_configuration import revision
+        from medianfo.routes_configuration import revision
         with self.client() as client:
             response = client.post('/api/configuration', headers={'X-Token': 'test-token'}, json={
                 'revision': revision(self.config), 'port': 9123, 'scan_now': True,
@@ -1087,7 +1087,7 @@ class StandaloneConfigurationTests(_Case):
             self.assertFalse((saved.directory('database') / 'ledger.db').exists())
 
     def test_cloud_configuration_roundtrips_per_root_proxy_protection(self):
-        from peach.routes_configuration import revision
+        from medianfo.routes_configuration import revision
         with self.client() as client:
             for location, cost in (("onedrive", "free"), ("mounted", "metered"), ("guangya", "free")):
                 current = settings_file.load_config()
@@ -1102,7 +1102,7 @@ class StandaloneConfigurationTests(_Case):
                 self.assertFalse((saved.directory('database') / 'ledger.db').exists())
 
     def test_settings_reject_unauthenticated_remote_cross_origin_and_stale_forms(self):
-        from peach.routes_configuration import revision
+        from medianfo.routes_configuration import revision
         data = {"revision": revision(self.config), "media_dirs": [str(self.media)], "port": "9124"}
         before = self.config.path.read_bytes()
         with self.client() as client:
@@ -1119,33 +1119,33 @@ class StandaloneConfigurationTests(_Case):
             self.assertFalse(client.get("/healthz").json()["configurable"])
             response = client.get("/api/configuration", headers=headers)
             self.assertEqual(response.status_code, 403)
-            self.assertEqual(response.json(), {"error": "请在运行 Peach 的电脑上打开配置"})
+            self.assertEqual(response.json(), {"error": "请在运行 MediaNfo 的电脑上打开配置"})
             response = client.post("/api/configuration", headers=headers, json=data)
             self.assertEqual(response.status_code, 403)
         self.assertEqual(before, self.config.path.read_bytes())
 
     def test_browser_navigations_get_an_error_page_instead_of_raw_json(self):
-        """地址栏里直接打开一个出错的路径，看到的是 Peach 的页面，不是一行 JSON。
+        """地址栏里直接打开一个出错的路径，看到的是 MediaNfo 的页面，不是一行 JSON。
 
         错误页由页面包画：壳里只有状态码与已换成中文的说明，标题与说明的显隐归前端。
         `/api/` 下的路径和不要 HTML 的调用方仍拿 JSON——页面脚本按 `error` 字段取原因。
         """
         from fastapi import HTTPException
         from fastapi.testclient import TestClient
-        from peach.api import create_app
-        from peach.config import PeachSettings
-        app = create_app(PeachSettings(configured=True, token="test-token",
+        from medianfo.api import create_app
+        from medianfo.config import MediaNfoSettings
+        app = create_app(MediaNfoSettings(configured=True, token="test-token",
                                        db_path=self.config.data_root / "database" / "ledger.db"))
 
         def refuse(status: int):
-            raise HTTPException(status, {403: "请在运行 Peach 的电脑上打开配置", 409: "请先完成首次设置"}
+            raise HTTPException(status, {403: "请在运行 MediaNfo 的电脑上打开配置", 409: "请先完成首次设置"}
                                 .get(status, "服务出错"))
         # 页面 catch-all 排在最后会吃掉一切路径，测试路由要插到它前面。
         app.add_api_route("/refuse/{status}", refuse, methods=["GET"])
         app.router.routes.insert(0, app.router.routes.pop())
         html = {"Accept": "text/html,application/xhtml+xml"}
         with TestClient(app, base_url="http://localhost") as client:
-            for status, detail in ((403, "请在运行 Peach 的电脑上打开配置"), (409, "请先完成首次设置"),
+            for status, detail in ((403, "请在运行 MediaNfo 的电脑上打开配置"), (409, "请先完成首次设置"),
                                    (400, "服务出错")):
                 with self.subTest(status):
                     page = client.get(f"/refuse/{status}", headers=html)
@@ -1167,10 +1167,10 @@ class StandaloneConfigurationTests(_Case):
             self.assertEqual(api.headers["content-type"], "application/json")
 
     def test_the_folder_dialog_is_opened_by_this_machine_for_loopback_callers_only(self):
-        """对话框弹在运行 Peach 的电脑上；局域网、跨站与没登录的请求都不能让它弹。"""
-        from peach import folder_picker
+        """对话框弹在运行 MediaNfo 的电脑上；局域网、跨站与没登录的请求都不能让它弹。"""
+        from medianfo import folder_picker
         headers = {"X-Token": "test-token"}
-        with mock.patch("peach.folder_picker.pick_folder", return_value=str(self.media)) as picker:
+        with mock.patch("medianfo.folder_picker.pick_folder", return_value=str(self.media)) as picker:
             with self.client() as client:
                 response = client.post("/api/pick-folder", headers=headers, json={"initial": ""})
                 self.assertEqual(response.status_code, 200, response.text)
@@ -1183,21 +1183,21 @@ class StandaloneConfigurationTests(_Case):
             with self.client(address="192.0.2.1") as client:
                 self.assertEqual(client.post("/api/pick-folder", headers=headers, json={}).status_code, 403)
             self.assertEqual(picker.call_count, 1)
-        with mock.patch("peach.folder_picker.pick_folder",
+        with mock.patch("medianfo.folder_picker.pick_folder",
                         side_effect=folder_picker.PickerUnavailable("这个系统上没有可用的文件夹对话框")):
             with self.client() as client:
                 response = client.post("/api/pick-folder", headers=headers, json={})
         self.assertEqual(response.status_code, 501)
         self.assertEqual(response.json()["error"], "这个系统上没有可用的文件夹对话框")
         busy = folder_picker.PickerBusy("已经有一个选择文件夹的窗口开着")
-        with mock.patch("peach.folder_picker.pick_folder", side_effect=busy):
+        with mock.patch("medianfo.folder_picker.pick_folder", side_effect=busy):
             with self.client() as client:
                 self.assertEqual(client.post("/api/pick-folder", headers=headers, json={}).status_code, 409)
 
     def test_standalone_tray_uses_its_own_binary_and_configured_loopback_port(self):
         import sys
-        from peach.tray import _peach_executable, configured_service_specs, normal_url
-        self.assertEqual(_peach_executable(), Path(sys.executable).resolve())
+        from medianfo.tray import _medianfo_executable, configured_service_specs, normal_url
+        self.assertEqual(_medianfo_executable(), Path(sys.executable).resolve())
         spec, = configured_service_specs(self.config)
         self.assertEqual(spec.health_url, "http://127.0.0.1:9123/healthz")
         self.assertIn("9123", spec.command)
@@ -1206,7 +1206,7 @@ class StandaloneConfigurationTests(_Case):
 
     def test_standalone_lan_binds_all_interfaces_and_publishes_mdns(self):
         from dataclasses import replace
-        from peach.tray import configured_service_specs, normal_url
+        from medianfo.tray import configured_service_specs, normal_url
         lan = replace(self.config, server=replace(
             self.config.server, host="0.0.0.0", port=9123, mdns_name="peach-test"))
         spec, = configured_service_specs(lan)
@@ -1217,11 +1217,11 @@ class StandaloneConfigurationTests(_Case):
         self.assertEqual(normal_url(lan), "http://127.0.0.1:9123/")
 
     def test_standalone_version_inspection_does_not_execute_git(self):
-        from peach.versioning import VersionManager
+        from medianfo.versioning import VersionManager
         execute = mock.Mock(side_effect=AssertionError("Git must not run"))
         manager = VersionManager(execute=execute)
         self.assertEqual(manager.inspect().branch, "测试包")
-        with mock.patch("peach.release_updates.check", return_value={"state":"available", "latest_version":"1.0.0", "message":"有新版本可下载。"}):
+        with mock.patch("medianfo.release_updates.check", return_value={"state":"available", "latest_version":"1.0.0", "message":"有新版本可下载。"}):
             self.assertEqual(manager.check().state, "available")
             self.assertEqual(manager.update().state, "available")
         self.assertIn("GitHub", manager.inspect().channel_label)

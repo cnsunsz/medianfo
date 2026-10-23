@@ -1,8 +1,8 @@
 ; InitializeSetup 只运行真实目录判据并写测试结果，不创建安装目录、登记项或快捷方式。
 [Setup]
-AppName=Peach directory contract
+AppName=MediaNfo directory contract
 AppVersion=1.0
-AppId=PeachDirectoryContract
+AppId=MediaNfoDirectoryContract
 PrivilegesRequired=lowest
 CreateAppDir=no
 Uninstallable=no

@@ -5,8 +5,8 @@
 - 许可：MIT，Copyright (c) 2026 Emil Kowalski。本文是中文摘录与改写，不复制原文。
 - **不在 `docs/reference-sources.json` 里登记**：规则取自多份文件的一次性挑选，没有单一可哈希的上游文件。
   复核时比对上面这个提交与上游最新提交的 diff，只看本文摘过的文件。
-- 用法：复核已有动效、移动端交互和组件自测时当清单。Peach 只在有直接证据时新增动效，本文不构成新增动效的证据；
-  与 `peach-web-ui`、`transitions-dev-measured.md` 冲突时以 Peach 的为准。与 `jakubkrehel-interface-skills.md`
+- 用法：复核已有动效、移动端交互和组件自测时当清单。MediaNfo 只在有直接证据时新增动效，本文不构成新增动效的证据；
+  与 `peach-web-ui`、`transitions-dev-measured.md` 冲突时以 MediaNfo 的为准。与 `jakubkrehel-interface-skills.md`
   重复的条目（不写 `transition: all`、交互态不用 keyframes、悬停门控、浮层 `overscroll-behavior:contain`）只记在那一份。
 
 ## 动效复核
@@ -30,7 +30,7 @@
 
 ## 移动端
 
-Peach 已有 `-webkit-tap-highlight-color`、`viewport-fit=cover`、按主题更新的 `theme-color`、`text-size-adjust`
+MediaNfo 已有 `-webkit-tap-highlight-color`、`viewport-fit=cover`、按主题更新的 `theme-color`、`text-size-adjust`
 与输入框防放大，这里只记仍需逐处检查的：
 
 | 检测 | 改法 |
@@ -62,7 +62,7 @@ Peach 已有 `-webkit-tap-highlight-color`、`viewport-fit=cover`、按主题更
 | --- | --- |
 | 永远不从 `scale(0)` 起 | 计数徽标的弹出形态取自 transitions.dev 实测，见 `frontend/src/ui-kit/motion.css` |
 | 按下缩放到 `0.97`、按压过渡 100–160ms | Geist Button 按下不缩放 |
-| 减弱动态效果时保留淡入淡出 | Peach 在全局 `prefers-reduced-motion` 规则里关掉全部动画与过渡 |
+| 减弱动态效果时保留淡入淡出 | MediaNfo 在全局 `prefers-reduced-motion` 规则里关掉全部动画与过渡 |
 | 自定义强缓动曲线（`cubic-bezier(0.23,1,0.32,1)` 等） | 时长与缓动只读 board.css 的 motion token |
-| 根元素 `overscroll-behavior:none` | Peach 的主滚动在页面上，不是自管滚动容器 |
-| `100svh` 给首屏 | Peach 没有营销首屏，满高面板用 `100dvh` |
+| 根元素 `overscroll-behavior:none` | MediaNfo 的主滚动在页面上，不是自管滚动容器 |
+| `100svh` 给首屏 | MediaNfo 没有营销首屏，满高面板用 `100dvh` |

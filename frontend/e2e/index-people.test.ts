@@ -92,7 +92,7 @@ describe('本地与在线艺人共用名册布局', () => {
         });
         try {
           // 主模块先铺索引骨架，首屏数据暂缓；标题行与名册入口在等待时已经完整可见。
-          await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + path, { waitUntil: 'commit' });
+          await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + path, { waitUntil: 'commit' });
           await page.locator('#index [data-skeleton]').first().waitFor();
           assert.equal(await page.locator('#index [role="tablist"]').count(), 1);
           assert.deepEqual(await page.locator('#index [role="tab"]').allTextContents(), ['艺人', '卖家', '在线']);
@@ -173,7 +173,7 @@ describe('本地与在线艺人共用名册布局', () => {
         const url = new URL(request.url());
         if (url.pathname === '/api/index') requests.push(url.search);
       });
-      await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/creators?category=animation', { waitUntil: 'load' });
+      await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/creators?category=animation', { waitUntil: 'load' });
       await page.waitForURL(url => url.pathname === '/performers', { timeout: 15_000 });
       await page.locator('#index [data-index-page]').waitFor({ timeout: 15_000 });
       await settle(page);

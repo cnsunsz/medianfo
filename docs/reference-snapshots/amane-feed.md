@@ -5,8 +5,8 @@
 - 取得日期：2026-09-22
 - 取证方式：仓库外独立克隆，
   只读 `docs/dev/feeds.md`、`src/amane/scheduler/feeds.py`、`scheduler/rss.py`、`db/models.py`、
-  `db/repos/feeds.py`、`db/feed_keywords.py`、`api/models/feeds.py`，不引入代码。GPL 与 Peach 的
-  许可证不兼容，本文只记录设计判据，Peach 侧按自己的表结构、HTTP 栈与调度模型重写。
+  `db/repos/feeds.py`、`db/feed_keywords.py`、`api/models/feeds.py`，不引入代码。GPL 与 MediaNfo 的
+  许可证不兼容，本文只记录设计判据，MediaNfo 侧按自己的表结构、HTTP 栈与调度模型重写。
 - 本文不登记进 `docs/reference-sources.json`：与 `amane-crawlers-poc.md`、`amane-task-followups.md`
   同理，这是对上游源码的一次性只读实证，没有对应的可变 Markdown 原文需要跟踪漂移。
 
@@ -114,14 +114,14 @@
 ## 未取得
 
 - **来源清单**：上游不内置站点列表，`docs/dev/feeds.md` 只说「没有原生 RSS 的站点用站外适配器」，
-  没有任何可直接抄的 JAV feed 地址。可用来源必须 Peach 自己取证，见 `docs/SOURCING.md`。
+  没有任何可直接抄的 JAV feed 地址。可用来源必须 MediaNfo 自己取证，见 `docs/SOURCING.md`。
 - **空壳资产**：上游根本没有这个概念——它的产物是一条刮削任务，元数据落在 `Metadata` 表，
   `MediaFile` 那边什么都不建。所以「没有媒体文件的资产怎么表示、算不算馆藏」在上游无对应物，
-  Peach 侧要自己定，见 ADR。
+  MediaNfo 侧要自己定，见 ADR。
 - **配额与限流**：`FeedService` 除了每源一把锁之外没有任何速率控制，源之间是紧接着串行拉的。
   按出口 IP 计配额的站点（JavDB）在上游没有对应处置。
 
-## Peach 采用
+## MediaNfo 采用
 
 - Feed 只发现番号，不下载、不碰媒体文件；产物是一条刮削任务加一条「未入库」空壳。
 - 两层去重：整份文档走 `ETag` / `Last-Modified`，条目走 `(源, item_key)` 唯一键，
@@ -134,15 +134,15 @@
 
 ## 有意差异
 
-- **解析器用标准库**：上游用 `feedparser`。Peach 用 `xml.etree.ElementTree`，不为这件事引依赖——
+- **解析器用标准库**：上游用 `feedparser`。MediaNfo 用 `xml.etree.ElementTree`，不为这件事引依赖——
   代价是要自己处理 RSS 2.0 与 Atom 的命名空间差异和日期格式，收益是依赖清单不变。
-- **调度不另起循环**：上游为 Feed 专门起了一个 60 秒的 asyncio 循环。Peach 复用现有的
+- **调度不另起循环**：上游为 Feed 专门起了一个 60 秒的 asyncio 循环。MediaNfo 复用现有的
   `follow_scheduler`，Feed 只是它的又一个到期任务来源。
 - **番号做全局去重**：上游只在「同一 tick、同一源」内合并相同番号，跨源和跨轮都不去重。
-  Peach 的空壳是要落进资产表的，所以番号是全局唯一键——已存在的资产（不论真实还是空壳）
+  MediaNfo 的空壳是要落进资产表的，所以番号是全局唯一键——已存在的资产（不论真实还是空壳）
   不再建第二个壳。
-- **限流是硬约束不是可选项**：JavDB 一类来源按出口 IP 计配额，Peach 侧的抓取按
+- **限流是硬约束不是可选项**：JavDB 一类来源按出口 IP 计配额，MediaNfo 侧的抓取按
   `peach-batch-jobs` 的预算与间隔走，不能像上游那样源接源紧着拉。
 - **没有阅读器**：上游 `/feeds` 是一个完整的 RSS 阅读器（正文渲染、OPML 导入、分组伪路径、
-  键盘导航）。Peach 不做阅读器——条目只在人物页与首页以「新作 · 未入库」的形态出现，
+  键盘导航）。MediaNfo 不做阅读器——条目只在人物页与首页以「新作 · 未入库」的形态出现，
   源的增删在设置页。分组、OPML、正文渲染都不采用。

@@ -20,8 +20,8 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import GENERATED_DIR
-from peach.previews import DerivedImageService, entity_thumb_root
+from medianfo.config import GENERATED_DIR
+from medianfo.previews import DerivedImageService, entity_thumb_root
 
 
 def build_parser() -> argparse.ArgumentParser:

@@ -11,7 +11,7 @@ describe('新作封面显示时机',()=>{
   it(`${viewport.name} 新作正封完整居中并补底，整幅大封不使用模糊`,{timeout:60000},async()=>{
    const context=await browser.newContext({viewport:{width:viewport.width,height:viewport.height},reducedMotion:'reduce'});
    try{
-    await context.addInitScript(()=>localStorage.setItem('peach.settings.v1',JSON.stringify({detailAutoplay:false,feedAutoScroll:false})));
+    await context.addInitScript(()=>localStorage.setItem('medianfo.settings.v1',JSON.stringify({detailAutoplay:false,feedAutoScroll:false})));
     const page=await context.newPage();
     const cases=[
      {width:632,height:900,front:632},
@@ -28,7 +28,7 @@ describe('新作封面显示时机',()=>{
     await page.route(/\/api\/feeds\/discoveries\?/,route=>route.fulfill({json:{ok:true,items:cases.map((one,index)=>({
      id:index+1,code:`EXM-00${index+1}`,title:one.wide?'Blu-ray 示例新作':'示例新作',cover_url:`https://covers.example.test/fit/${index}`,poster_box:one.poster_box,cover_frame:{layout:one.layout},
     }))}}));
-    await page.goto(requiredEnv('PEACH_E2E_ORIGIN')+'/');
+    await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN')+'/');
     for(let index=0;index<cases.length;index++){
      const card=page.locator(`#feedNew [data-feed-id="${index+1}"]`);
      await card.scrollIntoViewIfNeeded();
@@ -55,7 +55,7 @@ describe('新作封面显示时机',()=>{
   it(`${viewport.name} 新作头像显示人物图与首字并提供独立资料入口`,{timeout:60000},async()=>{
    const context=await browser.newContext({viewport:{width:viewport.width,height:viewport.height},reducedMotion:'reduce'});
    try{
-    await context.addInitScript(()=>localStorage.setItem('peach.settings.v1',JSON.stringify({detailAutoplay:false,feedAutoScroll:false})));
+    await context.addInitScript(()=>localStorage.setItem('medianfo.settings.v1',JSON.stringify({detailAutoplay:false,feedAutoScroll:false})));
     const page=await context.newPage();
     const name='有很长名字的规范人物';
     await page.route(/\/entity-image\?kind=performer&id=42/,route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128"><rect width="128" height="128" fill="#777"/></svg>'}));
@@ -64,7 +64,7 @@ describe('新作封面显示时机',()=>{
      {id:1,code:'EXM-001',title:'示例新作',link:'https://javdb.com/v/example',performers:name+'、乙、丙、丁',release_date:'2026-10-30',
       performer_refs:[{id:42,name,has_image:true,image_version:'7'},...['乙','丙','丁'].map((name,index)=>({id:43+index,name,has_image:false}))]},
      {id:2,code:'EXM-002',title:'未建档新作',performers:'未建档人物'}]}}));
-    await page.goto(requiredEnv('PEACH_E2E_ORIGIN')+'/stats');
+    await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN')+'/stats');
     await page.evaluate(()=>{history.pushState({},'','/');window.dispatchEvent(new PopStateEvent('popstate'))});
     const card=page.locator('#feedNew [data-feed-id="1"]');
     await card.waitFor({state:'visible'});
@@ -91,7 +91,7 @@ describe('新作封面显示时机',()=>{
    const context=await browser.newContext({viewport:{width:viewport.width,height:viewport.height}});
    try{
     await context.addInitScript(()=>{
-     localStorage.setItem('peach.settings.v1',JSON.stringify({detailAutoplay:false}));
+     localStorage.setItem('medianfo.settings.v1',JSON.stringify({detailAutoplay:false}));
      (window as any).__unframed=[];
      const check=(img:HTMLImageElement)=>{
       if(!img.matches('.feednew img.cover')||img.dataset.frame)return;
@@ -118,7 +118,7 @@ describe('新作封面显示时机',()=>{
      await route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1000"><rect width="796" height="1000" fill="#f00"/><rect x="796" width="704" height="1000" fill="#0f0"/></svg>'});
     });
     await page.route(/\/api\/feeds\/discoveries\?/,route=>route.fulfill({json:{ok:true,items:[{id:1,code:'EXM-001',title:'示例新作',has_cover:false,cover_url:remote}]}}));
-    await page.goto(requiredEnv('PEACH_E2E_ORIGIN')+'/stats');
+    await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN')+'/stats');
     for(let round=0;round<2;round++){
      await page.evaluate(()=>{history.pushState({},'','/');window.dispatchEvent(new PopStateEvent('popstate'))});
      const image=page.locator('#feedNew img.cover.panel');
@@ -150,15 +150,15 @@ describe('新作封面显示时机',()=>{
   it(`${viewport.name} 设置里的视频大小同步首页和 JAV`,{timeout:60000},async()=>{
    const context=await browser.newContext({viewport:{width:viewport.width,height:viewport.height},reducedMotion:'reduce'});
    try{
-    await context.addInitScript(()=>localStorage.setItem('peach.settings.v1',JSON.stringify({detailAutoplay:false,homeLayout:'big',javLayout:'big'})));
+    await context.addInitScript(()=>localStorage.setItem('medianfo.settings.v1',JSON.stringify({detailAutoplay:false,homeLayout:'big',javLayout:'big'})));
     const page=await context.newPage();
-    await page.goto(requiredEnv('PEACH_E2E_ORIGIN')+'/');
+    await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN')+'/');
     await page.locator('#grid [data-media-card]').first().waitFor({state:'visible'});
     if(viewport.name==='mobile')await page.locator('#filterBtn').click();
     await page.locator('#settingsBtn').click();
     await page.locator('#settingsPanel').getByRole('tab',{name:'浏览与播放',exact:true}).click();
     await page.locator('#javSizeSetting label:has(input[value="small"])').click();
-    const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('peach.settings.v1')||'{}'));
+    const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('medianfo.settings.v1')||'{}'));
     assert.equal(saved.homeLayout,'small');assert.equal(saved.javLayout,'small');
     await page.locator('#settingsClose').click();
     const ratio=await page.locator('#grid [data-media-pic]').first().evaluate(node=>{
@@ -173,7 +173,7 @@ describe('新作封面显示时机',()=>{
     const page=await context.newPage(),remote='https://covers.example.test/front.svg';
     await page.route(remote,route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="632" height="900"><rect width="632" height="900" fill="#0f0"/></svg>'}));
     await page.route(/\/api\/feeds\/discoveries\?/,route=>route.fulfill({json:{ok:true,items:[{id:1,code:'EXM-001',title:'示例新作',has_cover:false,cover_url:remote}]}}));
-    await page.goto(requiredEnv('PEACH_E2E_ORIGIN')+'/');
+    await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN')+'/');
     const image=page.locator('#feedNew img.cover[data-frame="front"]');await image.waitFor({state:'visible'});
     assert.equal(await image.evaluate(img=>getComputedStyle(img).objectFit),'contain');
    }finally{await context.close()}

@@ -83,7 +83,7 @@ class CopyFinalStateTests(unittest.TestCase):
         picked = {path.relative_to(ROOT).as_posix() for path in checker.targets(ROOT)}
         for required in ("AGENTS.md", "README.md", "docs/WRITING.md",
                          "web/index.html",
-                         "src/peach/web_entity.py",
+                         "src/medianfo/web_entity.py",
                          "tests/test_web_ui.py",
                          ".claude/skills/peach-worktree/SKILL.md"):
             self.assertIn(required, picked)

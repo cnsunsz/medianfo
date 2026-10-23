@@ -1,6 +1,6 @@
 """换掉 Windows 生产托盘二进制的入口：构建、验证、原地替换、失败自动回滚。
 
-托盘运行时持有自己的 `dist/Peach/Peach.exe`，所以整条链路只有一个能换文件的窗口——
+托盘运行时持有自己的 `dist/MediaNfo/MediaNfo.exe`，所以整条链路只有一个能换文件的窗口——
 旧托盘正常退出之后、新托盘启动之前。这个脚本按顺序走完它：干净检出 → 暂存目录里
 构建 → 用暂存包自己跑一次打包迁移检查 → 停旧托盘、换二进制、起新托盘（新托盘起不来
 就换回备份并重开旧的）→ 走项目 CA 严格校验读生产 HTTPS 口的 `/healthz`。
@@ -31,11 +31,11 @@ if str(SRC_DIR) not in sys.path:
 
 import httpx
 
-from peach import __version__
-from peach.config import LOG_DIR, STATE_DIR
-from peach.tray import build_service_specs
-from peach.windows_restart import restart_tray
-from peach.windows_update import WindowsUpdateInstaller
+from medianfo import __version__
+from medianfo.config import LOG_DIR, STATE_DIR
+from medianfo.tray import build_service_specs
+from medianfo.windows_restart import restart_tray
+from medianfo.windows_update import WindowsUpdateInstaller
 
 
 #: 换过二进制的那次启动比平常慢：单文件包要先把四十多 MB 解到 `%TEMP%` 才画得出托盘
@@ -187,7 +187,7 @@ def deploy(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="构建并换上 Windows 生产托盘二进制")
     parser.add_argument("--target", type=Path,
-                        default=PROJECT_ROOT / "dist" / "Peach" / "Peach.exe")
+                        default=PROJECT_ROOT / "dist" / "MediaNfo" / "MediaNfo.exe")
     parser.add_argument("--staged", type=Path, default=None,
                         help="复用这份已经打好的暂存包，跳过构建")
     parser.add_argument("--timeout", type=float, default=60.0,

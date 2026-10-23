@@ -9,8 +9,8 @@ import unittest
 from contextlib import closing
 from unittest import mock
 
-from peach import web_batch
-from peach.web_contract import (
+from medianfo import web_batch
+from medianfo.web_contract import (
     BUNDLE_DIR_ASSETS,
     CONTENT_BYTES,
     PART_MARK,

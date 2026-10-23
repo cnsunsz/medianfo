@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS entity_search_term(
 CREATE INDEX IF NOT EXISTS idx_entity_search_term_entity
 ON entity_search_term(entity_id,purpose);
 
-UPDATE entity SET metadata_json='{"summary":"FC2 的用户发布与内容市场厂牌归类；Peach 将 FC2-PPV 作为同一厂牌入口，并保留具体番号和来源证据。"}'
+UPDATE entity SET metadata_json='{"summary":"FC2 的用户发布与内容市场厂牌归类；MediaNfo 将 FC2-PPV 作为同一厂牌入口，并保留具体番号和来源证据。"}'
 WHERE kind='studio' AND canonical_name='FC2-PPV' AND metadata_json='{}';
 
 UPDATE entity SET metadata_json='{"summary":"日本影像厂牌 Prestige；Prestige Premium 作为其别名归入同一资料页，独立的 PREMIUM 厂牌不合并。"}'

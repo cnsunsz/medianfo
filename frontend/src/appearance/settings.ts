@@ -11,7 +11,7 @@ import { DEFAULT_SIDEBAR_ORDER, normalizeSidebarOrder } from '../sidebar';
 import { SORT_ALIASES, SORT_KEYS } from '../sort-preferences';
 import { DEFAULT_ACCENT, DEFAULT_HOME_GLOW, normalizeAccent, normalizeHomeGlow, type HomeGlow } from './home-glow';
 
-export const SETTINGS_KEY = 'peach.settings.v1';
+export const SETTINGS_KEY = 'medianfo.settings.v1';
 /* 主题三档，键名与 <html> 上的 data-theme 同一套写法：web/css/01-base.css 的色板
    已经按 `prefers-color-scheme` 和 `[data-theme]` 两条路径写好，这里只负责选哪一条。
    跟随系统是默认档，选它等于不写属性。 */

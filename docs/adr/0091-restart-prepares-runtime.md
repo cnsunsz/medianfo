@@ -54,7 +54,7 @@
 ## 后果
 
 - reader 机器不迁移：它的账本副本来自写者，结构跟着写者走；reader 上结构落后由就绪检查报出。
-- macOS 菜单栏不走 `PeachTray` 的这条准备链路，依赖与迁移仍按 `docs/OPERATIONS.md` 手工做。
+- macOS 菜单栏不走 `MediaNfoTray` 的这条准备链路，依赖与迁移仍按 `docs/OPERATIONS.md` 手工做。
 - `deploy_windows_tray.py` 换包不同步依赖，新托盘启动时照样迁移；冻结托盘自身跳过依赖核对。
 - 依赖不一致时，开着调试 serve（如 8099）会挡住整托盘重启，要先停掉它。
 - `task_run.trigger='startup'` 目前没有任务使用，归入续跑不了的一类。

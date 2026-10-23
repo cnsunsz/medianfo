@@ -7,16 +7,16 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from peach.ffmpeg import BinaryChoice
-from peach.hardware_transcode import HardwareEncoder, HardwareTranscoder
-from peach.segments import HlsSegmentService
-from peach.streaming import StreamSessionRegistry
-from peach.transcodes import TranscodeService, _MediaProfile
+from medianfo.ffmpeg import BinaryChoice
+from medianfo.hardware_transcode import HardwareEncoder, HardwareTranscoder
+from medianfo.segments import HlsSegmentService
+from medianfo.streaming import StreamSessionRegistry
+from medianfo.transcodes import TranscodeService, _MediaProfile
 
 
 class HardwareDetectionTests(unittest.TestCase):
     def setUp(self):
-        environment = patch.dict(os.environ, {"PEACH_TRANSCODE_BACKEND": "auto", "PEACH_VAAPI_DEVICE": ""})
+        environment = patch.dict(os.environ, {"MEDIANFO_TRANSCODE_BACKEND": "auto", "MEDIANFO_VAAPI_DEVICE": ""})
         environment.start()
         self.addCleanup(environment.stop)
 
@@ -30,10 +30,10 @@ class HardwareDetectionTests(unittest.TestCase):
             return subprocess.CompletedProcess(command, int(device.endswith("128")), stderr=b"no display")
 
         hardware = HardwareTranscoder()
-        with patch("peach.hardware_transcode.sys.platform", "linux"), \
+        with patch("medianfo.hardware_transcode.sys.platform", "linux"), \
                 patch.object(Path, "exists", return_value=False), \
                 patch.object(Path, "glob", return_value=[Path("/dev/dri/renderD128"), Path("/dev/dri/renderD129")]), \
-                patch("peach.hardware_transcode.subprocess.run", side_effect=run):
+                patch("medianfo.hardware_transcode.subprocess.run", side_effect=run):
             encoders = hardware.encoders(Path("ffmpeg"))
             self.assertEqual(encoders, (HardwareEncoder("vaapi", "/dev/dri/renderD129"),))
             self.assertEqual(hardware.encoders(Path("ffmpeg")), encoders)
@@ -43,18 +43,18 @@ class HardwareDetectionTests(unittest.TestCase):
         self.assertTrue(all(command[-2:] == ("null", "-") for command in commands))
 
     def test_explicit_device_and_backend_are_probed_without_gpu_listing(self):
-        with patch.dict(os.environ, {"PEACH_TRANSCODE_BACKEND": "vaapi", "PEACH_VAAPI_DEVICE": "/dev/dri/renderD130"}):
+        with patch.dict(os.environ, {"MEDIANFO_TRANSCODE_BACKEND": "vaapi", "MEDIANFO_VAAPI_DEVICE": "/dev/dri/renderD130"}):
             hardware = HardwareTranscoder()
-        with patch("peach.hardware_transcode.subprocess.run", return_value=Mock(returncode=0)) as run:
+        with patch("medianfo.hardware_transcode.subprocess.run", return_value=Mock(returncode=0)) as run:
             self.assertEqual(hardware.encoders(Path("ffmpeg")), (HardwareEncoder("vaapi", "/dev/dri/renderD130"),))
         self.assertIn("/dev/dri/renderD130", run.call_args.args[0])
         self.assertNotIn("h264_nvenc", run.call_args.args[0])
 
     def test_probe_errors_and_timeouts_are_cached_as_unavailable(self):
         for failure in (PermissionError("denied"), subprocess.TimeoutExpired("ffmpeg", 10)):
-            with self.subTest(failure=failure), patch.dict(os.environ, {"PEACH_TRANSCODE_BACKEND": "nvenc"}):
+            with self.subTest(failure=failure), patch.dict(os.environ, {"MEDIANFO_TRANSCODE_BACKEND": "nvenc"}):
                 hardware = HardwareTranscoder()
-                with patch("peach.hardware_transcode.subprocess.run", side_effect=failure) as run:
+                with patch("medianfo.hardware_transcode.subprocess.run", side_effect=failure) as run:
                     self.assertEqual(hardware.encoders(Path("ffmpeg")), ())
                     self.assertEqual(hardware.encoders(Path("ffmpeg")), ())
                     self.assertEqual(run.call_count, 1)
@@ -62,27 +62,27 @@ class HardwareDetectionTests(unittest.TestCase):
     def test_software_mode_and_disabled_preference_do_not_probe(self):
         for enabled, backend in ((True, "software"), (False, "auto")):
             with self.subTest(enabled=enabled, backend=backend), \
-                    patch.dict(os.environ, {"PEACH_TRANSCODE_BACKEND": backend}), \
-                    patch("peach.hardware_transcode.subprocess.run") as run:
+                    patch.dict(os.environ, {"MEDIANFO_TRANSCODE_BACKEND": backend}), \
+                    patch("medianfo.hardware_transcode.subprocess.run") as run:
                 self.assertEqual(HardwareTranscoder(enabled=enabled).encoders(Path("ffmpeg")), ())
                 run.assert_not_called()
 
     def test_linux_without_devices_and_macos_have_no_automatic_candidates(self):
         for platform in ("linux", "darwin"):
-            with self.subTest(platform=platform), patch("peach.hardware_transcode.sys.platform", platform), \
+            with self.subTest(platform=platform), patch("medianfo.hardware_transcode.sys.platform", platform), \
                     patch.object(Path, "exists", return_value=False), patch.object(Path, "glob", return_value=[]):
                 self.assertEqual(HardwareTranscoder()._candidates(), ())
 
     def test_linux_nvidia_device_enables_nvenc_probe(self):
-        with patch("peach.hardware_transcode.sys.platform", "linux"), \
+        with patch("medianfo.hardware_transcode.sys.platform", "linux"), \
                 patch.object(Path, "exists", return_value=True), patch.object(Path, "glob", return_value=[]), \
-                patch("peach.hardware_transcode.subprocess.run", return_value=Mock(returncode=0)) as run:
+                patch("medianfo.hardware_transcode.subprocess.run", return_value=Mock(returncode=0)) as run:
             self.assertEqual(HardwareTranscoder().encoders(Path("ffmpeg")), (HardwareEncoder("nvenc"),))
         self.assertIn("h264_nvenc", run.call_args.args[0])
 
     def test_invalid_backend_has_an_actionable_error(self):
-        with patch.dict(os.environ, {"PEACH_TRANSCODE_BACKEND": "typo"}):
-            with self.assertRaisesRegex(ValueError, "PEACH_TRANSCODE_BACKEND"):
+        with patch.dict(os.environ, {"MEDIANFO_TRANSCODE_BACKEND": "typo"}):
+            with self.assertRaisesRegex(ValueError, "MEDIANFO_TRANSCODE_BACKEND"):
                 HardwareTranscoder()
 
 
@@ -94,7 +94,7 @@ class VaapiConsumerTests(unittest.TestCase):
         self.source = self.root / "clip.mkv"
         self.source.write_bytes(b"source")
         self.resolver = Mock(ffmpeg=lambda: BinaryChoice(Path("ffmpeg"), "test"), ffprobe=lambda: None)
-        environment = patch.dict(os.environ, {"PEACH_TRANSCODE_BACKEND": "vaapi", "PEACH_VAAPI_DEVICE": "/dev/dri/renderD128"})
+        environment = patch.dict(os.environ, {"MEDIANFO_TRANSCODE_BACKEND": "vaapi", "MEDIANFO_VAAPI_DEVICE": "/dev/dri/renderD128"})
         environment.start()
         self.addCleanup(environment.stop)
         probe = patch.object(HardwareTranscoder, "_probe", return_value=True)

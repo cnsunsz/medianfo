@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-"""真浏览器冒烟：临时 Peach 数据目录上的合成演示库，交给 `frontend/e2e` 的 playwright-core 用例。
+"""真浏览器冒烟：临时 MediaNfo 数据目录上的合成演示库，交给 `frontend/e2e` 的 playwright-core 用例。
 
 页面源断言守不住布局之后才成立的事实（横向溢出、等待态卡住、控制台报错、失败请求），
 靠手动开浏览器逐轮重测的话，既费时又不稳定。这里把它们固定成确定性的用例：Python 这一侧准备
-数据与服务，Node 那一侧只认 `PEACH_E2E_ORIGIN`。
+数据与服务，Node 那一侧只认 `MEDIANFO_E2E_ORIGIN`。
 
 数据全在临时目录：`scripts/demo_dataset.py` 生成 SFW 合成库，账本来自迁移模板，
 设置文件把 `local` 的数据库路径前缀写成演示库目录。Windows 上 `[media.mounts]` 不参与
@@ -12,7 +12,7 @@
 短片由 ffmpeg 编码成真能解码的 2 秒片段：详情页的播放器会预加载源，占位字节只会让
 `/stream` 返回 503。缺 Node、`playwright-core`、ffmpeg 或本机 Chrome 时，本机显式跳过，
 CI（`GITHUB_ACTIONS=true`）判失败，与 vitest 同一口径；浏览器不另外下载，
-`PEACH_E2E_CHROME` 可以指定可执行文件。CI 的 `web-e2e` job 负责装齐这四样。
+`MEDIANFO_E2E_CHROME` 可以指定可执行文件。CI 的 `web-e2e` job 负责装齐这四样。
 """
 from __future__ import annotations
 
@@ -34,11 +34,11 @@ from contextlib import closing
 from pathlib import Path
 from unittest import mock
 
-from peach import follow_assets, link_marks, scraping_access, settings_file
-from peach import platform as peach_platform
-from peach.config import FFMPEG_DIR
-from peach.ffmpeg import FFmpegResolver
-from peach.library_processing import process_library
+from medianfo import follow_assets, link_marks, scraping_access, settings_file
+from medianfo import platform as peach_platform
+from medianfo.config import FFMPEG_DIR
+from medianfo.ffmpeg import FFmpegResolver
+from medianfo.library_processing import process_library
 from support.conditions import missing_prerequisite, windows_ledger_roots
 from support.ledger import fresh_ledger
 from support.demo import seed_metadata_cache
@@ -54,7 +54,7 @@ SETUP_SUITE = "e2e/setup.test.ts"
 
 def chrome_executable() -> str | None:
     """本机 Chrome 的可执行文件；找不到返回 None。"""
-    explicit = os.environ.get("PEACH_E2E_CHROME", "").strip()
+    explicit = os.environ.get("MEDIANFO_E2E_CHROME", "").strip()
     if explicit:
         return explicit if Path(explicit).is_file() else None
     candidates: list[Path] = []
@@ -103,14 +103,14 @@ TIMING_SENSITIVE_SUITES = frozenset({
 
 
 def e2e_concurrency(override: str = "") -> int:
-    """浏览器用例文件的并发数：`PEACH_E2E_CONCURRENCY` 优先，CI 为 1，本机按 CPU 数推导、上限 4。
+    """浏览器用例文件的并发数：`MEDIANFO_E2E_CONCURRENCY` 优先，CI 为 1，本机按 CPU 数推导、上限 4。
 
     每个文件启动独立的 Chrome，使用 Playwright 的默认浏览器参数；
     上限 4 与 vitest 的 `maxWorkers` 同一份进程预算。
     """
     if override:
         if not override.isdecimal() or int(override) < 1:
-            raise AssertionError("PEACH_E2E_CONCURRENCY 必须是正整数")
+            raise AssertionError("MEDIANFO_E2E_CONCURRENCY 必须是正整数")
         return int(override)
     if os.environ.get("GITHUB_ACTIONS") == "true":
         return 1
@@ -169,7 +169,7 @@ class WebE2ESmokeTests(unittest.TestCase):
             missing_prerequisite("跳过 e2e：没找到 ffmpeg，演示库的短片编码不出来")
         chrome = chrome_executable()
         if chrome is None:
-            missing_prerequisite("跳过 e2e：没找到 Chrome；装 Google Chrome 或用 PEACH_E2E_CHROME 指定")
+            missing_prerequisite("跳过 e2e：没找到 Chrome；装 Google Chrome 或用 MEDIANFO_E2E_CHROME 指定")
         cls.node, cls.ffmpeg, cls.chrome = node, str(ffmpeg.path), chrome
         cls.root = Path(tempfile.mkdtemp(prefix="peach-e2e-")).resolve()
         cls.server = None
@@ -203,11 +203,11 @@ class WebE2ESmokeTests(unittest.TestCase):
         media = cls.root / "media"
         load_demo_script().generate(media, count=12, seed=7, video="ffmpeg", duration=2,
                                     ffmpeg=cls.ffmpeg)
-        data = cls.root / "peach-data"
+        data = cls.root / "medianfo-data"
         (data / "database").mkdir(parents=True)
         cls.db = fresh_ledger(data / "database")
         cls.port = free_port()
-        config = settings_file.PeachConfig(
+        config = settings_file.MediaNfoConfig(
             data, data / settings_file.SETTINGS_FILENAME, present=True, data_root_found=True,
             locations={"local": (str(media),)},
             server=settings_file.ServerSettings(port=cls.port),
@@ -219,7 +219,7 @@ class WebE2ESmokeTests(unittest.TestCase):
         # 会在请求时去各站拉图，站点或代理一抖就 404，用例把 404 记成问题，整轮就红。
         mark_root = generated / "site-marks"
         mark_root.mkdir(parents=True)
-        mark = (ROOT / "resources" / "peach-logo.png").read_bytes()
+        mark = (ROOT / "resources" / "medianfo-logo.png").read_bytes()
         for spec in scraping_access.SOURCES.values():
             # 聚合来源没有固定站点，页面使用本地字形，不请求站标。
             if not spec["login"]:
@@ -247,7 +247,7 @@ class WebE2ESmokeTests(unittest.TestCase):
 
     @classmethod
     def _start_server(cls):
-        env = dict(os.environ, PEACH_DATA_ROOT=str(cls.data), PYTHONIOENCODING="utf-8")
+        env = dict(os.environ, MEDIANFO_DATA_ROOT=str(cls.data), PYTHONIOENCODING="utf-8")
         cls.log = (cls.root / "serve.log").open("w", encoding="utf-8")
         cls.server = subprocess.Popen(
             [sys.executable, "-X", "utf8", "-m", "peach", "serve", "--host", "127.0.0.1",
@@ -315,13 +315,13 @@ class WebE2ESmokeTests(unittest.TestCase):
                 raise AssertionError(f"演示短片取消失败：{error}") from error
 
     def test_every_route_holds_the_layout_and_runtime_invariants(self):
-        env = dict(os.environ, PEACH_E2E_ORIGIN=self.origin, PEACH_E2E_ITEM=str(self.item), PEACH_E2E_FFMPEG=self.ffmpeg,
-                   PEACH_E2E_CHROME=self.chrome, PEACH_E2E_NET_LOG_DIR=str(BROWSER_LOGS / "network"))
+        env = dict(os.environ, MEDIANFO_E2E_ORIGIN=self.origin, MEDIANFO_E2E_ITEM=str(self.item), MEDIANFO_E2E_FFMPEG=self.ffmpeg,
+                   MEDIANFO_E2E_CHROME=self.chrome, MEDIANFO_E2E_NET_LOG_DIR=str(BROWSER_LOGS / "network"))
         BROWSER_LOGS.mkdir(parents=True, exist_ok=True)
         for stale in BROWSER_LOGS.glob("batch-*.tap"):
             stale.unlink()
-        concurrency = e2e_concurrency(os.environ.get("PEACH_E2E_CONCURRENCY", "").strip())
-        selected = tuple(json.loads(os.environ.get("PEACH_E2E_FILES", "[]")))
+        concurrency = e2e_concurrency(os.environ.get("MEDIANFO_E2E_CONCURRENCY", "").strip())
+        selected = tuple(json.loads(os.environ.get("MEDIANFO_E2E_FILES", "[]")))
         batches = e2e_batches(FRONTEND, concurrency, selected)
         for index, (batch, lanes) in enumerate(batches, 1):
             print(f"浏览器批次 {index}/{len(batches)}：{', '.join(batch)}", flush=True)
@@ -345,7 +345,7 @@ class WebE2ESmokeTests(unittest.TestCase):
 
 
 class SetupE2ETests(unittest.TestCase):
-    """首次运行页跑在 `serve --setup` 上：临时 Peach 数据目录里还没有设置文件，提交成功后才有。
+    """首次运行页跑在 `serve --setup` 上：临时 MediaNfo 数据目录里还没有设置文件，提交成功后才有。
 
     托盘拉起引导服务用的就是这组参数（`tray.build_setup_service_specs`）。页面那一侧是
     `frontend/e2e/setup.test.ts`，只由本组在首启服务执行。
@@ -360,16 +360,16 @@ class SetupE2ETests(unittest.TestCase):
             missing_prerequisite("跳过首启 e2e：frontend/node_modules 还没装，先 `npm --prefix frontend ci`")
         chrome = chrome_executable()
         if chrome is None:
-            missing_prerequisite("跳过首启 e2e：没找到 Chrome；装 Google Chrome 或用 PEACH_E2E_CHROME 指定")
+            missing_prerequisite("跳过首启 e2e：没找到 Chrome；装 Google Chrome 或用 MEDIANFO_E2E_CHROME 指定")
         cls.node, cls.chrome = node, chrome
         cls.root = Path(tempfile.mkdtemp(prefix="peach-e2e-setup-")).resolve()
-        cls.data = cls.root / "peach-data"
+        cls.data = cls.root / "medianfo-data"
         cls.media = cls.root / "media"
         cls.media.mkdir()
         cls.ledger_root = str(cls.media) if os.name == "nt" else "R:\\media"
         cls.port = free_port()
         cls.origin = f"http://127.0.0.1:{cls.port}"
-        env = dict(os.environ, PEACH_DATA_ROOT=str(cls.data), PYTHONIOENCODING="utf-8")
+        env = dict(os.environ, MEDIANFO_DATA_ROOT=str(cls.data), PYTHONIOENCODING="utf-8")
         cls.log = (cls.root / "serve.log").open("w", encoding="utf-8")
         cls.server = subprocess.Popen(
             [sys.executable, "-X", "utf8", "-m", "peach", "serve", "--setup", "--host", "127.0.0.1",
@@ -417,9 +417,9 @@ class SetupE2ETests(unittest.TestCase):
 
     def test_the_first_run_page_writes_errors_back_and_finishes(self):
         self.assertFalse((self.data / settings_file.SETTINGS_FILENAME).exists())
-        env = dict(os.environ, PEACH_E2E_SETUP_ORIGIN=self.origin, PEACH_E2E_SETUP_MEDIA=str(self.media),
-                   PEACH_E2E_SETUP_DATA=str(self.data), PEACH_E2E_SETUP_LEDGER_ROOT=self.ledger_root,
-                   PEACH_E2E_CHROME=self.chrome, PEACH_E2E_NET_LOG_DIR=str(BROWSER_LOGS / "network"))
+        env = dict(os.environ, MEDIANFO_E2E_SETUP_ORIGIN=self.origin, MEDIANFO_E2E_SETUP_MEDIA=str(self.media),
+                   MEDIANFO_E2E_SETUP_DATA=str(self.data), MEDIANFO_E2E_SETUP_LEDGER_ROOT=self.ledger_root,
+                   MEDIANFO_E2E_CHROME=self.chrome, MEDIANFO_E2E_NET_LOG_DIR=str(BROWSER_LOGS / "network"))
         BROWSER_LOGS.mkdir(parents=True, exist_ok=True)
         log_path = BROWSER_LOGS / "setup.tap"
         try:
@@ -438,7 +438,7 @@ class SetupE2ETests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, f"{output}\n--- serve.log ---\n{self._server_log()}")
         self.assertRegex(output, r"# pass 1\b", output)
         self.assertRegex(output, r"# skipped 0\b", output)
-        # 改对的那一次提交在临时 Peach 数据目录里落了设置文件，媒体库就是传进去的那个目录。
+        # 改对的那一次提交在临时 MediaNfo 数据目录里落了设置文件，媒体库就是传进去的那个目录。
         written = settings_file.load_config(environ={settings_file.DATA_ROOT_ENV: str(self.data)})
         self.assertTrue(written.present)
         if os.name == "nt":
@@ -580,7 +580,7 @@ class MissingPrerequisiteTests(unittest.TestCase):
             case.ffmpeg = "ffmpeg"
             failed = subprocess.CompletedProcess([], 1, "# pass 1\n# fail 1\n", "failure")
             batches = ((("e2e/first.test.ts",), 1), (("e2e/second.test.ts",), 1))
-            with mock.patch.dict(os.environ, {"PEACH_E2E_FILES": "[]"}), \
+            with mock.patch.dict(os.environ, {"MEDIANFO_E2E_FILES": "[]"}), \
                     mock.patch(__name__ + ".BROWSER_LOGS", log_root), \
                     mock.patch(__name__ + ".e2e_batches", return_value=batches), \
                     mock.patch.object(case, "_server_log", return_value="serve fixture"), \

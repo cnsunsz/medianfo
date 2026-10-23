@@ -6,9 +6,9 @@
   </defs>
   <path fill="url(#peach)" d="M0 0h640v420H0z"/>
   <g text-anchor="middle" font-family="PingFang SC, sans-serif">
-    <text x="320" y="62" font-size="24" font-weight="600" fill="#292625">安装 Peach</text>
-    <text x="320" y="94" font-size="14" fill="#82736c">将 Peach 拖到右侧的「应用程序」</text>
-    <text x="320" y="382" font-size="12" fill="#98867b">安装后，从「应用程序」打开 Peach。</text>
+    <text x="320" y="62" font-size="24" font-weight="600" fill="#292625">安装 MediaNfo</text>
+    <text x="320" y="94" font-size="14" fill="#82736c">将 MediaNfo 拖到右侧的「应用程序」</text>
+    <text x="320" y="382" font-size="12" fill="#98867b">安装后，从「应用程序」打开 MediaNfo。</text>
   </g>
   <path d="M291 220h52m-9-8 9 8-9 8" fill="none" stroke="#bc9a89" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

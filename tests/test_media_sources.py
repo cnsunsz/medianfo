@@ -6,7 +6,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 
-from peach import media_configuration, media_sources, settings_file
+from medianfo import media_configuration, media_sources, settings_file
 
 
 class MediaSourceCostTests(unittest.TestCase):
@@ -14,7 +14,7 @@ class MediaSourceCostTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name).resolve()
-        self.config = replace(settings_file.PeachConfig(self.root, self.root / "config.toml"),
+        self.config = replace(settings_file.MediaNfoConfig(self.root, self.root / "config.toml"),
             locations={"guangya": ("G:/Movies", "G:/Movies/Direct"),
                        "onedrive": ("O:/Public", "O:/Private"), "mounted": ("M:/",)},
             media_costs={"g:/movies": "metered", "G:/Movies/Direct": "free", "O:/Public": "free"})
@@ -88,7 +88,7 @@ class MediaSourceCostTests(unittest.TestCase):
 
     def test_config_roundtrip_preserves_root_overrides_and_effective_form_cost(self):
         settings_file.write(self.config)
-        loaded = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.root)})
+        loaded = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.root)})
         self.assertEqual(loaded.media_costs, self.config.media_costs)
         rows = media_configuration.rows(loaded, windows=True)
         self.assertEqual([row["cost"] for row in rows], ["metered", "free", "free", "metered", "metered"])
@@ -102,6 +102,6 @@ class MediaSourceCostTests(unittest.TestCase):
                 {"location": "onedrive", "path": "O:/", "cost": value}], windows=True)[2])
         settings_file.write(replace(self.config, media_costs={"G:/": "unknown"}))
         with self.assertRaisesRegex(settings_file.SettingsFileError, "free.*metered"):
-            settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.root)})
+            settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.root)})
         with self.assertRaisesRegex(ValueError, "列名"):
             media_sources.cost_sql("a.location; DROP TABLE asset", config=self.config)

@@ -18,11 +18,11 @@ from unittest import mock
 
 from PIL import Image
 
-from peach import previews
-from peach.avatar_provider import install_entity_avatar
-from peach.previews import PreviewService, PreviewUnavailable, entity_image_key
-from peach.repository import MediaAsset
-from peach.web_state import WebContract
+from medianfo import previews
+from medianfo.avatar_provider import install_entity_avatar
+from medianfo.previews import PreviewService, PreviewUnavailable, entity_image_key
+from medianfo.repository import MediaAsset
+from medianfo.web_state import WebContract
 
 
 class GenerateLockStripingTests(unittest.TestCase):
@@ -436,7 +436,7 @@ class EntityThumbnailTests(unittest.TestCase):
 
     def test_the_derived_directory_follows_the_entity_image_directory(self):
         """接线各写一份默认值的话，临时实体图目录配上真实派生件目录，
-        测试和演示 Peach 数据目录就会往本机的 generated 树里写文件。"""
+        测试和演示 MediaNfo 数据目录就会往本机的 generated 树里写文件。"""
         root = Path(self.tmp.name).resolve()
         self.assertEqual(previews.entity_thumb_root(root / "generated" / "avatars"),
                          root / "generated" / "avatar-thumbs")

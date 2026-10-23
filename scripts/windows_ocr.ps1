@@ -22,7 +22,7 @@ $peachAsTask = [System.WindowsRuntimeSystemExtensions].GetMethods() |
     } |
     Select-Object -First 1
 
-function Wait-PeachWinRt {
+function Wait-MediaNfoWinRt {
     param($Operation, [Type]$ResultType)
     $peachTask = $peachAsTask.MakeGenericMethod($ResultType).Invoke($null, @($Operation))
     try {
@@ -47,19 +47,19 @@ $peachResults = foreach ($peachPath in $Paths) {
     $peachBitmap = $null
     try {
         $peachFullPath = [System.IO.Path]::GetFullPath($peachPath)
-        $peachFile = Wait-PeachWinRt (
+        $peachFile = Wait-MediaNfoWinRt (
             [Windows.Storage.StorageFile]::GetFileFromPathAsync($peachFullPath)
         ) ([Windows.Storage.StorageFile])
-        $peachStream = Wait-PeachWinRt (
+        $peachStream = Wait-MediaNfoWinRt (
             $peachFile.OpenAsync([Windows.Storage.FileAccessMode]::Read)
         ) ([Windows.Storage.Streams.IRandomAccessStream])
-        $peachDecoder = Wait-PeachWinRt (
+        $peachDecoder = Wait-MediaNfoWinRt (
             [Windows.Graphics.Imaging.BitmapDecoder]::CreateAsync($peachStream)
         ) ([Windows.Graphics.Imaging.BitmapDecoder])
-        $peachBitmap = Wait-PeachWinRt (
+        $peachBitmap = Wait-MediaNfoWinRt (
             $peachDecoder.GetSoftwareBitmapAsync()
         ) ([Windows.Graphics.Imaging.SoftwareBitmap])
-        $peachRecognized = Wait-PeachWinRt (
+        $peachRecognized = Wait-MediaNfoWinRt (
             $peachEngine.RecognizeAsync($peachBitmap)
         ) ([Windows.Media.Ocr.OcrResult])
         [pscustomobject]@{

@@ -24,7 +24,7 @@ describe('规范路由与设置历史', () => {
         });
         const depth = await page.evaluate(() => history.length);
         await page.evaluate(async () => {
-          const entry = '/dist/peach-app.js';
+          const entry = '/dist/medianfo-app.js';
           (await import(entry)).peachHistory.push('/works/exm001?t=42#sample');
         });
         await page.waitForURL('**/works/EXM-001?t=42#sample');
@@ -40,7 +40,7 @@ describe('规范路由与设置历史', () => {
       const { page } = opened;
       try {
         const seeded = await page.request.post(new URL('/api/item-tag', page.url()).href, { data: {
-          id: Number(requiredEnv('PEACH_E2E_ITEM')), operation: 'add', tag: '巨乳',
+          id: Number(requiredEnv('MEDIANFO_E2E_ITEM')), operation: 'add', tag: '巨乳',
         } });
         assert.equal(seeded.status(), 200, '临时演示库创建标签身份');
         const response = await page.request.get(new URL('/api/index?kind=tags&q=巨乳&limit=1', page.url()).href);
@@ -70,7 +70,7 @@ describe('规范路由与设置历史', () => {
         } }));
         const depth = await page.evaluate(() => history.length);
         await page.evaluate(async () => {
-          const entry = '/dist/peach-app.js';
+          const entry = '/dist/medianfo-app.js';
           (await import(entry)).peachHistory.push('/assets/70010');
         });
         await page.waitForURL(`**/posts/${DETAIL.media}`);

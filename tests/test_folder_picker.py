@@ -1,4 +1,4 @@
-"""`peach.folder_picker`：由运行 Peach 的这台电脑弹系统文件夹对话框，替浏览器拿到绝对路径。
+"""`peach.folder_picker`：由运行 MediaNfo 的这台电脑弹系统文件夹对话框，替浏览器拿到绝对路径。
 
 对话框本身没法在测试里弹，这里钉住的是命令行的形状、取消与失败的区分，以及一次只开一个。
 """
@@ -9,7 +9,7 @@ import subprocess
 import unittest
 from unittest import mock
 
-from peach import folder_picker
+from medianfo import folder_picker
 
 
 class FakeRun:
@@ -39,12 +39,12 @@ class CommandTests(unittest.TestCase):
         self.assertIn('Guid("42f85136-db7e-439c-85f1-e4075d135fc8")', script, "IFileOpenDialog 的接口 ID")
         self.assertIn("dialog.SetOptions(0x8 | 0x20 | 0x40)", script, "FOS_NOCHANGEDIR、FOS_PICKFOLDERS、FOS_FORCEFILESYSTEM")
         self.assertNotIn("FolderBrowserDialog", script)
-        self.assertIn("$env:PEACH_PICK_INITIAL", script)
+        self.assertIn("$env:MEDIANFO_PICK_INITIAL", script)
         self.assertIn("dialog.Show(IntPtr.Zero)", script, "不挂所有者窗口：透明置顶的 Form 会把对话框一起藏起来")
         self.assertIn("SetWindowPos(window, new IntPtr(-1)", script, "后台服务进程没有前台权，对话框要自己置顶")
         self.assertNotIn("System.Windows.Forms", script)
-        self.assertIn(f"Pick('{folder_picker.PROMPT}', $env:PEACH_PICK_INITIAL)", script)
-        self.assertEqual(env, {"PEACH_PICK_INITIAL": r"D:\Media"})
+        self.assertIn(f"Pick('{folder_picker.PROMPT}', $env:MEDIANFO_PICK_INITIAL)", script)
+        self.assertEqual(env, {"MEDIANFO_PICK_INITIAL": r"D:\Media"})
 
     def test_macos_uses_applescript_choose_folder_and_escapes_the_initial_path(self):
         with mock.patch("os.path.isdir", return_value=True):
@@ -72,7 +72,7 @@ class PickTests(unittest.TestCase):
         self.assertEqual(chosen, r"E:\Movies")
         (argv, kwargs), = run.calls
         self.assertEqual(argv[0], "powershell.exe")
-        self.assertEqual(kwargs["env"]["PEACH_PICK_INITIAL"], r"D:\Media")
+        self.assertEqual(kwargs["env"]["MEDIANFO_PICK_INITIAL"], r"D:\Media")
         self.assertTrue(kwargs["capture_output"])
 
     def test_cancelling_yields_none_on_both_platforms(self):

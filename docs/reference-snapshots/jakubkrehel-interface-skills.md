@@ -5,7 +5,7 @@
 - **不在 `docs/reference-sources.json` 里登记**：规则散在 7 个领域技能的多份文件里，本文是一次性挑选，
   没有单一可哈希的上游文件。复核时比对上面这个提交与上游最新提交的 diff，只看本文摘过的技能。
 - 用法：新增或复核页面时把下列「检测」当 grep 或审查清单。与 `peach-web-ui`、Geist 实测快照冲突时，
-  以 Peach 的规则为准；每条都已对照过 Peach 现有做法，冲突的列在末尾「不采纳」。
+  以 MediaNfo 的规则为准；每条都已对照过 MediaNfo 现有做法，冲突的列在末尾「不采纳」。
 
 ## 动效与状态
 
@@ -65,7 +65,7 @@
 
 做极端内容自测（`break-ui`）或写 E2E 夹具时，按组件实际能收到的输入挑轴，收不到的轴不跑：
 
-| 轴 | 何时跑 | Peach 场景 |
+| 轴 | 何时跑 | MediaNfo 场景 |
 | --- | --- | --- |
 | 内容长度 | 渲染非自写文本 | 空串、一个词、多句、不可断长串（长番号、URL、无空格日文片名） |
 | 内容形态 | 文本来自用户或外站 | emoji、假名与汉字混排、数字列对齐 |
@@ -80,8 +80,8 @@
 | --- | --- |
 | 按下缩放到 `0.96` | Geist Button 源规则按下不缩放，见 `peach-web-ui` |
 | 入场错峰、退场模糊、图标交叉淡入的固定曲线和时长 | 没有直接证据不新增动效；菜单开合只用 BoardUI 那一份 |
-| OKLCH 色阶、语义 token 命名体系 | Peach 用 `:root` 既有 token 加 `color-mix`，新 token 要先证明现有词汇不够 |
-| 主题只用一种切换机制 | Peach 同时写 `data-theme` 与 BoardUI 的 `.dark`，见 `frontend/src/appearance/theme.ts` |
+| OKLCH 色阶、语义 token 命名体系 | MediaNfo 用 `:root` 既有 token 加 `color-mix`，新 token 要先证明现有词汇不够 |
+| 主题只用一种切换机制 | MediaNfo 同时写 `data-theme` 与 BoardUI 的 `.dark`，见 `frontend/src/appearance/theme.ts` |
 | 行高无单位、字距用 `em` | Geist 字体规格按像素给行高和字距 |
 | 每行 60–75 字符、英文大小写与 ICU 复数 | 针对拉丁文字；中文排版按 `tech-doc-style-chinese` |
 | 提交按钮保持可点、提交时校验 | `peach-web-ui` 把原生 `disabled` 留给缺输入的状态 |

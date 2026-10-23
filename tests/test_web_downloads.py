@@ -13,12 +13,12 @@ from unittest import mock
 import httpx
 from fastapi.testclient import TestClient
 
-from peach import download_postprocess
-from peach import downloads as dl
-from peach import downloads_clouddrive, web_downloads
-from peach.api import create_app
-from peach.config import PeachSettings
-from peach.push_discovery import CloudPrefix, PushDiscoveryConfig
+from medianfo import download_postprocess
+from medianfo import downloads as dl
+from medianfo import downloads_clouddrive, web_downloads
+from medianfo.api import create_app
+from medianfo.config import MediaNfoSettings
+from medianfo.push_discovery import CloudPrefix, PushDiscoveryConfig
 from support.ledger import fresh_ledger
 
 HASH = "c9e15763f722f23e98a29decdfae341b98d53056"
@@ -77,7 +77,7 @@ class _App(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name).resolve()
-        self.app = create_app(PeachSettings(
+        self.app = create_app(MediaNfoSettings(
             db_path=fresh_ledger(self.root), configured=True, token="",
             follow_state_root=self.root / "state", secrets_root=self.root / "secrets"))
         self.addCleanup(self.app.state.http_transport.close)
@@ -313,7 +313,7 @@ class SettingsBlockTests(_App):
         self.assertNotIn("pw", self.secrets().get("download-pikpak.json", ""))
 
     def test_the_service_carries_its_own_browser_login_profile(self):
-        from peach.downloads_pikpak_browser import BrowserLogin
+        from medianfo.downloads_pikpak_browser import BrowserLogin
         login = self.service.pikpak_browser
         self.assertIsInstance(login, BrowserLogin)
         self.assertEqual(login.profile, self.root / "secrets" / "browser-pikpak")
@@ -391,13 +391,13 @@ class ResourceIndexerRoutes(_App):
         self.assertEqual(self.client.get(self.URL).status_code, 403)
 
     def test_search_endpoint_passes_saved_config_and_returns_candidates(self):
-        from peach.resource_search import Indexers
+        from medianfo.resource_search import Indexers
         Indexers(self.service.credentials).save({"indexers": [{
             "key": "one", "name": "测试源", "url": "http://indexer.test/api", "enabled": True}]})
-        with mock.patch("peach.web_resource_search.direct_search", return_value={
+        with mock.patch("medianfo.web_resource_search.direct_search", return_value={
                 "items": [], "warnings": [], "trace": [],
                 "next_sources": [], "reference_only": []}) as direct, \
-             mock.patch("peach.web_resource_search._SEARCH.run", return_value={
+             mock.patch("medianfo.web_resource_search._SEARCH.run", return_value={
                 "ok": True, "state": "ready", "items": [], "warnings": [], "error": ""}) as search:
             response = self.client.get("/api/resources/search?code=ABC-123&goal=chinese")
         self.assertEqual(response.status_code, 200, response.text)

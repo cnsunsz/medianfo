@@ -19,7 +19,7 @@ describe('页面等待态的结构', () => {
         ] } }));
         await page.route(/\/cover\?code=EXM-001/, route => route.fulfill({ contentType: 'image/svg+xml', body:
           '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="480"><rect width="320" height="480" fill="#ddd"/></svg>' }));
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/', { waitUntil: 'load' });
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/', { waitUntil: 'load' });
         const pending = page.locator('#feedNew [data-feed-cover-state="fetching"]');
         await pending.waitFor();
         assert.equal(await pending.innerText(), '抓取中');
@@ -36,10 +36,10 @@ describe('页面等待态的结构', () => {
       let release = () => {};
       const held = new Promise<void>(resolve => { release = resolve });
       try {
-        await context.addInitScript(() => localStorage.setItem('peach.settings.v1', JSON.stringify({ detailAutoplay: false })));
+        await context.addInitScript(() => localStorage.setItem('medianfo.settings.v1', JSON.stringify({ detailAutoplay: false })));
         const page = await context.newPage();
         await page.route(/\/api\/(?:items|facets)\?/, async route => { await held; await route.continue() });
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/', { waitUntil: 'load' });
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/', { waitUntil: 'load' });
         const frame = page.locator('[data-catalog-frame]');
         await frame.waitFor();
         assert.ok(await frame.locator('[data-entity-layout]').count(), '版式键没有立即显示');
@@ -58,14 +58,14 @@ describe('页面等待态的结构', () => {
       try {
         const page = await context.newPage();
         await page.route('**/performers/90001', async route => {
-          const response = await route.fetch({ url: requiredEnv('PEACH_E2E_ORIGIN') + '/' });
+          const response = await route.fetch({ url: requiredEnv('MEDIANFO_E2E_ORIGIN') + '/' });
           await route.fulfill({ response });
         });
         await page.route('**/api/entity/shapes', route => route.fulfill({ json: { ok: true, entities: [
           { id: 90001, kind: 'performer', names: ['演示艺人'], parts: ['costars', 'facts', ...(jav ? ['jav'] : [])] },
         ] } }));
         await page.route(/\/api\/entity\?/, async route => { await held; await route.fulfill({ json: { error: '未取得' } }) });
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/performers/90001', { waitUntil: 'load' });
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/performers/90001', { waitUntil: 'load' });
         const root = page.locator('[data-skeleton="entity/performer"]');
         await root.waitFor();
         assert.ok(await root.locator('[data-entity-foot]').count(), '数字地址漏了相关艺人');

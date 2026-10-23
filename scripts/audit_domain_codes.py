@@ -39,7 +39,7 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.catalog_rules import (
+from medianfo.catalog_rules import (
     RELEASE_EVIDENCE_KINDS,
     compact_label,
     is_jav_code,
@@ -48,9 +48,9 @@ from peach.catalog_rules import (
     release_code_from_filename,
     release_code_from_text,
 )
-from peach.config import GENERATED_DIR
-from peach.review_csv import read_rows, write_rows
-from peach.scripting import (
+from medianfo.config import GENERATED_DIR
+from medianfo.review_csv import read_rows, write_rows
+from medianfo.scripting import (
     add_ledger_write_args,
     counts_of,
     open_for_write,

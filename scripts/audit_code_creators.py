@@ -20,10 +20,10 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.code_creators import FIELDS, apply_rows, collect
-from peach.config import DATABASE_PATH, GENERATED_DIR
-from peach.migrations import sqlite_backup
-from peach.review_csv import write_rows
+from medianfo.code_creators import FIELDS, apply_rows, collect
+from medianfo.config import DATABASE_PATH, GENERATED_DIR
+from medianfo.migrations import sqlite_backup
+from medianfo.review_csv import write_rows
 
 
 def build_parser() -> argparse.ArgumentParser:

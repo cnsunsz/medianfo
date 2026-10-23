@@ -13,7 +13,7 @@ impersonation，并只把 Cookie 发送给 FANBOX 域名。该文件 SHA-256 为
 BSD-2-Clause，LICENSE SHA-256 为
 `CD938A4736B48A9D3AADF772AE2DBFA204097F278FD327551ACFA4A8D6417B8D`。
 
-Peach 不复用 PixivUtil2 的下载器、登录、数据库或 Cookie 管理，只采用这条已验证的传输选择。
+MediaNfo 不复用 PixivUtil2 的下载器、登录、数据库或 Cookie 管理，只采用这条已验证的传输选择。
 
 ## 固定依赖与本机可用性
 
@@ -22,13 +22,13 @@ Peach 不复用 PixivUtil2 的下载器、登录、数据库或 Cookie 管理，
 - Python 3.14.7 / Windows x64 的依赖解析命中
   `curl_cffi-0.16.2-cp310-abi3-win_amd64.whl` 与
   `cffi-2.1.1-cp314-cp314-win_amd64.whl`。
-- Peach 固定 `firefox147`；`curl_cffi 0.16.2` 的已支持 Firefox 档位止于 147，不指定未实现的档位。
+- MediaNfo 固定 `firefox147`；`curl_cffi 0.16.2` 的已支持 Firefox 档位止于 147，不指定未实现的档位。
 
 ## 现场复现
 
 目标：`GET https://api.fanbox.cc/post.info?postId=12228983`。
 
-使用 Peach 凭据存储中的 FANBOX Cookie、官方 `Origin`、目标帖 `Referer` 与
+使用 MediaNfo 凭据存储中的 FANBOX Cookie、官方 `Origin`、目标帖 `Referer` 与
 `firefox147` 传输后：
 
 - HTTP 200，`application/json`，6,961 字节；
@@ -38,7 +38,7 @@ Peach 不复用 PixivUtil2 的下载器、登录、数据库或 Cookie 管理，
 同一 Cookie 走普通 HTTPX 会得到 403 或 `general_error`，所以失败点是传输指纹而不是管理页
 存错 Cookie。
 
-## Peach 边界
+## MediaNfo 边界
 
 - 公开列表仍走共用 HTTPX；只有 `api.fanbox.cc/post.info` 走浏览器传输。
 - 仍受统一超时和最大响应大小约束，不自动重试。

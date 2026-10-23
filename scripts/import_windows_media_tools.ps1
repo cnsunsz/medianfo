@@ -6,7 +6,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 if (-not $DataRoot) {
-    $DataRoot = Join-Path $env:LOCALAPPDATA 'Peach\peach-data'
+    $DataRoot = Join-Path $env:LOCALAPPDATA 'MediaNfo\medianfo-data'
     $LocationRecord = Join-Path $DataRoot 'state\data-root.txt'
     if (Test-Path -LiteralPath $LocationRecord -PathType Leaf) {
         $SelectedRoot = (Get-Content -LiteralPath $LocationRecord -Raw -Encoding utf8).Trim()
@@ -17,10 +17,10 @@ if (-not $DataRoot) {
 }
 $DataRoot = [IO.Path]::GetFullPath($DataRoot)
 if (-not (Test-Path -LiteralPath $DataRoot -PathType Container)) {
-    throw "Peach data directory not found: $DataRoot. Pass -DataRoot with the directory shown in Peach Configuration."
+    throw "MediaNfo data directory not found: $DataRoot. Pass -DataRoot with the directory shown in MediaNfo Configuration."
 }
 
-function Find-PeachBinary([string]$Name, [string[]]$Roots) {
+function Find-MediaNfoBinary([string]$Name, [string[]]$Roots) {
     foreach ($Root in $Roots) {
         if (-not $Root -or -not (Test-Path -LiteralPath $Root -PathType Container)) { continue }
         $Matches = @(Get-ChildItem -LiteralPath $Root -Filter $Name -File -Recurse -Depth 6 -ErrorAction SilentlyContinue |
@@ -63,7 +63,7 @@ if ($Roots.Count -eq 0) {
     }
 }
 
-function Install-PeachBinary([string]$Source, [string]$RelativeDirectory, [string[]]$Names) {
+function Install-MediaNfoBinary([string]$Source, [string]$RelativeDirectory, [string[]]$Names) {
     $SourceDirectory = Split-Path -Parent $Source
     $TargetDirectory = Join-Path (Join-Path $DataRoot 'tools') $RelativeDirectory
     $Copies = @()
@@ -91,10 +91,10 @@ function Install-PeachBinary([string]$Source, [string]$RelativeDirectory, [strin
     Write-Output "READY: $TargetDirectory"
 }
 
-Write-Output "Peach data: $DataRoot"
+Write-Output "MediaNfo data: $DataRoot"
 $ExtractionRoot = $null
 try {
-    $FFmpeg = Find-PeachBinary 'ffmpeg.exe' $Roots
+    $FFmpeg = Find-MediaNfoBinary 'ffmpeg.exe' $Roots
     if (-not $FFmpeg) {
         if (-not $ArchivePath) {
             $ArchiveFolders = @($SearchRoots)
@@ -111,23 +111,23 @@ try {
             }
             $ExtractionRoot = Join-Path ([IO.Path]::GetTempPath()) ('peach-ffmpeg-import-' + [guid]::NewGuid().ToString('N'))
             Expand-Archive -LiteralPath $ArchivePath -DestinationPath $ExtractionRoot
-            $FFmpeg = Find-PeachBinary 'ffmpeg.exe' @($ExtractionRoot)
+            $FFmpeg = Find-MediaNfoBinary 'ffmpeg.exe' @($ExtractionRoot)
         }
     }
     if ($FFmpeg) {
         Write-Output "Found FFmpeg: $FFmpeg"
-        Install-PeachBinary $FFmpeg 'ffmpeg\bin' @('ffmpeg.exe', 'ffprobe.exe')
+        Install-MediaNfoBinary $FFmpeg 'ffmpeg\bin' @('ffmpeg.exe', 'ffprobe.exe')
     } else {
         Write-Output 'NOT FOUND: ffmpeg.exe. Put ffmpeg-9.0.2-essentials_build.zip in Downloads, then run this script again.'
     }
-    $Untrunc = Find-PeachBinary 'untrunc.exe' $Roots
+    $Untrunc = Find-MediaNfoBinary 'untrunc.exe' $Roots
     if ($Untrunc) {
         Write-Output "Found untrunc: $Untrunc"
-        Install-PeachBinary $Untrunc 'untrunc' @('untrunc.exe')
+        Install-MediaNfoBinary $Untrunc 'untrunc' @('untrunc.exe')
     } else {
         Write-Output 'NOT FOUND: untrunc.exe. This does not affect FFmpeg detection.'
     }
-    Write-Output 'Refresh Peach Configuration. If a running task still reports missing tools, restart Peach.'
+    Write-Output 'Refresh MediaNfo Configuration. If a running task still reports missing tools, restart MediaNfo.'
     if (-not $FFmpeg) { exit 1 }
 } finally {
     if ($ExtractionRoot -and (Test-Path -LiteralPath $ExtractionRoot)) {

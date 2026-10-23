@@ -4,7 +4,7 @@ param(
     # peach.mdns.lan_ipv4. Pass -Address when a full-tunnel proxy owns that route.
     [string]$Address = (Get-NetIPConfiguration | Where-Object { $_.IPv4DefaultGateway } |
         Select-Object -First 1).IPv4Address.IPAddress,
-    [string]$DnsName = 'peach.local',
+    [string]$DnsName = 'medianfo.local',
     [string]$OutDir = '',
     [switch]$TrustCurrentUser,
     [switch]$Force
@@ -12,7 +12,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-function Resolve-PeachTlsDirectory {
+function Resolve-MediaNfoTlsDirectory {
     param(
         [string]$RequestedDirectory = '',
         [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot)
@@ -23,7 +23,7 @@ function Resolve-PeachTlsDirectory {
     $TlsPython = Join-Path $ProjectRoot '.venv\Scripts\python.exe'
     if (-not (Test-Path -LiteralPath $TlsPython -PathType Leaf)) {
         $TlsCommonGit = (& git -C $ProjectRoot rev-parse --path-format=absolute --git-common-dir).Trim()
-        if ($LASTEXITCODE -ne 0) { throw 'Cannot locate the Peach project Python.' }
+        if ($LASTEXITCODE -ne 0) { throw 'Cannot locate the MediaNfo project Python.' }
         $TlsPython = Join-Path (Split-Path -Parent $TlsCommonGit) '.venv\Scripts\python.exe'
     }
     if (-not (Test-Path -LiteralPath $TlsPython -PathType Leaf)) {
@@ -33,12 +33,12 @@ function Resolve-PeachTlsDirectory {
     $TlsHelper = Join-Path $ProjectRoot 'scripts\resolve_tls_directory.py'
     $TlsDirectory = & $TlsPython -X utf8 $TlsHelper
     if ($LASTEXITCODE -ne 0 -or -not $TlsDirectory) {
-        throw 'Cannot resolve the configured Peach TLS directory.'
+        throw 'Cannot resolve the configured MediaNfo TLS directory.'
     }
     return $TlsDirectory.Trim()
 }
 
-$OutDir = Resolve-PeachTlsDirectory -RequestedDirectory $OutDir
+$OutDir = Resolve-MediaNfoTlsDirectory -RequestedDirectory $OutDir
 $openssl = (Get-Command openssl -ErrorAction SilentlyContinue).Source
 if (-not $openssl) {
     $bundled = 'C:\Program Files\Git\usr\bin\openssl.exe'
@@ -49,9 +49,9 @@ if (-not $openssl) { throw 'OpenSSL not found. Install it or use the Git for Win
 New-Item -ItemType Directory -Path $OutDir -Force | Out-Null
 $caKey = Join-Path $OutDir 'peach-local-ca.key'
 $caCert = Join-Path $OutDir 'peach-local-ca.crt'
-$serverKey = Join-Path $OutDir 'peach.key'
-$serverCert = Join-Path $OutDir 'peach.crt'
-$request = Join-Path $OutDir 'peach.csr'
+$serverKey = Join-Path $OutDir 'medianfo.key'
+$serverCert = Join-Path $OutDir 'medianfo.crt'
+$request = Join-Path $OutDir 'medianfo.csr'
 $extensions = Join-Path $OutDir 'peach-san.cnf'
 $previousCaThumbprint = $null
 
@@ -75,14 +75,14 @@ subjectAltName=DNS:$DnsName,IP:$Address
 & $openssl genrsa -out $caKey 3072
 if ($LASTEXITCODE) { throw 'Failed to create local CA key.' }
 & $openssl req -x509 -new -sha256 -key $caKey -out $caCert -days 3650 `
-    -subj '/CN=Peach Local CA/O=Peach' `
+    -subj '/CN=MediaNfo Local CA/O=MediaNfo' `
     -addext 'basicConstraints=critical,CA:TRUE,pathlen:0' `
     -addext 'keyUsage=critical,keyCertSign,cRLSign' `
     -addext 'subjectKeyIdentifier=hash'
 if ($LASTEXITCODE) { throw 'Failed to create local CA certificate.' }
 & $openssl genrsa -out $serverKey 2048
 if ($LASTEXITCODE) { throw 'Failed to create server key.' }
-& $openssl req -new -sha256 -key $serverKey -out $request -subj "/CN=$DnsName/O=Peach"
+& $openssl req -new -sha256 -key $serverKey -out $request -subj "/CN=$DnsName/O=MediaNfo"
 if ($LASTEXITCODE) { throw 'Failed to create server request.' }
 & $openssl x509 -req -sha256 -in $request -CA $caCert -CAkey $caKey -CAcreateserial `
     -out $serverCert -days 397 -extfile $extensions -extensions server
@@ -96,7 +96,7 @@ if ($TrustCurrentUser) {
         & certutil.exe -user -delstore Root $previousCaThumbprint | Out-Null
     }
     & certutil.exe -user -addstore Root $caCert | Out-Null
-    if ($LASTEXITCODE) { throw 'Failed to trust Peach Local CA for the current Windows user.' }
+    if ($LASTEXITCODE) { throw 'Failed to trust MediaNfo Local CA for the current Windows user.' }
 }
 
 $fingerprint = (& $openssl x509 -in $serverCert -noout -fingerprint -sha256) -replace '^.*=', ''

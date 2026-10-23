@@ -9,7 +9,7 @@
 
 ## 背景
 
-Peach 为避免 CloudDrive 对开放区间一路读取，曾把远端 `Range: bytes=0-` 的响应人工截成
+MediaNfo 为避免 CloudDrive 对开放区间一路读取，曾把远端 `Range: bytes=0-` 的响应人工截成
 32 MiB。总文件长度虽仍写入 `Content-Range`，响应却不再忠实满足客户端请求。Firefox 在
 item 29297 上把这种响应表现为总时长随已下载内容增长；文件本身的 `moov/mvhd` 位于开头，
 账本与容器都给出 28,639.916 秒，因此不是坏文件或尾部元数据问题。

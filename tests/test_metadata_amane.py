@@ -1,4 +1,4 @@
-"""amane 桥的 Peach 一侧：起子进程、翻 payload、失败分档、冷却动作，以及采集链上那一档。"""
+"""amane 桥的 MediaNfo 一侧：起子进程、翻 payload、失败分档、冷却动作，以及采集链上那一档。"""
 from __future__ import annotations
 
 import importlib.util
@@ -12,14 +12,14 @@ import time
 import unittest
 from unittest.mock import patch
 
-from peach import metadata_amane
-from peach.jav_cover_fetch import NotFound, Unavailable
-from peach.library_processing import LibraryMetadataProvider, PROVIDER_NAMES, SOURCE_LABELS
-from peach.metadata import MetadataProviderError, extract_peach_fields
-from peach.metadata_policy import SOURCE_SPECS
-from peach.metadata_routes import AMANE_OFFICIAL_STAGE, AMANE_STAGE
-from peach.scraping_access import SourcePaused, cooldown_state, paused_until, pause_source
-from peach.sources import REASON_KINDS, FailureReason, SiteRecord
+from medianfo import metadata_amane
+from medianfo.jav_cover_fetch import NotFound, Unavailable
+from medianfo.library_processing import LibraryMetadataProvider, PROVIDER_NAMES, SOURCE_LABELS
+from medianfo.metadata import MetadataProviderError, extract_peach_fields
+from medianfo.metadata_policy import SOURCE_SPECS
+from medianfo.metadata_routes import AMANE_OFFICIAL_STAGE, AMANE_STAGE
+from medianfo.scraping_access import SourcePaused, cooldown_state, paused_until, pause_source
+from medianfo.sources import REASON_KINDS, FailureReason, SiteRecord
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -71,7 +71,7 @@ class ManifestTests(unittest.TestCase):
 
     def test_each_site_has_one_owner(self):
         """自写解析器已经答的站不经桥再问一遍（ADR-0048）。"""
-        from peach.sources import SITE_SOURCES
+        from medianfo.sources import SITE_SOURCES
         for own in ("r18dev", "fc2", "javdb", "javbus", "avbase", "1pondo", "dmm"):
             with self.subTest(site=own):
                 self.assertNotIn(own, metadata_amane.SITES)
@@ -438,7 +438,7 @@ class ProviderStageTests(unittest.TestCase):
         self.assertEqual(self.calls[0][self.calls[0].index("--sites") + 1], "fc2club,avsox")
 
     def test_site_network_settings_reach_the_bridge_and_parsed_state(self):
-        from peach.scraping_access import save, source_checks
+        from medianfo.scraping_access import save, source_checks
         save(self.secrets, "fc2club", {"network": "direct"})
         provider = self.provider(report(fc2club=FOUND, avsox={"status": "not_found", "reason": "not_found"}))
         provider.amane("FC2-PPV-1234567", route=("fc2club", "avsox"))

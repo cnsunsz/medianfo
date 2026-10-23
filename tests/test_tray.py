@@ -27,21 +27,21 @@ def load_script(name: str):
     return module
 
 
-from peach import appid, onboarding, runtime_prepare, settings_file
-from peach import tray as tray_module
-from peach.config import SECRETS_DIR
-from peach.tray import (
-    AlreadyRunning, PeachTray, ServiceManager, ServiceSpec, SetupGate,
+from medianfo import appid, onboarding, runtime_prepare, settings_file
+from medianfo import tray as tray_module
+from medianfo.config import SECRETS_DIR
+from medianfo.tray import (
+    AlreadyRunning, MediaNfoTray, ServiceManager, ServiceSpec, SetupGate,
     SingleInstance, apply_macos_template, build_service_specs,
     build_setup_service_specs, create_icon, enable_hidpi,
     launchd_owns_this_process, ledger_menu_items, needs_setup,
     restart_tray_process, tray_restart_required,
 )
-from peach.tray import main as tray_main
+from medianfo.tray import main as tray_main
 from unittest import mock
-from peach.sync import SyncPlan
-from peach.versioning import UpdateResult, VersionSnapshot
-from peach.windows_update import PendingWindowsUpdate, WindowsUpdatePreparation
+from medianfo.sync import SyncPlan
+from medianfo.versioning import UpdateResult, VersionSnapshot
+from medianfo.windows_update import PendingWindowsUpdate, WindowsUpdatePreparation
 
 
 class Response:
@@ -69,7 +69,7 @@ class TrayTests(unittest.TestCase):
         """浏览服务只观察写入角色；跨机复制只能由托盘显式执行。"""
         with tempfile.TemporaryDirectory() as directory:
             tls_dir = Path(directory)
-            for name in ("peach-local-ca.crt", "peach.crt", "peach.key"):
+            for name in ("peach-local-ca.crt", "medianfo.crt", "medianfo.key"):
                 (tls_dir / name).write_text("test-only", encoding="utf-8")
             specs = build_service_specs(lan_address="192.0.2.10", tls_dir=tls_dir)
         owners = [spec for spec in specs if "--no-ledger-sync" not in spec.command
@@ -88,17 +88,17 @@ class TrayTests(unittest.TestCase):
     def test_windows_service_address_uses_the_current_route_when_not_configured(self):
         with tempfile.TemporaryDirectory() as directory:
             tls_dir = Path(directory)
-            for name in ("peach-local-ca.crt", "peach.crt", "peach.key"):
+            for name in ("peach-local-ca.crt", "medianfo.crt", "medianfo.key"):
                 (tls_dir / name).write_text("test-only", encoding="utf-8")
             with patch.dict(os.environ, {}, clear=False), patch(
-                "peach.tray.lan_ipv4", return_value="192.0.2.55",
+                "medianfo.tray.lan_ipv4", return_value="192.0.2.55",
             ):
-                os.environ.pop("PEACH_LAN_ADDRESS", None)
+                os.environ.pop("MEDIANFO_LAN_ADDRESS", None)
                 specs = build_service_specs(tls_dir=tls_dir)
         commands = [item for spec in specs for item in spec.command]
         self.assertIn("192.0.2.55", commands)
 
-    @patch("peach.tray.LOG_DIR")
+    @patch("medianfo.tray.LOG_DIR")
     def test_start_and_stop_only_owned_service(self, log_dir):
         with tempfile.TemporaryDirectory() as directory:
             log_dir.__fspath__ = lambda: directory
@@ -120,7 +120,7 @@ class TrayTests(unittest.TestCase):
     @unittest.skipUnless(
         os.name == "nt", "DPI 声明与单实例锁是 Windows 托盘专属能力"
     )
-    @patch("peach.tray.ctypes.windll.user32.SetProcessDpiAwarenessContext", create=True)
+    @patch("medianfo.tray.ctypes.windll.user32.SetProcessDpiAwarenessContext", create=True)
     def test_hidpi_prefers_per_monitor_v2(self, set_context):
         set_context.return_value = True
         self.assertEqual(enable_hidpi(), "per-monitor-v2")
@@ -141,8 +141,8 @@ class TrayTests(unittest.TestCase):
         # 这里只验证后台更新行为，不创建真实系统托盘。macOS 的 pystray Icon 构造会向
         # WindowServer 注册应用；在 Codex seatbelt 沙箱内系统会直接 SIGABRT，连测试
         # 报告都来不及生成，并弹出「Python 意外退出」。
-        with patch("peach.tray.pystray.Icon", return_value=Mock()):
-            tray = PeachTray(ServiceManager(tuple()), Versions())
+        with patch("medianfo.tray.pystray.Icon", return_value=Mock()):
+            tray = MediaNfoTray(ServiceManager(tuple()), Versions())
         tray.check_updates(icon)
         self.assertTrue(completed.wait(2))
         for _ in range(20):
@@ -177,7 +177,7 @@ class ServiceStatusTests(unittest.TestCase):
     """
 
     def setUp(self):
-        patcher = patch("peach.tray.REPLICATION_ENABLED", True)
+        patcher = patch("medianfo.tray.REPLICATION_ENABLED", True)
         patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -239,8 +239,8 @@ class ServiceStatusTests(unittest.TestCase):
 
     def test_windows_style_menu_keeps_details_out_of_the_root_and_refreshes(self):
         manager = self.manager({"http": (True, "")})
-        with patch("peach.tray.pystray.Icon") as icon:
-            tray = PeachTray(manager)
+        with patch("medianfo.tray.pystray.Icon") as icon:
+            tray = MediaNfoTray(manager)
         root = icon.call_args.args[3]
         status = next(item for item in root.items if item.text.startswith("状态："))
         self.assertEqual(status.text, "状态：运行中")
@@ -274,8 +274,8 @@ class ServiceStatusTests(unittest.TestCase):
         self.assertTrue(manager.healthy(spec))
         self.assertIs(seen.get("trust_env"), False)
 
-    @patch("peach.tray.DATABASE_PATH", Path("/local/ledger.db"))
-    @patch("peach.tray.SHARED_DATABASE_PATH", Path("/shared/ledger.db"))
+    @patch("medianfo.tray.DATABASE_PATH", Path("/local/ledger.db"))
+    @patch("medianfo.tray.SHARED_DATABASE_PATH", Path("/shared/ledger.db"))
     def test_manual_sync_stops_owned_service_and_restarts_it(self):
         spec = ServiceSpec("http", "http://127.0.0.1/healthz", ("peach", "serve"), True)
         process = Mock()
@@ -481,7 +481,7 @@ class ReplicationSwitchTests(unittest.TestCase):
     """ADR-0023 第 3 阶段：`replication.enabled = false` 时托盘不装配复制那一层。"""
 
     def items(self, enabled):
-        with patch("peach.tray.REPLICATION_ENABLED", enabled):
+        with patch("medianfo.tray.REPLICATION_ENABLED", enabled):
             return ledger_menu_items(
                 lambda label, action: (label, action), Mock(), Mock())
 
@@ -497,7 +497,7 @@ class ReplicationSwitchTests(unittest.TestCase):
         plan = Mock()
         mount = Mock()
         manager = ServiceManager(tuple(), ledger_plan=plan, mount_share=mount)
-        with patch("peach.tray.REPLICATION_ENABLED", False):
+        with patch("medianfo.tray.REPLICATION_ENABLED", False):
             ok, message = manager.sync_ledger(Path("/venv/peach"))
         self.assertFalse(ok)
         self.assertIn("replication.enabled", message)
@@ -508,7 +508,7 @@ class ReplicationSwitchTests(unittest.TestCase):
 class SetupGateTests(unittest.TestCase):
     """首次设置期间的服务切换（ADR-0023 的 GUI 引导）。
 
-    托盘不重启自己就要完成切换，所以这里断言的是「规格换了、日志目录和 PEACH_DATA_ROOT
+    托盘不重启自己就要完成切换，所以这里断言的是「规格换了、日志目录和 MEDIANFO_DATA_ROOT
     跟着换了、首扫标记只被消费一次」，而不是某个平台的菜单长什么样。
     """
 
@@ -516,28 +516,28 @@ class SetupGateTests(unittest.TestCase):
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)
         self.root = Path(self._tmp.name).resolve()
-        self.data_root = self.root / "peach-data"
-        patcher = patch("peach.tray._peach_executable", return_value=Path("/venv/peach"))
+        self.data_root = self.root / "medianfo-data"
+        patcher = patch("medianfo.tray._medianfo_executable", return_value=Path("/venv/peach"))
         self.addCleanup(patcher.stop)
         patcher.start()
 
     def _config(self):
         return settings_file.load_config(
             project_root=self.root / "app",
-            environ={"PEACH_DATA_ROOT": str(self.data_root)})
+            environ={"MEDIANFO_DATA_ROOT": str(self.data_root)})
 
     def _tls(self, config):
         tls_dir = config.directory("secrets") / "tls"
         tls_dir.mkdir(parents=True, exist_ok=True)
-        for name in ("peach-local-ca.crt", "peach.crt", "peach.key"):
+        for name in ("peach-local-ca.crt", "medianfo.crt", "medianfo.key"):
             (tls_dir / name).write_text("test-only", encoding="utf-8")
 
     def test_a_fresh_machine_needs_setup_even_after_a_state_directory_appeared(self):
         self.assertTrue(needs_setup(self._config()))
-        # 托盘的单实例锁会建出 `state/`，Peach 数据目录于是存在、`configured` 变成 True。
+        # 托盘的单实例锁会建出 `state/`，MediaNfo 数据目录于是存在、`configured` 变成 True。
         (self.data_root / "state").mkdir(parents=True)
         self.assertTrue(self._config().configured)
-        self.assertTrue(needs_setup(self._config()), "空 Peach 数据目录不算配置过")
+        self.assertTrue(needs_setup(self._config()), "空 MediaNfo 数据目录不算配置过")
 
     def test_an_existing_deployment_without_a_settings_file_is_left_alone(self):
         (self.data_root / "database").mkdir(parents=True)
@@ -578,12 +578,12 @@ class SetupGateTests(unittest.TestCase):
         manager = ServiceManager((), log_dir=config.directory("logs"),
                                  popen=Mock(), health_get=lambda *a, **k: Response())
         gate = SetupGate(manager, config, waiting=False, load=self._config)
-        with patch("peach.tray.lan_ipv4", return_value="192.0.2.10"), patch(
-                "peach.distribution.standalone", return_value=False):
+        with patch("medianfo.tray.lan_ipv4", return_value="192.0.2.10"), patch(
+                "medianfo.distribution.standalone", return_value=False):
             self.assertTrue(gate.poll())
             self.assertFalse(gate.poll())
         self.assertFalse(reload_path.exists())
-        self.assertEqual(manager.child_environment()["PEACH_TRAY_MANAGED"], "1")
+        self.assertEqual(manager.child_environment()["MEDIANFO_TRAY_MANAGED"], "1")
         self.assertTrue(manager.specs)
 
     def test_a_finished_setup_switches_to_the_normal_services_and_runs_the_first_scan(self):
@@ -596,22 +596,22 @@ class SetupGateTests(unittest.TestCase):
                          popen=scan_popen, open_browser=Mock())
         self._tls(config)
         (self.data_root / "config.toml").write_text(
-            "[server]\nport = 9100\nmdns_name = 'peach-writer'\n", encoding="utf-8")
+            "[server]\nport = 9100\nmdns_name = 'medianfo-writer'\n", encoding="utf-8")
         onboarding.request_first_scan(self._config())
 
-        with patch("peach.tray.lan_ipv4", return_value="192.0.2.10"):
+        with patch("medianfo.tray.lan_ipv4", return_value="192.0.2.10"):
             self.assertTrue(gate.poll())
         self.assertFalse(gate.waiting)
         self.assertNotIn("setup", [spec.name for spec in manager.specs])
         self.assertTrue(manager.specs, "切换之后必须有正常服务规格")
         self.assertEqual(manager.log_dir, self.data_root / "logs")
-        self.assertEqual(manager.child_environment()["PEACH_DATA_ROOT"], str(self.data_root))
-        self.assertEqual(gate.open_label(), "打开 Peach")
-        self.assertEqual(gate.open_url(), "https://peach-writer.local/")
+        self.assertEqual(manager.child_environment()["MEDIANFO_DATA_ROOT"], str(self.data_root))
+        self.assertEqual(gate.open_label(), "打开主窗口")
+        self.assertEqual(gate.open_url(), "https://medianfo-writer.local/")
 
         scan = scan_popen.call_args
         self.assertEqual(list(scan.args[0][1:]), ["process", "local"])
-        self.assertEqual(scan.kwargs["env"]["PEACH_DATA_ROOT"], str(self.data_root))
+        self.assertEqual(scan.kwargs["env"]["MEDIANFO_DATA_ROOT"], str(self.data_root))
         # 标记只消费一次：下一轮轮询已经不在等待状态，也不会再拉起一次扫描。
         self.assertFalse(gate.poll())
         self.assertEqual(scan_popen.call_count, 1)
@@ -631,11 +631,11 @@ class SetupGateTests(unittest.TestCase):
                          popen=Mock(), open_browser=Mock())
         self._tls(config)
         (self.data_root / "config.toml").write_text(
-            "[server]\nport = 9100\nmdns_name = 'peach-writer'\n", encoding="utf-8")
+            "[server]\nport = 9100\nmdns_name = 'medianfo-writer'\n", encoding="utf-8")
 
         # 打进去的是 import 期那份旧名字；跳转目标必须是表单刚写下的那个。
-        with patch("peach.tray.MDNS_HOSTNAME", "peach-reader.local"), patch(
-                "peach.tray.lan_ipv4", return_value="192.0.2.10"):
+        with patch("medianfo.tray.MDNS_HOSTNAME", "peach-reader.local"), patch(
+                "medianfo.tray.lan_ipv4", return_value="192.0.2.10"):
             self.assertTrue(gate.poll())
         redirecting = [spec for spec in manager.specs
                        if "--redirect-origin" in spec.command]
@@ -643,7 +643,7 @@ class SetupGateTests(unittest.TestCase):
         for spec in redirecting:
             command = spec.command
             self.assertEqual(command[command.index("--redirect-origin") + 1],
-                             "https://peach-writer.local")
+                             "https://medianfo-writer.local")
 
     def test_missing_tls_material_keeps_the_gate_waiting(self):
         """没有 openssl 的机器上 CA 生成会失败；那时不能拿一组缺文件的规格去启动。
@@ -660,7 +660,7 @@ class SetupGateTests(unittest.TestCase):
                          popen=Mock(), open_browser=Mock())
         self.data_root.mkdir(parents=True, exist_ok=True)
         (self.data_root / "config.toml").write_text("[server]\nport = 8900\n", encoding="utf-8")
-        with patch("peach.tray.lan_ipv4", return_value="192.0.2.10"):
+        with patch("medianfo.tray.lan_ipv4", return_value="192.0.2.10"):
             opened = gate.poll()
         if sys.platform == "darwin":
             self.assertTrue(opened)
@@ -677,13 +677,13 @@ class LogRetentionAtStartupTests(unittest.TestCase):
     def test_the_log_sweep_runs_before_any_child_process_can_open_a_log(self):
         """子进程以追加方式握着 `tray-*.log` 的句柄；先起服务再改名，Windows 上改名会失败，
         POSIX 上则是段文件继续被写。所以整理必须排在 ServiceManager 之前，且失败只记警告。"""
-        from peach import tray, settings_file
+        from medianfo import tray, settings_file
         for platform in ("win32", "darwin", "linux"):
             with self.subTest(platform=platform), tempfile.TemporaryDirectory() as directory:
                 self.check_log_sweep(Path(directory).resolve(), platform, tray, settings_file)
 
     def check_log_sweep(self, root, platform, tray, settings_file):
-        config = settings_file.PeachConfig(root, root / "config.toml")
+        config = settings_file.MediaNfoConfig(root, root / "config.toml")
         events = []
         def sweep(_):
             events.append("sweep")
@@ -704,7 +704,7 @@ class LogRetentionAtStartupTests(unittest.TestCase):
                 mock.patch.object(tray, "log_to_file"), \
                 mock.patch.object(tray, "build_setup_service_specs", return_value=()), \
                 mock.patch.object(tray, "ServiceManager", side_effect=manager), \
-                mock.patch.object(tray, "PeachTray", return_value=icon) as windows_tray, \
+                mock.patch.object(tray, "MediaNfoTray", return_value=icon) as windows_tray, \
                 mock.patch.object(tray, "tray_preparation"), \
                 mock.patch.object(tray, "show_message"), \
                 self.assertLogs(level="WARNING"):
@@ -726,8 +726,8 @@ class SourceSyncTests(unittest.TestCase):
     """「同步开发进度」这条路径：拉到的代码要真的跑起来，托盘不能自己骗自己。"""
 
     def test_only_tray_owned_modules_demand_a_tray_restart(self):
-        self.assertFalse(tray_restart_required(("src/peach/web.py", "docs/STATUS.md")))
-        self.assertTrue(tray_restart_required(("src/peach/web.py", "src/peach/menubar.py")))
+        self.assertFalse(tray_restart_required(("src/medianfo/web.py", "docs/STATUS.md")))
+        self.assertTrue(tray_restart_required(("src/medianfo/web.py", "src/medianfo/menubar.py")))
         self.assertTrue(tray_restart_required(("pyproject.toml",)))
         self.assertFalse(tray_restart_required(()))
 
@@ -744,7 +744,7 @@ class SourceSyncTests(unittest.TestCase):
             Mock(return_value=Mock(returncode=113, stdout="")), uid=501))
 
     def test_windows_tray_lists_source_sync_next_to_ledger(self):
-        source = inspect.getsource(PeachTray.__init__)
+        source = inspect.getsource(MediaNfoTray.__init__)
         self.assertIn('MenuItem("同步开发进度", self.sync_source,', source)
         self.assertIn('visible=lambda _: not standalone()', source)
         self.assertLess(source.index("同步开发进度"), source.index("ledger_menu_items"))
@@ -785,8 +785,8 @@ class SourceSyncTests(unittest.TestCase):
         manager = Mock()
         manager.restart.return_value = True
         icon = Mock()
-        with patch("peach.tray.pystray.Icon", return_value=Mock()):
-            tray = PeachTray(manager, Versions(), Updates())
+        with patch("medianfo.tray.pystray.Icon", return_value=Mock()):
+            tray = MediaNfoTray(manager, Versions(), Updates())
         tray.sync_source(icon)
         self.assertTrue(completed.wait(2))
         manager.restart.assert_called_once()
@@ -805,7 +805,7 @@ class SourceSyncTests(unittest.TestCase):
             def update(self):
                 return UpdateResult(
                     "updated", "updated", snapshot, behind=1,
-                    changed_paths=("src/peach/tray.py",),
+                    changed_paths=("src/medianfo/tray.py",),
                 )
 
         class Updates:
@@ -823,8 +823,8 @@ class SourceSyncTests(unittest.TestCase):
         manager = Mock()
         manager.stop_owned.side_effect = lambda: stopped.set()
         icon = Mock()
-        with patch("peach.tray.pystray.Icon", return_value=Mock()):
-            tray = PeachTray(manager, Versions(), Updates())
+        with patch("medianfo.tray.pystray.Icon", return_value=Mock()):
+            tray = MediaNfoTray(manager, Versions(), Updates())
         tray.sync_source(icon)
         self.assertTrue(stopped.wait(2))
         icon.stop.assert_called_once()
@@ -836,12 +836,12 @@ class SourceSyncTests(unittest.TestCase):
         self.assertEqual(
             runner.call_args.args[0],
             ["launchctl", "kickstart", "-k",
-             "gui/501/io.github.longmeidao.peach.tray"],
+             "gui/501/io.github.cnsunsz.medianfo.tray"],
         )
 
     def test_sync_changes_restart_the_tray_and_failed_kickstart_restores_services(self):
-        self.assertTrue(tray_restart_required(("src/peach/sync.py",)))
-        from peach import tray as tray_module
+        self.assertTrue(tray_restart_required(("src/medianfo/sync.py",)))
+        from medianfo import tray as tray_module
         source = inspect.getsource(tray_module.run_macos_menu_bar)
         self.assertIn("if restarted.returncode != 0:", source)
         self.assertIn("manager.start_missing()", source)
@@ -850,7 +850,7 @@ class SourceSyncTests(unittest.TestCase):
 class FakeVersions:
     root = ROOT
 
-    def __init__(self, snapshot, state="ahead", paths=("src/peach/tray.py",),
+    def __init__(self, snapshot, state="ahead", paths=("src/medianfo/tray.py",),
                  head="a" * 40):
         self.snapshot = snapshot
         self.state = state
@@ -909,8 +909,8 @@ class LocalRebuildTests(unittest.TestCase):
     def tray_for(self, versions, updates, manager=None, waiting=False):
         gate = Mock()
         gate.waiting = waiting
-        with patch("peach.tray.pystray.Icon", return_value=Mock()):
-            return PeachTray(manager or Mock(), versions, updates, gate)
+        with patch("medianfo.tray.pystray.Icon", return_value=Mock()):
+            return MediaNfoTray(manager or Mock(), versions, updates, gate)
 
     def drain(self, tray):
         deadline = time.monotonic() + 10
@@ -927,12 +927,12 @@ class LocalRebuildTests(unittest.TestCase):
         manager, icon = Mock(), Mock()
         tray = self.tray_for(versions, updates, manager)
         with patch.object(sys, "frozen", True, create=True), \
-                patch("peach.tray.standalone", return_value=False):
+                patch("medianfo.tray.standalone", return_value=False):
             tray.sync_source(icon)
             self.drain(tray)
         self.assertEqual(versions.asked,
                          ["9f8e7d6c5b4a39281706f5e4d3c2b1a098765432"])
-        self.assertEqual(updates.prepared, [("abc12345", ("src/peach/tray.py",))])
+        self.assertEqual(updates.prepared, [("abc12345", ("src/medianfo/tray.py",))])
         manager.stop_owned.assert_called_once()
         icon.stop.assert_called_once()
 
@@ -942,7 +942,7 @@ class LocalRebuildTests(unittest.TestCase):
         icon = Mock()
         tray = self.tray_for(versions, updates)
         with patch.object(sys, "frozen", True, create=True), \
-                patch("peach.tray.standalone", return_value=False):
+                patch("medianfo.tray.standalone", return_value=False):
             tray.sync_source(icon)
             self.drain(tray)
         self.assertEqual(updates.prepared, [])
@@ -954,7 +954,7 @@ class LocalRebuildTests(unittest.TestCase):
         icon = Mock()
         tray = self.tray_for(versions, updates)
         with patch.object(sys, "frozen", True, create=True), \
-                patch("peach.tray.standalone", return_value=False):
+                patch("medianfo.tray.standalone", return_value=False):
             tray.sync_source(icon)
             self.drain(tray)
         self.assertEqual(updates.prepared, [])
@@ -966,7 +966,7 @@ class LocalRebuildTests(unittest.TestCase):
         icon = Mock()
         tray = self.tray_for(versions, updates)
         with patch.object(sys, "frozen", False, create=True), \
-                patch("peach.tray.standalone", return_value=False):
+                patch("medianfo.tray.standalone", return_value=False):
             tray.sync_source(icon)
             self.drain(tray)
         self.assertEqual(updates.prepared, [])
@@ -978,7 +978,7 @@ class LocalRebuildTests(unittest.TestCase):
         icon = Mock()
         tray = self.tray_for(versions, updates)
         with patch.object(sys, "frozen", True, create=True), \
-                patch("peach.tray.standalone", return_value=True):
+                patch("medianfo.tray.standalone", return_value=True):
             tray.sync_source(icon)
             self.drain(tray)
         self.assertEqual(updates.prepared, [])
@@ -991,18 +991,18 @@ class LocalRebuildTests(unittest.TestCase):
         class Fetched(FakeVersions):
             def update(self):
                 return UpdateResult("updated", "已同步 1 个提交。", snapshot, behind=1,
-                                    changed_paths=("src/peach/web.py",))
+                                    changed_paths=("src/medianfo/web.py",))
 
         versions = Fetched(snapshot)
         updates = FakeUpdates()
         icon = Mock()
         tray = self.tray_for(versions, updates)
         with patch.object(sys, "frozen", True, create=True), \
-                patch("peach.tray.standalone", return_value=False):
+                patch("medianfo.tray.standalone", return_value=False):
             tray.sync_source(icon)
             self.drain(tray)
         self.assertEqual(versions.asked, [], "快进自己就给出了改动清单")
-        self.assertEqual(updates.prepared, [("abc12345", ("src/peach/web.py",))])
+        self.assertEqual(updates.prepared, [("abc12345", ("src/medianfo/web.py",))])
 
 
 class AutomaticRebuildTests(unittest.TestCase):
@@ -1018,8 +1018,8 @@ class AutomaticRebuildTests(unittest.TestCase):
     def tray_for(self, versions, *, waiting=False):
         gate = Mock()
         gate.waiting = waiting
-        with patch("peach.tray.pystray.Icon", return_value=Mock()):
-            tray = PeachTray(Mock(), versions, FakeUpdates(), gate)
+        with patch("medianfo.tray.pystray.Icon", return_value=Mock()):
+            tray = MediaNfoTray(Mock(), versions, FakeUpdates(), gate)
         tray._build_checked_at = self.clock[0]
         tray.sync_source = lambda *args, **kwargs: self.attempts.append(args)
         return tray
@@ -1037,7 +1037,7 @@ class AutomaticRebuildTests(unittest.TestCase):
         versions = self.stale()
         tray = self.tray_for(versions)
         with patch.object(sys, "frozen", True, create=True), \
-                patch("peach.tray.standalone", return_value=False):
+                patch("medianfo.tray.standalone", return_value=False):
             self.assertFalse(tray.poll_build_age(self.now), "不到间隔不问 git")
             self.clock[0] += 301
             self.assertTrue(tray.poll_build_age(self.now))
@@ -1056,7 +1056,7 @@ class AutomaticRebuildTests(unittest.TestCase):
         )
         tray = self.tray_for(versions)
         with patch.object(sys, "frozen", True, create=True), \
-                patch("peach.tray.standalone", return_value=False):
+                patch("medianfo.tray.standalone", return_value=False):
             self.clock[0] += 301
             self.assertFalse(tray.poll_build_age(self.now))
         self.assertEqual(self.attempts, [])
@@ -1065,7 +1065,7 @@ class AutomaticRebuildTests(unittest.TestCase):
         """首次设置没走完时连服务都还没定型，重建换掉的是用户正在用的入口。"""
         tray = self.tray_for(self.stale(), waiting=True)
         with patch.object(sys, "frozen", True, create=True), \
-                patch("peach.tray.standalone", return_value=False):
+                patch("medianfo.tray.standalone", return_value=False):
             self.clock[0] += 301
             self.assertFalse(tray.poll_build_age(self.now))
         self.assertEqual(self.attempts, [])
@@ -1073,11 +1073,11 @@ class AutomaticRebuildTests(unittest.TestCase):
     def test_source_checkouts_and_standalone_packages_never_build_anything(self):
         tray = self.tray_for(self.stale())
         with patch.object(sys, "frozen", False, create=True), \
-                patch("peach.tray.standalone", return_value=False):
+                patch("medianfo.tray.standalone", return_value=False):
             self.clock[0] += 301
             self.assertFalse(tray.poll_build_age(self.now))
         with patch.object(sys, "frozen", True, create=True), \
-                patch("peach.tray.standalone", return_value=True):
+                patch("medianfo.tray.standalone", return_value=True):
             self.clock[0] += 301
             self.assertFalse(tray.poll_build_age(self.now))
         self.assertEqual(self.attempts, [])
@@ -1110,7 +1110,7 @@ class MacMenuBarTests(unittest.TestCase):
     def test_https_spec_only_appears_with_real_tls_material(self):
         """macOS 这份是开发环境：没有本机 CA 也应该能用，不像 Windows 那样直接报错。"""
         specs = {spec.name: spec for spec in build_service_specs()}
-        material = (SECRETS_DIR / "tls" / "peach.crt").is_file()
+        material = (SECRETS_DIR / "tls" / "medianfo.crt").is_file()
         self.assertEqual("https" in specs, material)
         if material:
             command = specs["https"].command
@@ -1129,7 +1129,7 @@ class TemplateHookTests(unittest.TestCase):
 class MacAppBundleTests(unittest.TestCase):
     """菜单栏项必须打成 bundle 才拿得稳。
 
-    裸控制台进程启动 `peach-tray` 时，AppKit 的运行循环没有应用上下文会立刻返回：
+    裸控制台进程启动 `medianfo-tray` 时，AppKit 的运行循环没有应用上下文会立刻返回：
     服务起来了、托盘父进程却安静退出，退出码 0、零输出。实测就是这样。
     """
 
@@ -1138,7 +1138,7 @@ class MacAppBundleTests(unittest.TestCase):
         self._tmp = tempfile.TemporaryDirectory()
         self.root = Path(self._tmp.name)
         self.addCleanup(self._tmp.cleanup)
-        self.tray = self.root / "peach-tray"
+        self.tray = self.root / "medianfo-tray"
         self.tray.write_text("#!/bin/sh\n", encoding="utf-8")
 
     def test_bundle_declares_itself_as_a_menu_bar_agent(self):
@@ -1146,7 +1146,7 @@ class MacAppBundleTests(unittest.TestCase):
         info = plistlib.loads((app / "Contents" / "Info.plist").read_bytes())
         # LSUIElement：只在菜单栏出现，不占 Dock、不进 ⌘Tab。
         self.assertIs(info["LSUIElement"], True)
-        self.assertEqual(info["CFBundleExecutable"], "Peach")
+        self.assertEqual(info["CFBundleExecutable"], "MediaNfo")
         self.assertTrue(info["CFBundleIdentifier"])
 
     def test_launcher_never_execs_the_interpreter_itself(self):
@@ -1157,7 +1157,7 @@ class MacAppBundleTests(unittest.TestCase):
         双击只负责踢 LaunchAgent，真正的菜单栏进程是 launchd 的直接子进程。
         """
         app = self.module.build(self.root, self.tray)
-        launcher = app / "Contents" / "MacOS" / "Peach"
+        launcher = app / "Contents" / "MacOS" / "MediaNfo"
         self.assertTrue(os.access(launcher, os.X_OK))
         body = launcher.read_text(encoding="utf-8")
         self.assertIn("launchctl kickstart", body)
@@ -1168,10 +1168,10 @@ class MacAppBundleTests(unittest.TestCase):
         app = self.module.build(self.root, self.tray)
         import plistlib as _plistlib
         info = _plistlib.loads((app / "Contents" / "Info.plist").read_bytes())
-        icon = ROOT / "resources" / "peach.icns"
+        icon = ROOT / "resources" / "medianfo.icns"
         if icon.is_file():
             self.assertEqual(info.get("CFBundleIconFile"), "peach")
-            self.assertTrue((app / "Contents" / "Resources" / "peach.icns").is_file())
+            self.assertTrue((app / "Contents" / "Resources" / "medianfo.icns").is_file())
 
     def test_rebuild_replaces_a_stale_bundle(self):
         app = self.module.build(self.root, self.tray)
@@ -1243,19 +1243,21 @@ class MacLegacyAgentTests(unittest.TestCase):
         return Mock(returncode=returncode, stdout="", stderr="")
 
     def test_installing_boots_out_the_legacy_label_and_deletes_its_plist(self):
-        legacy = appid.LEGACY_MACOS_LAUNCH_AGENT_LABELS[0]
-        stale = self.agents / f"{legacy}.plist"
+        legacies = list(appid.LEGACY_MACOS_LAUNCH_AGENT_LABELS)
+        stale = self.agents / f"{legacies[0]}.plist"
         stale.write_bytes(b"stale")
         self.module.launchctl = lambda *args: self._launchctl(*args, loaded=True)
 
-        self.assertEqual(self.module.remove_legacy_agents("gui/501"), [legacy])
+        self.assertEqual(self.module.remove_legacy_agents("gui/501"), legacies)
         self.assertFalse(stale.exists())
-        self.assertIn(("bootout", f"gui/501/{legacy}"), self.calls)
+        self.assertIn(("bootout", f"gui/501/{legacies[0]}"), self.calls)
 
     def test_a_machine_without_the_legacy_label_is_left_alone(self):
         self.module.launchctl = lambda *args: self._launchctl(*args, loaded=False)
         self.assertEqual(self.module.remove_legacy_agents("gui/501"), [])
-        self.assertEqual([args[0] for args in self.calls], ["print"])
+        # 每个遗留标签都会 print 一次；均未加载则不做 bootout。
+        self.assertEqual([args[0] for args in self.calls],
+                         ["print"] * len(appid.LEGACY_MACOS_LAUNCH_AGENT_LABELS))
 
     def test_install_clears_the_legacy_label_before_writing_the_new_plist(self):
         """顺序反了就会把刚装好的那份又 bootout 掉一次，白等一轮超时。"""
@@ -1265,22 +1267,22 @@ class MacLegacyAgentTests(unittest.TestCase):
 
 
 class TrayCommandLineTests(unittest.TestCase):
-    """`peach-tray` 的参数解析先于一切进程级副作用。
+    """`medianfo-tray` 的参数解析先于一切进程级副作用。
 
-    新用户试探 `peach-tray --help` 时，程序不能先去拿单实例锁：那一步会在 venv 旁边
-    凭空建出 `peach-data/state/`，之后的安装探测就把这台机器当成已配置。
+    新用户试探 `medianfo-tray --help` 时，程序不能先去拿单实例锁：那一步会在 venv 旁边
+    凭空建出 `medianfo-data/state/`，之后的安装探测就把这台机器当成已配置。
     """
 
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self._tmp.cleanup)
         self.state_dir = Path(self._tmp.name).resolve() / "state"
-        for target in ("peach.tray.enable_hidpi", "peach.tray.SingleInstance",
-                       "peach.tray.ServiceManager", "peach.tray.webbrowser"):
+        for target in ("medianfo.tray.enable_hidpi", "medianfo.tray.SingleInstance",
+                       "medianfo.tray.ServiceManager", "medianfo.tray.desktop_window"):
             patcher = patch(target)
             self.addCleanup(patcher.stop)
             setattr(self, target.rsplit(".", 1)[1], patcher.start())
-        patcher = patch("peach.tray.STATE_DIR", self.state_dir)
+        patcher = patch("medianfo.tray.STATE_DIR", self.state_dir)
         self.addCleanup(patcher.stop)
         patcher.start()
 
@@ -1296,12 +1298,12 @@ class TrayCommandLineTests(unittest.TestCase):
         self.enable_hidpi.assert_not_called()
         self.SingleInstance.assert_not_called()
         self.ServiceManager.assert_not_called()
-        self.webbrowser.open.assert_not_called()
+        self.desktop_window.open_url.assert_not_called()
 
     def test_help_exits_zero_and_leaves_the_state_directory_alone(self):
         code, stdout, _ = self._run(["--help"])
         self.assertEqual(code, 0)
-        self.assertIn("peach-tray", stdout)
+        self.assertIn("medianfo-tray", stdout)
         self.assertIn("托盘", stdout)
         self._assert_nothing_touched()
 
@@ -1325,15 +1327,15 @@ class ServiceRevivalTests(unittest.TestCase):
         gate = Mock()
         gate.waiting = False
         snapshot = VersionSnapshot("0.7.14", "master", "abc12345", False, True, "origin/master")
-        with patch("peach.tray.pystray.Icon", return_value=Mock()):
-            return PeachTray(manager, FakeVersions(snapshot), FakeUpdates(), gate)
+        with patch("medianfo.tray.pystray.Icon", return_value=Mock()):
+            return MediaNfoTray(manager, FakeVersions(snapshot), FakeUpdates(), gate)
 
     def one_health_round(self, tray):
         stop = Mock()
         stop.wait.side_effect = [False, True]
         stop.is_set.return_value = False
         tray._stop_event = stop
-        with patch("peach.standalone_update.poll"), patch("peach.desktop_uninstall.poll"):
+        with patch("medianfo.standalone_update.poll"), patch("medianfo.desktop_uninstall.poll"):
             tray._monitor()
 
     def manager(self, *, healthy):
@@ -1366,7 +1368,7 @@ class ServiceRevivalTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             manager = ServiceManager((self.SPEC,), popen=popen, log_dir=Path(directory),
                                      health_get=lambda *args, **kwargs: Response())
-            with self.assertLogs("peach.tray", "WARNING") as logs:
+            with self.assertLogs("medianfo.tray", "WARNING") as logs:
                 manager.start_missing()
         popen.assert_not_called()
         self.assertIn("不是本托盘拉起的", logs.output[0])
@@ -1402,7 +1404,7 @@ class TrayLogFileTests(unittest.TestCase):
             try:
                 logging.getLogger("httpx").info("HTTP Request: GET http://127.0.0.1/healthz")
                 logging.getLogger("httpx").warning("连接被拒绝")
-                logging.getLogger("peach.tray").info("拉起 http 服务，PID 1")
+                logging.getLogger("medianfo.tray").info("拉起 http 服务，PID 1")
             finally:
                 root.removeHandler(handler)
                 handler.close()
@@ -1489,14 +1491,14 @@ class TrayPreparationTests(unittest.TestCase):
         snapshot = VersionSnapshot("0.37.0", "master", "abc12345", False, True, "origin/master")
         updates = FakeUpdates()
         updates.sweep_artifacts = lambda: None
-        with patch("peach.tray.pystray.Icon", return_value=Mock()):
-            return PeachTray(manager, FakeVersions(snapshot), updates, gate,
+        with patch("medianfo.tray.pystray.Icon", return_value=Mock()):
+            return MediaNfoTray(manager, FakeVersions(snapshot), updates, gate,
                              preparation=preparation)
 
     def run_tray(self, tray):
         with (
-            patch("peach.tray.ledger_backups.prune"),
-            patch("peach.tray.sweep_onefile_extractions"),
+            patch("medianfo.tray.ledger_backups.prune"),
+            patch("medianfo.tray.sweep_onefile_extractions"),
             patch.object(tray, "_monitor"),
         ):
             tray.run()
@@ -1577,7 +1579,7 @@ class TrayPreparationTests(unittest.TestCase):
         manager = ServiceManager((spec,), popen=lambda *_a, **_k: order.append("start") or process,
                                  log_dir=self.root / "logs",
                                  health_get=Mock(side_effect=OSError("down")))
-        with patch("peach.tray.assign_to_job"), patch("peach.tray.create_kill_on_close_job"):
+        with patch("medianfo.tray.assign_to_job"), patch("medianfo.tray.create_kill_on_close_job"):
             manager.start_missing()
             order.clear()
             with patch.object(manager, "wait_until_ready", return_value=True):

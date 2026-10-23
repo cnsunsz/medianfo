@@ -120,7 +120,7 @@ export function TunnelSettings({ revision: initialRevision, initial, receipt }: 
               : '在 Cloudflare Zero Trust 的隧道详情页复制。'} />
         </> : null}
         {!state.available
-          ? <Note tone="warning" title="找不到 cloudflared">安装官方 cloudflared，或用设置文件的 tunnel.binary 与 PEACH_CLOUDFLARED 指定路径。</Note>
+          ? <Note tone="warning" title="找不到 cloudflared">安装官方 cloudflared，或用设置文件的 tunnel.binary 与 MEDIANFO_CLOUDFLARED 指定路径。</Note>
           : null}
         {state.state === 'running' && state.url
           ? <Note tone="info" title="公网地址"><ExternalLink href={state.url}>{state.url}</ExternalLink></Note>
@@ -129,7 +129,7 @@ export function TunnelSettings({ revision: initialRevision, initial, receipt }: 
         {state.error ? <ErrorText>{state.error}</ErrorText> : null}
         {action.error ? <ErrorText>{action.error}</ErrorText> : null}
       </Stack>
-      <Footer status={state.enabled ? 'Peach 重启后自动恢复。' : undefined}>
+      <Footer status={state.enabled ? 'MediaNfo 重启后自动恢复。' : undefined}>
         <Button variant={state.named_available ? 'secondary' : 'primary'} onClick={toggle} {...busyProps(action.busy === 'toggle')}>
           {active ? '停止公网入口' : '启动公网入口'}
         </Button>

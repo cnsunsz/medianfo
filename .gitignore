@@ -19,7 +19,7 @@ dist/
 *.log
 *.bak
 
-# Peach 的代码仓库不保存真实数据库、媒体、凭据、缓存或生成物。
+# MediaNfo 的代码仓库不保存真实数据库、媒体、凭据、缓存或生成物。
 *.db
 *.db-wal
 *.db-shm
@@ -27,9 +27,9 @@ dist/
 data/
 runtime/
 bin/
-/peach-data/
-/peach-sync/
-/peach-worktrees/
+/medianfo-data/
+/medianfo-sync/
+/medianfo-worktrees/
 /secrets/
 /generated/
 /review/

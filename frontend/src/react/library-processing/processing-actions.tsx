@@ -9,7 +9,7 @@ import { MenuDialog } from '../components/menu-dialog';
 import { busyProps } from '../settings/use-action';
 import type { LibraryProcessingCommand, ProcessingSpeed } from './library-processing';
 
-export const RESOURCE_NOTICE_KEY = 'peach.library-processing.resource-notice.v1';
+export const RESOURCE_NOTICE_KEY = 'medianfo.library-processing.resource-notice.v1';
 
 /** 扫描和已有作品补全共用资料流水线，视频预览由媒体库设置决定。 */
 export function ProcessingActions({ busy, scan = false, metadataOnly = false, speedMode = 'standard', onRun }: {

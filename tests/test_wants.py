@@ -14,8 +14,8 @@ from contextlib import closing, redirect_stdout
 from datetime import date
 from pathlib import Path
 
-from peach import scan, wants
-from peach.migrations import upgrade
+from medianfo import scan, wants
+from medianfo.migrations import upgrade
 
 ROOT = Path(__file__).resolve().parents[1]
 DECLARED = {"local": ("R:\\media",)}

@@ -19,8 +19,8 @@ from contextlib import redirect_stdout
 from pathlib import Path, PureWindowsPath
 from unittest.mock import patch
 
-from peach import scan
-from peach.migrations import upgrade
+from medianfo import scan
+from medianfo.migrations import upgrade
 
 ROOT = Path(__file__).resolve().parents[1]
 MIGRATIONS = ROOT / "migrations"
@@ -75,10 +75,10 @@ class WindowsShapeTests(_ScanCase):
 
     def test_scanned_video_is_visible_without_a_thumbnail_filter(self):
         from support.web import route_client
-        from peach.api import create_app
-        from peach.config import PeachSettings
+        from medianfo.api import create_app
+        from medianfo.config import MediaNfoSettings
         self._scan(str(self.media), declared_roots={"local": (str(self.media),)}, windows=True)
-        with route_client(create_app(PeachSettings(db_path=self.db, configured=True, token=""))) as client:
+        with route_client(create_app(MediaNfoSettings(db_path=self.db, configured=True, token=""))) as client:
             self.assertEqual(client.get('/api/items').json()['total'], 1)
             self.assertEqual(client.get('/api/items?thumb=0').json()['total'], 1)
             self.assertEqual(client.get('/api/items?thumb=1').json()['total'], 0)

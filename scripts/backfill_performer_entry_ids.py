@@ -48,12 +48,12 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach import javdb   # noqa: E402
-from peach.config import STATE_DIR   # noqa: E402
-from peach.entry_links import EXTERNAL_KIND, JAV_DIRECTORIES   # noqa: E402
-from peach.performer_alias_followup import match_key, rejection   # noqa: E402
-from peach.review_csv import read_rows, write_rows   # noqa: E402
-from peach.scripting import add_ledger_write_args, open_for_write, verify_after_write   # noqa: E402
+from medianfo import javdb   # noqa: E402
+from medianfo.config import STATE_DIR   # noqa: E402
+from medianfo.entry_links import EXTERNAL_KIND, JAV_DIRECTORIES   # noqa: E402
+from medianfo.performer_alias_followup import match_key, rejection   # noqa: E402
+from medianfo.review_csv import read_rows, write_rows   # noqa: E402
+from medianfo.scripting import add_ledger_write_args, open_for_write, verify_after_write   # noqa: E402
 
 JAVDB, MINNANO = "javdb", "minnano-av"
 #: 复核 CSV 里这两列就是站点 id，列名由产出它们的脚本定下。

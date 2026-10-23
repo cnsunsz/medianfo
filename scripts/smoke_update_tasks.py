@@ -20,10 +20,10 @@ from smoke_desktop import complete_first_run, smoke_directory, smoke_environment
 def validate_installer_host():
     assert os.environ.get('GITHUB_ACTIONS') == 'true', '安装包验收只允许在干净的 Actions runner 上运行'
     import winreg
-    key = r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{02D9748A-78F6-4866-AC75-918177194DAB}_is1'
+    key = r'Software\Microsoft\Windows\CurrentVersion\Uninstall\{37D4A1C4-4570-4C06-8F12-CCB52DAC2828}_is1'
     try:
         with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key):
-            raise AssertionError('已有 Peach 安装登记，停止验收')
+            raise AssertionError('已有 MediaNfo 安装登记，停止验收')
     except FileNotFoundError:
         pass
 
@@ -45,9 +45,9 @@ def main():
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}),
         urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
     with smoke_directory(args.evidence_dir.resolve()) as root:
-        application = root / '中文 程序目录/Peach'
+        application = root / '中文 程序目录/MediaNfo'
         old = (args.old_executable or executable).resolve(strict=True)
-        target = application / 'Peach.exe'
+        target = application / 'MediaNfo.exe'
         data, media = root / 'data', root / 'media'
         media.mkdir()
         environment = smoke_environment(data)

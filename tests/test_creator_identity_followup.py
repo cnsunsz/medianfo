@@ -12,16 +12,16 @@ from types import SimpleNamespace
 from unittest import mock
 from urllib.parse import quote
 
-from peach import creator_identity_followup as followup
-from peach import entity_identity_research as research
-from peach import performer_alias_followup as alias
-from peach.entities import normalize_entity_name
-from peach.entity_classification import write_claim
-from peach.followups import Attempts, attempts_root
-from peach.http import HttpResponse
-from peach.repository import LedgerDatabase
-from peach.scraping_access import paused_until
-from peach.sources.seesaa import AV_NEME, SEESAA
+from medianfo import creator_identity_followup as followup
+from medianfo import entity_identity_research as research
+from medianfo import performer_alias_followup as alias
+from medianfo.entities import normalize_entity_name
+from medianfo.entity_classification import write_claim
+from medianfo.followups import Attempts, attempts_root
+from medianfo.http import HttpResponse
+from medianfo.repository import LedgerDatabase
+from medianfo.scraping_access import paused_until
+from medianfo.sources.seesaa import AV_NEME, SEESAA
 from support.ledger import fresh_ledger
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -200,7 +200,7 @@ class RevertTests(Case):
 
 class AllocationTests(Case):
     def test_new_and_stock_creators_get_identity_followups(self):
-        from peach import library_processing, performer_profile_followup, task_runs
+        from medianfo import library_processing, performer_profile_followup, task_runs
 
         old = [self.entity(f"account{index:02d}") for index in range(5)]
         for entity_id in old:

@@ -65,7 +65,7 @@ def manifest(root: Path) -> dict:
             files[name] = "deleted"
         else:
             raise ValueError(f"无法为文件生成验证快照：{name}")
-    version = root / "src/peach/__init__.py"
+    version = root / "src/medianfo/__init__.py"
     body = version.read_text(encoding="utf-8") if version.is_file() else ""
     body = re.sub(r'(?m)^__version__ = "\d+\.\d+\.\d+"$', '__version__ = "VERSION"', body)
     return {"files": files, "signatures": signatures, "version_body": digest(body)}
@@ -168,7 +168,7 @@ def environment(root: Path) -> str:
         "platform": platform.platform(), "packages": installed, "tools": tools,
         "node_modules": hashlib.sha256(node_lock.read_bytes()).hexdigest() if node_lock.exists() else None,
         "flags": {k: v for k, v in os.environ.items()
-                  if k.startswith(("PEACH_", "CI", "GITHUB_", "PYTHON")) and k != "PYTHONPATH"},
+                  if k.startswith(("MEDIANFO_", "CI", "GITHUB_", "PYTHON")) and k != "PYTHONPATH"},
     })
 
 
@@ -209,7 +209,7 @@ def baselines(root: Path, current: dict, *, partial: bool = False):
             continue
         changed = sorted(name for name in old["files"].keys() | new["files"].keys()
                          if old["files"].get(name) != new["files"].get(name))
-        version = "src/peach/__init__.py"
+        version = "src/medianfo/__init__.py"
         version_only = version in changed and change_impact.version_only(old, new)
         if version_only:
             changed.remove(version)

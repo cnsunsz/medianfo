@@ -35,15 +35,15 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach import avatar_picker   # noqa: E402
-from peach.avatar_provider import (   # noqa: E402
+from medianfo import avatar_picker   # noqa: E402
+from medianfo.avatar_provider import (   # noqa: E402
     MIN_LONG_SIDE, MIN_SHORT_SIDE, acceptable_avatar)
-from peach.config import (DATABASE_PATH, GENERATED_DIR, SERVE_PORT,   # noqa: E402
+from medianfo.config import (DATABASE_PATH, GENERATED_DIR, SERVE_PORT,   # noqa: E402
                           STATE_DIR)
-from peach.jobs import job_main   # noqa: E402
-from peach.previews import entity_image_key   # noqa: E402
-from peach.review_csv import write_rows   # noqa: E402
-from peach.scripting import open_readonly   # noqa: E402
+from medianfo.jobs import job_main   # noqa: E402
+from medianfo.previews import entity_image_key   # noqa: E402
+from medianfo.review_csv import write_rows   # noqa: E402
+from medianfo.scripting import open_readonly   # noqa: E402
 
 INSTALL, MANY, NONE, SMALL, FAILED = "装上", "多张（认不准）", "无候选", "图太小", "取图失败"
 
@@ -142,7 +142,7 @@ def sheet_html(rows: list[dict], base_url: str) -> str:
 
 
 def run(args: argparse.Namespace) -> int:
-    from peach.http import HttpxTransport
+    from medianfo.http import HttpxTransport
 
     providers_root = args.providers_root
     avatar_root = args.avatar_root

@@ -1,17 +1,17 @@
 ---
-name: peach-cross-platform
+name: medianfo-cross-platform
 description: 在 macOS 上开工、改动路径解析或挂载判定、遇到 git status 与 git diff 结果不一致，或要把改动交回 Windows 那台时使用。
 ---
 
 # 跨 Windows / macOS 双机开发
 
 最后复核：2026-10-18
-证据来源：`src/peach/platform.py`、ADR-0017、2026-08-19 的 macOS 迁移实测、
+证据来源：`src/medianfo/platform.py`、ADR-0017、2026-08-19 的 macOS 迁移实测、
 2026-08-21 的 Windows 现状核对，以及 2026-09-14 用 junction 复现的临时目录别名。
 
 ## 何时使用
 
-- 当前工作目录在 macOS 上（`~/Desktop/<用户目录>/peach/peach-app`），或改动要交回 Windows 那台继续。
+- 当前工作目录在 macOS 上（`~/Desktop/<用户目录>/medianfo/medianfo-app`），或改动要交回 Windows 那台继续。
 - 改动涉及 `asset.path` 解析、`allowed_media_roots`、挂载可达性或磁盘闸门；`git status` 显示大量文件被修改，但 `git diff` 是空的。
 
 ## 路径口径
@@ -20,12 +20,12 @@ description: 在 macOS 上开工、改动路径解析或挂载判定、遇到 gi
 `B:\...`（115）、`A:\...`（PikPak）。
 
 不要为了 macOS 把账本改写成 POSIX 路径。翻译只发生在读取期，收敛在
-`src/peach/platform.py` 一处；写回账本的索引脚本仍只在 Windows 上跑，路径口径
+`src/medianfo/platform.py` 一处；写回账本的索引脚本仍只在 Windows 上跑，路径口径
 因此保持单一。**禁止从 macOS 写 `asset.path`**。
 
 来源映射按 `asset.location` 而不是盘符。声明根在设置文件的 `[media.locations]`，本机落点在 `[media.mounts]`；不要从其他部署复制挂载路径。
 
-用 `PEACH_MEDIA_MOUNTS=local=/mnt/res,115=/mnt/115` 覆盖；数据目录用 `PEACH_DATA_ROOT`。
+用 `MEDIANFO_MEDIA_MOUNTS=local=/mnt/res,115=/mnt/115` 覆盖；数据目录用 `MEDIANFO_DATA_ROOT`。
 CloudDrive 在 Windows 是盘符、在 macOS 是 macFUSE 挂载点，这层不是可选优化。
 
 运行目录不跟着媒体盘符走。代码、数据、venv 和 worktree 各机独立保存，媒体挂载点由配置声明。
@@ -50,14 +50,14 @@ CloudDrive 在 Windows 是盘符、在 macOS 是 macFUSE 挂载点，这层不�
 CloudDrive 掉线不影响仍可读取的本地来源。
 
 判据只有 `GET /api/sources` 一份。媒体层把整盘不可达从 `MediaUnavailable` 里分出
-`MediaOffline`，HTTP 回 503 加 `X-Peach-Offline: 1`，和「单个文件缺失」的 404 分开。
+`MediaOffline`，HTTP 回 503 加 `X-MediaNfo-Offline: 1`，和「单个文件缺失」的 404 分开。
 前端据此置灰脱盘来源的筛选（数量仍然显示：脱的是盘不是账本），详情页换成脱盘面板
 而不是挂一个必然失败的播放器。
 
 ## 运行环境
 
 macOS 的 FFmpeg 走 PATH（`brew install ffmpeg`）；Windows 的 FFmpeg bundle 留在 Windows
-本机 `peach-data/tools`。菜单栏走 LaunchAgent，服务使用非特权端口 8900。
+本机 `medianfo-data/tools`。菜单栏走 LaunchAgent，服务使用非特权端口 8900。
 
 测试入口：Windows `scripts/test.ps1`，macOS/Linux `scripts/test.sh`。两者契约相同。
 **两边都必须绿**；只在一台上通过的改动不算完成。Windows 托盘专属的 DPI 声明和单实例
@@ -71,7 +71,7 @@ macOS 的 FFmpeg 走 PATH（`brew install ffmpeg`）；Windows 的 FFmpeg bundle
 ## 账本复制
 
 目标是两台机器各持本地工作副本，Windows 内置盘上的专用 SMB 目录提供共享传输副本。
-**不是多主实时同步**，因为 SQLite 没有安全的自动三方合并。见 ADR-0017、`src/peach/sync.py`
+**不是多主实时同步**，因为 SQLite 没有安全的自动三方合并。见 ADR-0017、`src/medianfo/sync.py`
 与 README「数据属于自己」。
 
 - 服务启动只观察世代和写入端，不自动拉取或推送，也没有定时同步；marker 的 `device` 是唯一写入端、另一台只读，复制与「接管 Ledger 写入」只能由托盘显式执行，两边都动过就转只读报冲突、由人选一边。
@@ -90,7 +90,7 @@ macOS 的 FFmpeg 走 PATH（`brew install ffmpeg`）；Windows 的 FFmpeg bundle
 写；账本走另一套同步（`peach.sync`），同一个脚本会一并报告。
 
 worktree 目录不跨机器复制。需要交接的任务分支先 commit/push，另一台 fetch 后重新创建本机
-worktree；`.venv`、`peach-data`、构建产物和 worktree 的 `.git` 指针都不进 GitHub。
+worktree；`.venv`、`medianfo-data`、构建产物和 worktree 的 `.git` 指针都不进 GitHub。
 
 ## macOS 的 mDNS
 

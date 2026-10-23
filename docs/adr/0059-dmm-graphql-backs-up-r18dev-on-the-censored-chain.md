@@ -30,7 +30,7 @@ ADR-0048 把 dmm 排除在 amane 官方档之外，理由是那只爬虫走 `mon
 
 **一、自写解析器，套站点契约。** `sources/dmm.py`，来源名沿用 `dmm`（账本里 `javinizer:dmm:*` 的历史
 provenance 归同一个名字，`SOURCE_SPECS` 里它本来就是 `official`），解析器名 `dmm-graphql`。不经 amane 桥：
-ADR-0048 的判据是每个站只有一个归属，DMM 归 Peach。
+ADR-0048 的判据是每个站只有一个归属，DMM 归 MediaNfo。
 
 **二、只在有码链，排在 r18.dev 之后。** r18.dev 一次请求给英文加日文两份写法与罗马字演员名，DMM
 只有日文；r18.dev 答上就不问。素人链不加：目录上没有 MGS 素人号，多问只多两次白请求。

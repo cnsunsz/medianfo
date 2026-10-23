@@ -24,9 +24,9 @@ confirm = _load("confirm_code_dirs")
 
 class _Audit:
     """判定与清理归 `peach.code_creators`，命令行入口留在脚本里；测试两边都要够得着。"""
-    from peach.catalog_rules import release_code_from_filename as code_from_filename
-    from peach.catalog_rules import release_code_from_text as canonical_code
-    from peach.code_creators import (  # noqa: F401  逐个点名，测试不跟着模块表面漂移
+    from medianfo.catalog_rules import release_code_from_filename as code_from_filename
+    from medianfo.catalog_rules import release_code_from_text as canonical_code
+    from medianfo.code_creators import (  # noqa: F401  逐个点名，测试不跟着模块表面漂移
         FIELDS, VERDICT_CODE, VERDICT_KEEP, VERDICT_SITE, VERDICT_UNCLEAR,
         apply_rows, classify, collect, is_filesystem_path,
     )

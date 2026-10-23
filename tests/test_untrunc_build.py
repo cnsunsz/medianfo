@@ -94,11 +94,11 @@ class UntruncSourceBuildTests(unittest.TestCase):
 
 
 @unittest.skipUnless(all(os.environ.get(name) for name in (
-    'PEACH_TEST_UNTRUNC', 'PEACH_TEST_FFMPEG', 'PEACH_TEST_FFPROBE',
+    'MEDIANFO_TEST_UNTRUNC', 'MEDIANFO_TEST_FFMPEG', 'MEDIANFO_TEST_FFPROBE',
 )), '构建验收需要显式提供三份原生工具')
 class UntruncNativeRecoveryTests(unittest.TestCase):
     def test_native_distribution_has_matching_hashes_and_internal_ffmpeg_version(self):
-        executable = Path(os.environ['PEACH_TEST_UNTRUNC']).resolve()
+        executable = Path(os.environ['MEDIANFO_TEST_UNTRUNC']).resolve()
         bundle = executable.parent
         manifest = json.loads((bundle / 'manifest.json').read_text(encoding='utf-8'))
         self.assertEqual(manifest['license'], 'GPL-2.0-or-later')
@@ -113,12 +113,12 @@ class UntruncNativeRecoveryTests(unittest.TestCase):
         self.assertIn("ffmpeg '8.1.3'", version)
 
     def test_a_synthetic_truncated_mp4_is_recovered_and_decodes(self):
-        from peach import mp4recover
-        from peach.mp4repair import _top_level
+        from medianfo import mp4recover
+        from medianfo.mp4repair import _top_level
 
-        ffmpeg = Path(os.environ['PEACH_TEST_FFMPEG']).resolve()
-        ffprobe = Path(os.environ['PEACH_TEST_FFPROBE']).resolve()
-        untrunc = Path(os.environ['PEACH_TEST_UNTRUNC']).resolve()
+        ffmpeg = Path(os.environ['MEDIANFO_TEST_FFMPEG']).resolve()
+        ffprobe = Path(os.environ['MEDIANFO_TEST_FFPROBE']).resolve()
+        untrunc = Path(os.environ['MEDIANFO_TEST_UNTRUNC']).resolve()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             reference = root / 'reference.mp4'

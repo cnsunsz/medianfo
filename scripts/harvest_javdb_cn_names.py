@@ -61,12 +61,12 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach import javdb   # noqa: E402
-from peach.config import STATE_DIR   # noqa: E402
-from peach.kanji import fold_glyphs   # noqa: E402
-from peach.jobs import job_main   # noqa: E402
-from peach.review_csv import write_rows   # noqa: E402
-from peach.social_links import name_key   # noqa: E402
+from medianfo import javdb   # noqa: E402
+from medianfo.config import STATE_DIR   # noqa: E402
+from medianfo.kanji import fold_glyphs   # noqa: E402
+from medianfo.jobs import job_main   # noqa: E402
+from medianfo.review_csv import write_rows   # noqa: E402
+from medianfo.social_links import name_key   # noqa: E402
 
 #: 发行元数据来源。账号型 performer 不是女优，不翻译。
 RELEASE_SOURCES = ("r18:performer", "javbus:performer")
@@ -419,7 +419,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def run(args: argparse.Namespace) -> int:
-    from peach.page_cache import Site
+    from medianfo.page_cache import Site
 
     if args.scope == "all" and not args.aliases:
         raise SystemExit("--scope all 放开的是别名候选的范围，请一并给 --aliases <路径>")

@@ -1,7 +1,7 @@
 /* 管理区页头（常驻组件 `manage-header`，`frontend/src/react/manage-header/`）：管理条、面包屑、页面标题与回收站说明行。
  *
  * 标题、导航与说明行跟随正文的 `--board-content` 宽度。
- * `peach-app.css` 先于 `/app.css` 加载，遗留层里同权重的规则会压过这里，所以选择器都比遗留层的
+ * `medianfo-app.css` 先于 `/app.css` 加载，遗留层里同权重的规则会压过这里，所以选择器都比遗留层的
  * 元素规则多一级。与遗留层同名的类一条不写（`test/legacy-class-names.test.ts`）；扫光占位沿用全站的
  * `.skeleton`，只在这里定尺寸与底色。 */
 

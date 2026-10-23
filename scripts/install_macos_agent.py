@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-r"""把 Peach 菜单栏项注册成 LaunchAgent。
+r"""把 MediaNfo 菜单栏项注册成 LaunchAgent。
 
 **不能用 .app 外壳直接跑菜单栏项。** macOS 26 上，主可执行文件如果是一个 exec 到
 真正解释器的跳板（shell 脚本、C launcher 都算），状态项就注册不上：进程活着、
@@ -34,8 +34,8 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.appid import LEGACY_MACOS_LAUNCH_AGENT_LABELS, MACOS_LAUNCH_AGENT_LABEL
-from peach.config import LOG_DIR, PROJECT_ROOT
+from medianfo.appid import LEGACY_MACOS_LAUNCH_AGENT_LABELS, MACOS_LAUNCH_AGENT_LABEL
+from medianfo.config import LOG_DIR, PROJECT_ROOT
 
 
 LABEL = MACOS_LAUNCH_AGENT_LABEL
@@ -97,11 +97,11 @@ def remove_legacy_agents(domain: str) -> list[str]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="注册 / 注销 Peach 菜单栏项的 LaunchAgent")
+    parser = argparse.ArgumentParser(description="注册 / 注销 MediaNfo 菜单栏项的 LaunchAgent")
     parser.add_argument("action", choices=("install", "uninstall", "status"),
                         nargs="?", default="install")
     parser.add_argument("--tray", type=Path,
-                        default=PROJECT_ROOT / ".venv" / "bin" / "peach-tray")
+                        default=PROJECT_ROOT / ".venv" / "bin" / "medianfo-tray")
     return parser
 
 
@@ -123,7 +123,7 @@ def run(args: argparse.Namespace) -> int:
         return 0
 
     if not args.tray.is_file():
-        raise SystemExit(f"找不到 peach-tray：{args.tray}（先 pip install -e .）")
+        raise SystemExit(f"找不到 medianfo-tray：{args.tray}（先 pip install -e .）")
     for label in remove_legacy_agents(domain):
         print(f"已清理遗留 LaunchAgent {label}")
     LOG_DIR.mkdir(parents=True, exist_ok=True)

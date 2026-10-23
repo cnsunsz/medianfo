@@ -6,13 +6,13 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-import peach.media as media_module
-from peach.ffmpeg import BinaryChoice, FFmpegResolver, binary_diagnostics
-from peach.media import (
+import medianfo.media as media_module
+from medianfo.ffmpeg import BinaryChoice, FFmpegResolver, binary_diagnostics
+from medianfo.media import (
     FilesystemBackend, MediaEngine, MediaUnavailable, normalized_path,
     resolve_case_insensitive,
 )
-from peach.repository import MediaAsset
+from medianfo.repository import MediaAsset
 
 
 class MediaEngineTests(unittest.TestCase):
@@ -20,13 +20,13 @@ class MediaEngineTests(unittest.TestCase):
         for decoder, available in (('av1', False), ('libdav1d', True)):
             results = [subprocess.CompletedProcess([], 0, b'ffmpeg version test\n', b''),
                        subprocess.CompletedProcess([], 0, f' V..... {decoder} AV1 decoder\n'.encode(), b'')]
-            with patch('peach.ffmpeg.subprocess.run', side_effect=results):
+            with patch('medianfo.ffmpeg.subprocess.run', side_effect=results):
                 result = binary_diagnostics(BinaryChoice(Path('ffmpeg'), 'test'), decoders=True)
             self.assertTrue(result['usable'])
             self.assertEqual(result['av1_software'], available)
 
     def test_tool_diagnostics_reports_execution_failure(self):
-        with patch('peach.ffmpeg.subprocess.run', side_effect=subprocess.TimeoutExpired('ffmpeg', 5)):
+        with patch('medianfo.ffmpeg.subprocess.run', side_effect=subprocess.TimeoutExpired('ffmpeg', 5)):
             result = binary_diagnostics(BinaryChoice(Path('ffmpeg'), 'test'), decoders=True)
         self.assertTrue(result['available'])
         self.assertFalse(result['usable'])
@@ -83,7 +83,7 @@ class MediaEngineTests(unittest.TestCase):
             binary = root / "ffmpeg.exe"
             binary.write_bytes(b"test")
             resolver = FFmpegResolver(root)
-            with patch.dict("os.environ", {"PEACH_FFMPEG": str(binary)}, clear=False):
+            with patch.dict("os.environ", {"MEDIANFO_FFMPEG": str(binary)}, clear=False):
                 choice = resolver.ffmpeg()
         self.assertEqual(choice.source, "environment")
 
@@ -93,8 +93,8 @@ class MediaEngineTests(unittest.TestCase):
             binary = root / "bin" / ("ffmpeg.exe" if os.name == "nt" else "ffmpeg")
             binary.parent.mkdir()
             binary.write_bytes(b"test")
-            with patch.dict("os.environ", {"PEACH_FFMPEG": ""}, clear=False), \
-                    patch("peach.ffmpeg.shutil.which", return_value=None):
+            with patch.dict("os.environ", {"MEDIANFO_FFMPEG": ""}, clear=False), \
+                    patch("medianfo.ffmpeg.shutil.which", return_value=None):
                 choice = FFmpegResolver(root).ffmpeg()
         self.assertEqual(choice.source, "peach-managed")
 
@@ -107,9 +107,9 @@ class MediaEngineTests(unittest.TestCase):
             for name in ("ffmpeg", "ffprobe"):
                 (bundle / (name + suffix)).write_bytes(b"tool")
             with patch.object(sys, "frozen", True, create=True), \
-                    patch.object(sys, "executable", str(root / "app" / "Peach.exe")), \
-                    patch.dict(os.environ, {"PEACH_FFMPEG": "", "PEACH_FFPROBE": ""}), \
-                    patch("peach.ffmpeg.shutil.which", return_value=None):
+                    patch.object(sys, "executable", str(root / "app" / "MediaNfo.exe")), \
+                    patch.dict(os.environ, {"MEDIANFO_FFMPEG": "", "MEDIANFO_FFPROBE": ""}), \
+                    patch("medianfo.ffmpeg.shutil.which", return_value=None):
                 resolver = FFmpegResolver(root / "data")
                 for choice in (resolver.ffmpeg(), resolver.ffprobe()):
                     self.assertEqual(choice.source, "peach-bundled")
@@ -123,8 +123,8 @@ class MediaEngineTests(unittest.TestCase):
             tool.write_bytes(b"tool")
             with patch.object(sys, "frozen", False, create=True), \
                     patch.object(sys, "executable", str(root / "python.exe")), \
-                    patch.dict(os.environ, {"PEACH_FFMPEG": ""}), \
-                    patch("peach.ffmpeg.shutil.which", return_value=None):
+                    patch.dict(os.environ, {"MEDIANFO_FFMPEG": ""}), \
+                    patch("medianfo.ffmpeg.shutil.which", return_value=None):
                 self.assertIsNone(FFmpegResolver(root / "data").ffmpeg())
 
     def test_offline_windows_root_does_not_block_startup(self):
@@ -161,7 +161,7 @@ class MediaEngineTests(unittest.TestCase):
             real = root / "ABW-118.MP4"
             real.write_bytes(b"test")
             with patch(
-                "peach.media.translate_ledger_path",
+                "medianfo.media.translate_ledger_path",
                 return_value=root / "abw-118.mp4",
             ):
                 opened = Path(resolve_case_insensitive(r"A:\\ABW-118.mp4"))
@@ -171,13 +171,13 @@ class MediaEngineTests(unittest.TestCase):
     def test_case_insensitive_miss_expires_after_the_short_ttl(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            with patch("peach.media.monotonic", return_value=0):
+            with patch("medianfo.media.monotonic", return_value=0):
                 self.assertIsNone(
                     media_module._case_insensitive_match(str(root), "abw-118.mp4")
                 )
             real = root / "ABW-118.MP4"
             real.write_bytes(b"test")
-            with patch("peach.media.monotonic", return_value=6):
+            with patch("medianfo.media.monotonic", return_value=6):
                 self.assertEqual(
                     media_module._case_insensitive_match(str(root), "abw-118.mp4"),
                     real.name,

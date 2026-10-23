@@ -1,6 +1,6 @@
 # Vercel Geist Skeleton 取证（2026-09-04）
 
-> 本文是 Peach 的人工取证笔记，不在 `reference-sources.json` 里登记。
+> 本文是 MediaNfo 的人工取证笔记，不在 `reference-sources.json` 里登记。
 
 ## 请求与取得通道
 
@@ -53,7 +53,7 @@
 - 低功耗表面用 no animation 变体关掉微光，并尊重 `prefers-reduced-motion`。
 - 骨架是装饰性的，加载期间不要把可聚焦控件放进去。
 
-## Peach 采用与差异
+## MediaNfo 采用与差异
 
 - 微光照抄：`@keyframes skeleton-sweep{to{transform:translateX(-50%)}}`，`::after` 三倍宽、
   `background-size:50% 100%`、`1.5s ease-in-out infinite reverse`。高光色新增
@@ -61,14 +61,14 @@
   配 `#EEF1F5`，两档都对齐 Geist 两个百分点的幅度。
 - 形状照最终元素选：顶部头像骨架走圆（`.av .ring` 本身就是 `border-radius:50%`），
   标签与厂牌胶囊走 `--pill-radius`，卡片图位保持卡片自己的 `--control-radius`——
-  Geist 的 squared 是给它自己的方图块的，Peach 的卡片是圆角，照抄反而不匹配最终内容。
+  Geist 的 squared 是给它自己的方图块的，MediaNfo 的卡片是圆角，照抄反而不匹配最终内容。
 - 首屏骨架不另算几何，直接套真实类名（`.av`/`.ring`/`.nm`、`.brandpill`、`.pill`），
   这是「宽高等于最终内容」最省事也最不会算错的落法。实测顶部三层空态 18px、
   骨架态 160px、内容态 160px。
 - 换一批时标签胶囊用 wrapping children 那一套：真实胶囊留在 DOM 里 `visibility:hidden`，
   微光画在 `::after` 上单独 `visible`。实测切换前后胶囊的宽高与横坐标完全相同。
 - 由 state 决定、这次请求不会改的控件不进骨架：标签条的四枚视图胶囊、目录页的排序条
-  都在加载期间就画成最终样子并接上事件。Geist 没有这条，它来自 Peach 自己的判据——
+  都在加载期间就画成最终样子并接上事件。Geist 没有这条，它来自 MediaNfo 自己的判据——
   骨架只盖真会变的部分。
 - 换一批整体仍按正文归 Spinner：转圈的是 ⟳ 键，覆盖网格与顶部两块的全部等待时间。
 - 框体不参与微光（数据管理的操作条、关注管理的头部条），排除口径是 `::after{content:none}`。

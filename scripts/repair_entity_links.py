@@ -45,15 +45,15 @@ import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach.entities import name_chain   # noqa: E402
-from peach.http import HttpRequest, HttpxTransport, response_text   # noqa: E402
-from peach.link_repair import (   # noqa: E402
+from medianfo.entities import name_chain   # noqa: E402
+from medianfo.http import HttpRequest, HttpxTransport, response_text   # noqa: E402
+from medianfo.link_repair import (   # noqa: E402
     anchors_naming, bare_root, confirms, directory_reason, empty_path_segment,
     html_entity_leak, index_candidates, is_search_page, page_title, same_document_path,
     same_site, upgraded_scheme, without_entities,
 )
-from peach.review_csv import write_rows   # noqa: E402
-from peach.scripting import (   # noqa: E402
+from medianfo.review_csv import write_rows   # noqa: E402
+from medianfo.scripting import (   # noqa: E402
     BACKUP_REQUIRED, HostLimiter, USER_AGENT, add_ledger_write_args, counts_of,
     open_for_write, open_readonly, verify_after_write,
 )

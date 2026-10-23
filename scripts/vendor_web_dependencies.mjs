@@ -70,7 +70,7 @@ copyPackageFiles({
   packageName: videoPackage,
   vendorName: "videojs",
   files: [...videoFiles].sort().map(name => [name, name]),
-  note: "Peach 自托管 Video.js 10 官方 ESM 模块及其导入闭包。控制器复用 @videojs/html，媒体复用 @videojs/hlsjs-video 与 @videojs/dash-video；原生 video 经 media 插槽承载 MP4、HLS、DASH 与字幕。\n\n"
+  note: "MediaNfo 自托管 Video.js 10 官方 ESM 模块及其导入闭包。控制器复用 @videojs/html，媒体复用 @videojs/hlsjs-video 与 @videojs/dash-video；原生 video 经 media 插槽承载 MP4、HLS、DASH 与字幕。\n\n"
     + `- hls.js 1.6.19（Apache-2.0）：\`hls.js.LICENSE.txt\` SHA-256：\`${sha256(lfText("resources", "licenses", "hlsjs-1.6.19-LICENSE.txt"))}\`\n`
     + `- dash.js 5.2.0（BSD-3-Clause）：\`media/dash.all.min.js.LICENSE.txt\` SHA-256：\`${sha256(lfText("resources", "licenses", "dashjs-5.2.0-LICENSE.txt"))}\``,
 });
@@ -86,7 +86,7 @@ copyPackageFiles({
     ["swiper-bundle.min.js", "swiper-bundle.min.js"],
     ["swiper-bundle.min.css", "swiper-bundle.min.css"],
   ],
-  note: "Peach 自托管固定版本，不依赖 CDN。只有照片灯箱按需加载 Thumbs、Keyboard 与 Zoom；图片墙不经过 Swiper。",
+  note: "MediaNfo 自托管固定版本，不依赖 CDN。只有照片灯箱按需加载 Thumbs、Keyboard 与 Zoom；图片墙不经过 Swiper。",
 });
 
 const lucideIcons = new Map([
@@ -165,7 +165,7 @@ const lucideIcons = new Map([
 // 零件不带那个前缀，也就不进这张名单。
 const handDrawnIcons = new Set([
   "check-check-outline", // 叠勾的空心状态，由用户指定保持勾形轮廓。
-  "shuffle", // 两条带 pathLength 的动画路径由 Peach 维护。
+  "shuffle", // 两条带 pathLength 的动画路径由 MediaNfo 维护。
   "alert", "pics", "jav", "theater-enter", "theater-exit",
   // 外部入口那两个站的标记：图标集里没有，抠自站点自己的标识文件，来源与取回日期写在
   // index.html 各自那段注释里。MISSAV 没有图形标识，它那枚是按站点 CSS 排的字，不进雪碧图。
@@ -198,7 +198,7 @@ for (const [symbol, icon] of lucideIcons) {
   index = index.replace(pattern, `<symbol id="i-${symbol}" viewBox="0 0 24 24">${inner}</symbol>`);
 }
 
-// Phosphor 是填充图标，Peach 全局是描边：填充声明写在 symbol 上，路径不改一个字，
+// Phosphor 是填充图标，MediaNfo 全局是描边：填充声明写在 symbol 上，路径不改一个字，
 // 换版本时不必再核每条 path 有没有被补过 fill。
 // viewBox 也不原样照抄：每套图标在自己画格里留的白不一样，同样 15px 画出来一大一小。
 // 这里的框是量出来的——把内容外框补到 Lucide 的 20/24 活区，字形按高、图形按长边。
@@ -299,7 +299,7 @@ player = player.replaceAll(/\/vendor\/videojs\/[0-9.]+\//g, `/vendor/videojs/${v
 stage("frontend/src/player/videojs.ts", player);
 
 // 灯箱的 Swiper 同理按需加载，版本钉在 React 灯箱的加载器里。改了之后要在 frontend/
-// 重新 `npm run build`，`web/dist/peach-app.js` 里的版本才与源码一致。
+// 重新 `npm run build`，`web/dist/medianfo-app.js` 里的版本才与源码一致。
 const swiperPin = value => value.replaceAll(/\/vendor\/swiper\/[0-9.]+\//g, `/vendor/swiper/${versions.swiper}/`);
 for (const path of ["frontend/src/react/photo-lightbox/photo-lightbox.ts", "frontend/test/react/photo-lightbox.test.tsx"]) {
   stage(path, swiperPin(text(...path.split("/"))));

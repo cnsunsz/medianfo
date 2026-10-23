@@ -9,12 +9,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from peach import runtime_prepare
-from peach.runtime_prepare import (
+from medianfo import runtime_prepare
+from medianfo.runtime_prepare import (
     UV_SYNC, Dependencies, Migrations, RestartPreparation, Step, find_uv, ledger_writer,
     read_record, record, task_gate,
 )
-from peach.sync import marker_path
+from medianfo.sync import marker_path
 
 
 def completed(returncode: int = 0, stdout: str = "", stderr: str = ""):
@@ -48,7 +48,7 @@ class ProjectTree:
     """临时项目根：`uv.lock` 与 `.venv/pyvenv.cfg` 都只是占位文件。"""
 
     def __init__(self, directory: Path, *, lock: bool = True, venv: bool = True):
-        self.root = directory / "peach-app"
+        self.root = directory / "medianfo-app"
         self.root.mkdir()
         if lock:
             (self.root / "uv.lock").write_text("version = 1\n", encoding="utf-8")
@@ -193,9 +193,9 @@ class MigrationTests(unittest.TestCase):
         self.directory.cleanup()
 
     def migrations(self, run, *, writer=(True, "本机是写入端")):
-        return Migrations(self.db, peach=lambda: Path("C:/peach/.venv/Scripts/peach.exe"),
+        return Migrations(self.db, peach=lambda: Path("C:/medianfo/.venv/Scripts/peach.exe"),
                           writer=lambda: writer, run=run,
-                          environ=lambda: {"PEACH_DATA_ROOT": "C:/peach-data"})
+                          environ=lambda: {"MEDIANFO_DATA_ROOT": "C:/medianfo-data"})
 
     def test_a_reader_never_migrates(self):
         run = FakeRun()
@@ -218,7 +218,7 @@ class MigrationTests(unittest.TestCase):
         command, kwargs = run.calls[0]
         self.assertEqual(command[1:], ["migrate", "status", "--db", str(self.db)])
         self.assertEqual(kwargs["env"]["PYTHONIOENCODING"], "utf-8")
-        self.assertEqual(kwargs["env"]["PEACH_DATA_ROOT"], "C:/peach-data")
+        self.assertEqual(kwargs["env"]["MEDIANFO_DATA_ROOT"], "C:/medianfo-data")
 
     def test_pending_migrations_are_applied_with_the_backup_reported(self):
         backup = self.db.with_name("ledger.pre-migrate-20261002-101500.db")
@@ -242,9 +242,9 @@ class MigrationTests(unittest.TestCase):
         self.assertIn("备份", step.message)
 
     def test_a_status_that_cannot_run_is_a_failure(self):
-        step = self.migrations(FakeRun(OSError("peach.exe missing"))).apply()
+        step = self.migrations(FakeRun(OSError("medianfo.exe missing"))).apply()
         self.assertTrue(step.failed)
-        self.assertIn("peach.exe missing", step.message)
+        self.assertIn("medianfo.exe missing", step.message)
 
 
 class RecordTests(unittest.TestCase):
@@ -374,8 +374,8 @@ class ImportBoundaryTests(unittest.TestCase):
     def test_the_restart_path_loads_no_third_party_module(self):
         """重启脚本要在活着时替换 venv 里的包，被加载的 `.pyd` 在 Windows 上换不掉。"""
         probe = (
-            "import sys; import peach.runtime_prepare, peach.windows_restart, peach.jobs, "
-            "peach.config\n"
+            "import sys; import medianfo.runtime_prepare, peach.windows_restart, peach.jobs, "
+            "medianfo.config\n"
             "names = sorted(name for name, module in sys.modules.items()\n"
             "    if 'site-packages' in (getattr(module, '__file__', '') or '')\n"
             "    and not name.startswith(('_distutils_hack', '_virtualenv')))\n"

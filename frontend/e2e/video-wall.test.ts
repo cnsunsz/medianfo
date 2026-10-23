@@ -216,11 +216,11 @@ describe('播放墙的浏览与详情', () => {
           if (node instanceof Element) boot.home += Number(node.matches('.catalog-skeleton')) + node.querySelectorAll('.catalog-skeleton').length;
         }))).observe(document, { childList:true,subtree:true });
       });
-      await page.route('**/dist/peach-app.js', async route => { await moduleGate; await route.continue() });
+      await page.route('**/dist/medianfo-app.js', async route => { await moduleGate; await route.continue() });
       await page.route(url => url.pathname === '/api/items', async route => {
         await itemsGate; await route.fulfill({ json:{ items:[],total:0 } });
       });
-      await page.goto(`${requiredEnv('PEACH_E2E_ORIGIN')}/wall?jav=1`, { waitUntil:'commit' });
+      await page.goto(`${requiredEnv('MEDIANFO_E2E_ORIGIN')}/wall?jav=1`, { waitUntil:'commit' });
       await page.locator('header.top').waitFor({ state:'attached' });
       assert.equal(await page.locator('header.top').isVisible(), false);
       assert.equal(await page.locator('body').evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(7, 7, 7)');

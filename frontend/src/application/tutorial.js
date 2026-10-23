@@ -99,13 +99,13 @@ if(cameFromSetup){
 }
 {
   const clean=new URL(location.href),flag=clean.searchParams.get('agentation');
-  if(flag==='on')localStorage.setItem('peach.agentation','on');
-  if(flag==='off')localStorage.removeItem('peach.agentation');
+  if(flag==='on')localStorage.setItem('medianfo.agentation','on');
+  if(flag==='off')localStorage.removeItem('medianfo.agentation');
   if(flag!==null){
     clean.searchParams.delete('agentation');
     shellNavigate(clean,{replace:true,state:peachHistory.navigation.location.state});
   }
-  if(localStorage.getItem('peach.agentation')==='on')import('/dev/agentation.js').catch(()=>{});
+  if(localStorage.getItem('medianfo.agentation')==='on')import('/dev/agentation.js').catch(()=>{});
 }
 tutorialState.postSetupTutorialTasks = async()=>{
   const {library,scraping,taste,follow,credentials,review}=await api('/api/post-setup-tutorial');
@@ -161,7 +161,7 @@ tutorialState.postSetupTutorialHtml = (tasks,skippedCount,totalCount)=>{
   return `<article class="post-setup-notification" data-collapsed="${collapsed}">
       <header class="post-setup-notification-head">
         <span class="post-setup-notification-icon" aria-hidden="true">${icon('compass')}</span>
-        <div><h2>完成 Peach 的安装教程</h2>
+        <div><h2>完成 MediaNfo 的安装教程</h2>
         <p>已处理 ${completeCount}/${totalCount} 项。</p></div>
         <button class="post-setup-collapse" type="button" data-tutorial-collapse aria-controls="postSetupTaskList" aria-expanded="${!collapsed}"
           aria-label="${collapsed?'展开安装教程':'折叠安装教程'}">${icon(collapsed?'chevron-up':'chevron-down')}</button>

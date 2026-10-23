@@ -22,11 +22,11 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import DATABASE_PATH, GENERATED_DIR
-from peach.scripting import open_readonly
-from peach.entities import upsert_asset_entity
-from peach.migrations import sqlite_backup
-from peach.review_csv import ENCODING, write_rows
+from medianfo.config import DATABASE_PATH, GENERATED_DIR
+from medianfo.scripting import open_readonly
+from medianfo.entities import upsert_asset_entity
+from medianfo.migrations import sqlite_backup
+from medianfo.review_csv import ENCODING, write_rows
 
 
 PLAN_FIELDS = (

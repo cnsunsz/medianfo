@@ -15,7 +15,7 @@ gfriends 里只找出一张、且过尺寸门槛才装，找出多张一张都�
 
 **一、拿封面上的脸认图库里的脸。** 比对用 OpenCV 的 SFace（`cv2.FaceRecognizerSF`，
 opencv_zoo 定版模型 `face_recognition_sface_2021dec.onnx`），与检脸用的 YuNet 同属一个包、
-同一套取法：放 `peach-data/tools/sface/`，按需下载，校验 sha256。参照是她单人作品封面上
+同一套取法：放 `medianfo-data/tools/sface/`，按需下载，校验 sha256。参照是她单人作品封面上
 截到的脸（`avatar_cover_face`，与封面截脸那一档同一份），按脸宽取前三张。
 
 **二、判据。** 候选与参照各取主脸、按五个关键点摆正后提特征，算余弦相似度。候选要和

@@ -5,7 +5,7 @@
 
 ## 背景
 
-Peach 曾同时在 `pyproject.toml`、`peach.__version__` 和 FastAPI 构造参数中保存版本，实际值
+MediaNfo 曾同时在 `pyproject.toml`、`peach.__version__` 和 FastAPI 构造参数中保存版本，实际值
 分别为 0.2.0、0.1.0 和 0.2.0。托盘「检查更新」直接在 Win32 消息线程运行 Git，再弹模态
 MessageBox；仓库因 R: 盘所有权检查失败时只显示「无法读取」，确认框还会阻塞托盘交互。
 
@@ -15,7 +15,7 @@ MessageBox；仓库因 R: 盘所有权检查失败时只显示「无法读取」
 
 ## 决策
 
-- `src/peach/__init__.py::__version__` 是唯一版本来源；setuptools 通过 dynamic attr 生成包
+- `src/medianfo/__init__.py::__version__` 是唯一版本来源；setuptools 通过 dynamic attr 生成包
   元数据，FastAPI health/OpenAPI 和托盘均读取同一值。
 - 采用 pre-1.0 SemVer。修复升 patch；兼容功能升 minor；破坏性数据或接口变化升 minor，且
   必须同时有 ADR、正式迁移和验收。发布提交使用本地 `vX.Y.Z` tag。
@@ -98,7 +98,7 @@ patch，功能与修复被记成同一档，一天之内从 0.7.24 走到 0.7.27
 | --- | --- | --- |
 | 1 | Windows 与 macOS 都有独立制品，运行不依赖本机源码安装 | Windows 有，macOS 仍是源码运行 |
 | 2 | 独立包能自行更新，失败可回滚 | Windows 已在页面内下载安装并回滚，macOS 缺制品 |
-| 3 | 全新机器（无 `peach-data`）上从制品完成一次真实开箱验收 | ADR-0023 在源码形态实测过，制品形态需重跑 |
+| 3 | 全新机器（无 `medianfo-data`）上从制品完成一次真实开箱验收 | ADR-0023 在源码形态实测过，制品形态需重跑 |
 | 4 | 账本 schema 承诺：1.0 后需要导出重建才能升的迁移算破坏性变化，推 major | 未声明 |
 | 5 | `config.toml` 键名冻结，改名必须带迁移器并保留一版兼容读取 | 未声明 |
 | 6 | HTTP API 分公私：点明哪些路径是对外契约，其余随时可改形状 | 未声明 |

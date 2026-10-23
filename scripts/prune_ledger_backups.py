@@ -14,8 +14,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach import ledger_backups  # noqa: E402
-from peach.config import DATABASE_PATH  # noqa: E402
+from medianfo import ledger_backups  # noqa: E402
+from medianfo.config import DATABASE_PATH  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:

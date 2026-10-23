@@ -6,7 +6,7 @@ from dataclasses import replace
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 
-from peach import media_libraries, settings_file
+from medianfo import media_libraries, settings_file
 
 
 class MediaLibraryTests(unittest.TestCase):
@@ -44,10 +44,10 @@ class MediaLibraryTests(unittest.TestCase):
         line = f"{settings_file._render_value(root)} = {settings_file._render_value(name)}"
         self.assertEqual(tomllib.loads(line), {root: name})
         with TemporaryDirectory() as directory:
-            config = settings_file.load_config(environ={"PEACH_DATA_ROOT": directory})
+            config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": directory})
             config = replace(config, library_names={root: name}, library_icons={root: "star"})
             config.path.parent.mkdir(parents=True, exist_ok=True)
             config.path.write_text(settings_file.render(config), encoding="utf-8")
-            loaded = settings_file.load_config(environ={"PEACH_DATA_ROOT": directory})
+            loaded = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": directory})
             self.assertEqual(loaded.library_names, {root: name})
             self.assertEqual(loaded.library_icons, {root: "star"})

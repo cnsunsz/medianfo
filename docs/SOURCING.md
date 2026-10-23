@@ -1,6 +1,6 @@
 # 身份、来源与标识采集
 
-本文件讲 Peach 怎样从外部站点取作品资料、女优与厂牌身份、头像和标识：每个来源怎么接、要什么前提、
+本文件讲 MediaNfo 怎样从外部站点取作品资料、女优与厂牌身份、头像和标识：每个来源怎么接、要什么前提、
 会撞上什么限制、出错看哪里。只写现在怎么做，改动经过见 Git 与 ADR。
 
 - 批处理的限流、续跑与流量预算见 `.claude/skills/peach-batch-jobs/SKILL.md`。
@@ -23,11 +23,11 @@
 
 ## 采集连接与网盘读取
 
-「同步媒体库」与 `scripts/scrape_codes.py` 共用正式来源链。来源设为「直连」时使用直连客户端；设为跟随 Peach 代理时，使用配置页保存的直连、自定义代理或跟随环境设置。在线封面使用同一来源传输，amane 桥把代理及逐站直连设置传给子进程。浏览器取页也遵循显式直连和自定义代理；代理地址带用户名时退回 HTTP 客户端。
+「同步媒体库」与 `scripts/scrape_codes.py` 共用正式来源链。来源设为「直连」时使用直连客户端；设为跟随 MediaNfo 代理时，使用配置页保存的直连、自定义代理或跟随环境设置。在线封面使用同一来源传输，amane 桥把代理及逐站直连设置传给子进程。浏览器取页也遵循显式直连和自定义代理；代理地址带用户名时退回 HTTP 客户端。
 
-跟随环境时，HTTP 客户端读取进程代理环境变量，浏览器使用系统代理；两者不保证采用相同出口。应用直连不能排除操作系统 TUN。部分独立维护脚本直接使用 `HttpxTransport` 或 `page_cache.Site`，只读取环境代理，未接入页面保存的 Peach 代理，不能据此声称所有脚本设置一致。
+跟随环境时，HTTP 客户端读取进程代理环境变量，浏览器使用系统代理；两者不保证采用相同出口。应用直连不能排除操作系统 TUN。部分独立维护脚本直接使用 `HttpxTransport` 或 `page_cache.Site`，只读取环境代理，未接入页面保存的 MediaNfo 代理，不能据此声称所有脚本设置一致。
 
-网盘媒体的探测、九宫格、时间轴和播放会读取视频数据；挂载路径的网络连接由 CloudDrive2、OpenList 对应挂载工具负责。Peach 的目录「媒体读取策略」限制后台读取和确认边界，不修改挂载工具的代理。联网采集作品文字和封面使用上述来源设置，与视频所在网盘分别配置。
+网盘媒体的探测、九宫格、时间轴和播放会读取视频数据；挂载路径的网络连接由 CloudDrive2、OpenList 对应挂载工具负责。MediaNfo 的目录「媒体读取策略」限制后台读取和确认边界，不修改挂载工具的代理。联网采集作品文字和封面使用上述来源设置，与视频所在网盘分别配置。
 
 ## 采集判据
 
@@ -68,7 +68,7 @@
 - 两个认人 Wiki 只出演员候选。标题、日期、素人名义只进 `wiki_evidence`（av_name 厂牌页上的 MGS 标题是
   截断的）。
 - 封面 URL、人物页链接、备注和跨平台编号只留在原始快照与候选证据里。不下载图片，不自动合并人物或作品。
-- 页面结构的细节在模块 docstring（`src/peach/sources/seesaa.py`）。
+- 页面结构的细节在模块 docstring（`src/medianfo/sources/seesaa.py`）。
 
 Seesaa 是托管平台，下面这些 Wiki 由各自的维护者编辑，不能因为同在一个平台就当成互相独立的印证：
 
@@ -85,7 +85,7 @@ Wiki 与视频作品资料无关。
 ## K-MIB 官网作品与演员
 
 韩国 MIB 的番号拿去问 JAV 目录站必错，官网 [k-mib.com](https://www.k-mib.com/) 是唯一可信来源。
-脚本是 `scripts/harvest_kmib.py`，解析器在 `peach.metadata_kmib`，读 `peach-data/sources/k-mib/` 下的快照
+脚本是 `scripts/harvest_kmib.py`，解析器在 `peach.metadata_kmib`，读 `medianfo-data/sources/k-mib/` 下的快照
 （列表页、`video/<idx>.html`、`star/<idx>.html`、`images/`）。
 
 - `--fetch` 联网补快照：同主机间隔 1.5 秒，已有的跳过，403、429 立即停止本批。robots.txt 只挡
@@ -132,7 +132,7 @@ Wiki 与视频作品资料无关。
 | uncensored | 日期式番号、`HEYZO-1380`、Tokyo-Hot 的 `n0780` | （证据指着一本道时）1pondo → avbase → javbus → javdb → avsox | r18dev：无码番号在它上面没有 |
 | fc2 | `FC2` 开头的商品号，与没归一的 `FC-43768` 这种短写法 | fc2 → fc2cmadb → fc2ppvdb → javten → javarchive → javdb | r18dev（85 条全空）、avbase 与 javbus（对 FC2 零产出）、fc2club（本机快照零产出，还回 429 进冷却） |
 | kmib | `KOREAN_MIB_PREFIXES` 里的前缀 | 一家都不问 | 全部：番号与日本片同形，问回来的是别的作品 |
-| other | 有码形状，但路径带国产标记（`OTHER_SYSTEM_MARKS`：国产、网红、兔子先生、麻豆……）或文件名是欧美片站写法（`wankzvr-elena-koshka-GFE-180`） | 一家都不问，也不问封面 | 全部：Peach 没接这些体系的来源 |
+| other | 有码形状，但路径带国产标记（`OTHER_SYSTEM_MARKS`：国产、网红、兔子先生、麻豆……）或文件名是欧美片站写法（`wankzvr-elena-koshka-GFE-180`） | 一家都不问，也不问封面 | 全部：MediaNfo 没接这些体系的来源 |
 | unsure | 有码形状，本机证据里有字母段却没有这个号的完整写法（`UWFr85dczsVeysGg.mp4` 读成 `UWFR-085`） | avbase → javbus → javdb，一遍 | 片商站、r18dev、dmm：号多半读错了，官方档只会查空 |
 
 容易问错的几处：
@@ -174,7 +174,7 @@ Wiki 与视频作品资料无关。
 
 ### 少发请求：快照与「说过没有」
 
-- 上一趟存下的原始快照（`<Peach 数据目录>/sources/library-metadata/<番号>-<来源>.json`）还新鲜就直接用，不发请求。
+- 上一趟存下的原始快照（`<MediaNfo 数据目录>/sources/library-metadata/<番号>-<来源>.json`）还新鲜就直接用，不发请求。
   有效期与「说过没有」的记忆同为 7 天，两边同时到期，才不会出现「没有」已过期而「有」还压着旧值。
   「重试未完成项」要的就是新答复，强制重问。
 - 「说过没有」按站记（`state/library-metadata-misses.json`，`library_processing._MissCache`）：一档里说过没有
@@ -203,7 +203,7 @@ Wiki 与视频作品资料无关。
 
 ### 经 amane 桥的站
 
-有些站不是 Peach 自己的解析器，由 amane 经 `tools/amane-bridge/` 的子进程回答（ADR-0043）。桥的 venv 在
+有些站不是 MediaNfo 自己的解析器，由 amane 经 `tools/amane-bridge/` 的子进程回答（ADR-0043）。桥的 venv 在
 「来源和凭证」页那张卡上重建，钉住的版本只由人改。
 
 - **社区档 `amane`**：avsox，以及只能由覆盖点名的 fc2club、freejavbt、airav。链上合成一档，一次子进程并发
@@ -216,12 +216,12 @@ Wiki 与视频作品资料无关。
   `extra['delivery_date']`，发行日留给 r18.dev。
 - 地区限制与站方裸回的 401/403 都算「被挡」：归 `auth` 一档，整站按 403 那一档冷却，不冻进「没有」的记忆。
 - dmm、giga、kin8 不进官方档，理由与数据见 ADR-0048 与 `build/agent-verification/amane-official-stage.md`。
-- fc2ppvdb.com 旧域已关（ADR-0043 修订）；新站 fc2ppv-db.com 由 Peach 自写解析器接回 FC2 链（ADR-0060），不经桥。
+- fc2ppvdb.com 旧域已关（ADR-0043 修订）；新站 fc2ppv-db.com 由 MediaNfo 自写解析器接回 FC2 链（ADR-0060），不经桥。
 - 经代理的实测记录在 `build/agent-verification/amane-chain-realtest.json`；那一轮 airav 的搜索地址回 404。
 
 ## 站点解析器契约
 
-自写解析器和 amane 桥上的站套同一个接口形状（`src/peach/sources/`，ADR-0044「实施：解析器契约」）。新接
+自写解析器和 amane 桥上的站套同一个接口形状（`src/medianfo/sources/`，ADR-0044「实施：解析器契约」）。新接
 一个站就照这个形状写。
 
 - 一个站一个类：`fetch(code, session=)` 取作品页，`parse(page, code)` 读出记录，`query()` 把两步串起来。
@@ -293,7 +293,7 @@ JavBus 对 FC2 都给不出东西，javdb 收了一部分但配额紧）。所�
 
 所以这两站的页由本机浏览器打开（`peach.browser_transport`，ADR-0065）：
 
-1. Peach 拉起用户机器上的 Chrome，没有才用 Edge（InPrivate）。独立 profile 放在 `peach-data/secrets/browser/`，
+1. MediaNfo 拉起用户机器上的 Chrome，没有才用 Edge（InPrivate）。独立 profile 放在 `medianfo-data/secrets/browser/`，
    窗口在屏幕外。
 2. 导航到地址。落到验证页就等它自己过（一般 3～25 秒，不用人点）。自动阶段最多等
    `min(40 秒, 这条请求的 timeout)`。
@@ -756,7 +756,7 @@ Instagram 的独立用户登录会话未取得，自动适配器不进正式依�
 ### 各站能给什么
 
 - **DMM 女优一览页可达，但头像只有 125×125，只适合身份绑定的首次头像。**
-  `https://www.dmm.co.jp/mono/dvd/-/actress/=/keyword=<假名行>/` 经 Peach 的 `dmm` 来源设置回完整列表页（带站内
+  `https://www.dmm.co.jp/mono/dvd/-/actress/=/keyword=<假名行>/` 经 MediaNfo 的 `dmm` 来源设置回完整列表页（带站内
   actress id 与括号里的旧艺名），没有区域拦截；`pics.dmm.co.jp/mono/actjpgs/<罗马字>.jpg` 不带 Referer 也回 200。
   - 问题在尺寸：`actjpgs/<名>.jpg` 是 125×125、`actjpgs/medium/<名>.jpg` 是 100×100，过不了高清候选门槛和显示门槛。
     这批图 Gfriends 已经整批收着，排在质量档位的最后一档，所以不为它另起高清 provider。取证与重放脚本在仓库外的
@@ -779,7 +779,7 @@ Instagram 的独立用户登录会话未取得，自动适配器不进正式依�
 ### 抓取与比名
 
 - laoshi.ink 按 sitemap 抓全部女优页（ld+json `sameAs` 加正文外链）；bstar-pro.com 过一次年龄门，抓 models 列表与
-  每一页。HTML 按 URL sha1 缓存在 `peach-data/state/directory-links/<来源>/`，重跑不再打外站。
+  每一页。HTML 按 URL sha1 缓存在 `medianfo-data/state/directory-links/<来源>/`，重跑不再打外站。
 - 页面上的名字（中文名、日文名、别名）按 `peach.social_links.name_key`（NFKC、casefold、去空白）与账本
   `canonical_name` 及 `name_chain` 匹配。一页命中两个实体记「需人工消歧」，不猜。
 - 站点自己的社媒账号（laoshi 首页那几枚）先从每页外链里减掉，否则会给每个女优都装上站方的 X。
@@ -901,7 +901,7 @@ jae.tokyo（Japan Adult Expo）是人工指定的第三个目录来源，同一�
   精确名逐条问（每条约 0.3 秒，可并发）。分类是站上改一次就定的事实，问过就记住。
 - **gelbooru 不是 rule34.xxx 的超集，不能拿它替换或前置。** 两站同源但各收各的，同名标签的帖数也不同。gelbooru 的
   `index.php?page=autocomplete2&term=` 公开且自带 `category`，但 `limit` 不生效、恒回 10 条，拿它给 rule34.xxx 的候选标分类只能
-  覆盖很少几条。候选名单必须来自 rule34.xxx：Peach 在那一站建订阅，给出它没有的名字就是误导。
+  覆盖很少几条。候选名单必须来自 rule34.xxx：MediaNfo 在那一站建订阅，给出它没有的名字就是误导。
 - **f95zone** 的 `latest_data.php` 只索引 Latest Updates 的五个分类，艺术家的 Collection 帖只有带登录 cookie 的站内
   搜索看得到（无 cookie 时 `/search/` 回 403）。没有 cookie 就跳过它并保留 Google 外链，不把「查不到」写成
   「站上没有」。
@@ -1077,7 +1077,7 @@ AV 厂牌 Logo 的来源是厂牌自己的社交账号头像：社交头像天�
   写进复核件：`きらきらワイフ` 撞上的 `kira*kira` 是另一家真实厂牌。
 - **名录对不上账本，多数是账本里没有那家，不是缺日文别名。** 按子串加编辑距离放宽重算也只翻出假配对。MGStage 是素人／企划
   平台，没对上的多是 FANZA 系（MOODYZ、S1 等），要另找入口。无标识厂牌缺的是官网链接，待办见
-  [公开路线图](https://github.com/orgs/peach-mitao/projects/7)「已有骨架」第 5 条。
+  [公开路线图](https://github.com/cnsunsz/projects/7)「已有骨架」第 5 条。
 
 **展会名录 jae.tokyo**（人工指定来源，Japan Adult Expo 的参展厂牌名录）：三届各带一套片商自己交的 logo，页面结构每届不同。
 
@@ -1194,7 +1194,7 @@ AV 厂牌 Logo 的来源是厂牌自己的社交账号头像：社交头像天�
   主机、哪一份和 sha256。`/link-mark` 本来就按主机（`cache_key` 也按主机），不受这条约束。
 - **可达性探测要扛住 TLS 抖动。** `install_entity_links.resolves` 对传输层异常重试三次，状态码一次成局。`site_logos.logo_images`
   丢掉 `data:` 懒加载占位图，它顶着标识的 class，取字节又打不开。
-- **Instagram 头像**：`--avatars` 读本机 `peach-data/state/agency-avatars.json`，是人工地址输入，不是通用解析器；地址发现与
+- **Instagram 头像**：`--avatars` 读本机 `medianfo-data/state/agency-avatars.json`，是人工地址输入，不是通用解析器；地址发现与
   字节下载分开验证，取图边界见 [来源采集](SOURCING.md) 与 [ADR-0024](adr/0024-mark-manifest-not-bundled-bytes.md)。
 - **字标补白**：方标一个都没做成、却取回过短边 ≥ `MIN_SHORT_EDGE` 的宽扁字标时，用 `peach.images.bake_square` 烤成方图装上，判词
   `字标补白`，`content_aspect` 照记。同一份方图再出一行 `logo`（判词 `ok`）装进 `<safe>.logo.img`，否则大位会回落到 `<safe>.img`
@@ -1348,7 +1348,7 @@ FANZA／DMM、MGStage、一本道同族、Tokyo-Hot、AVBase、javtrailers、One
 
 这节讲所有采集脚本共用的整页缓存、重试规则，以及解析测试的固定件从哪来。
 
-- 整页 HTML 缓存与限速走 `peach.page_cache.Site`（按 URL sha1 命名存盘，`cookies` 用来带过年龄门）。它放在 `src/peach/` 而不是某个
+- 整页 HTML 缓存与限速走 `peach.page_cache.Site`（按 URL sha1 命名存盘，`cookies` 用来带过年龄门）。它放在 `src/medianfo/` 而不是某个
   采集脚本里，因为目录链接采集和厂牌名回查两个脚本都用它。采集脚本的判据改一行就要重跑，缓存在手，重跑才能走离线数据、不再打外站。
 - 退让重试也在这一层：经代理取 javdatabase 约三次里有一次 TLS `UNEXPECTED_EOF`，一次抖动打死整批是这个项目犯过两回的错。所以
   `Site` 自己重试传输错误（默认 2 次、`backoff` 递增），采集脚本不必各写一遍。HTTP 状态码不重试：404 重试三次仍是 404，只是白花

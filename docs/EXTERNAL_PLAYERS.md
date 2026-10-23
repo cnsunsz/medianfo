@@ -9,10 +9,10 @@
 | VLC（iPhone / iPad） | 调用 VLC 的 `vlc-x-callback` 协议 |
 | IINA（Mac） | 调用 IINA 的 `iina://weblink` 协议 |
 
-播放器选择只保存在当前浏览器。另一台设备需要能访问当前 Peach 地址；电脑上用 `localhost`
+播放器选择只保存在当前浏览器。另一台设备需要能访问当前 MediaNfo 地址；电脑上用 `localhost`
 生成的地址不能供手机访问。HTTPS 使用项目证书时，外部设备也需要信任该证书。
 
-播放链接有效期为 6 小时，Peach 重启后失效。链接只允许读取选中的资产，不包含本机盘符路径或
+播放链接有效期为 6 小时，MediaNfo 重启后失效。链接只允许读取选中的资产，不包含本机盘符路径或
 长期登录凭据。请求支持 HTTP Range，传输原始文件；解码能力、VR 投影方式由外部播放器决定。
 生成链接和打开播放器不计作观看记录，也不能证明播放器已经起播。
 
@@ -24,7 +24,7 @@
 隧道入口或当前服务地址。M3U 使用该签名地址，代理转发的本机 Host 不会改写列表中的公网入口。
 
 VLC 协议参考 [VideoLAN 官方实现说明](https://mailman.videolan.org/pipermail/vlc-devel/2014-October/099830.html)，
-IINA 协议参考 [IINA 上游协议讨论](https://github.com/iina/iina/issues/3922)。播放器实现不进入 Peach，
+IINA 协议参考 [IINA 上游协议讨论](https://github.com/iina/iina/issues/3922)。播放器实现不进入 MediaNfo，
 无新增依赖。协议打开后的实际播放取决于访问端是否安装对应播放器；自动化验证覆盖票据、Range、
 M3U 内容和页面交互，不替代真实设备的解码验收。
 

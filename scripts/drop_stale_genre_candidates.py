@@ -20,10 +20,10 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import GENERATED_DIR
-from peach.library_processing import FIELDS
-from peach.review_csv import read_rows, write_rows
-from peach.stale_candidates import is_english, stale_genre_rows, without
+from medianfo.config import GENERATED_DIR
+from medianfo.library_processing import FIELDS
+from medianfo.review_csv import read_rows, write_rows
+from medianfo.stale_candidates import is_english, stale_genre_rows, without
 
 CANDIDATES = GENERATED_DIR / "library-metadata-field-candidates.csv"
 

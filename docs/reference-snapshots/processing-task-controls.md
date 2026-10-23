@@ -15,7 +15,7 @@
 | `reference-effort.png` | `20551f789bb235a3ec1da5c17e8616d9a189b5b6750003dee29349d789ca0d66` |
 | `reference-agent-progress.png` | `179620ca3e3fedb40c2cc5d1899e79a46fd15d10871d45f337cacfc8db2bb288` |
 
-## Peach 适配
+## MediaNfo 适配
 
 保留折叠后可找回进度的交互；常驻任务面位于右下角。普通 Toast 和任务卡共用 Agent Progress 外框：通知栈内的浮层半径引用既有 `radius-2xl`，边框沿用 `border-button-default`，阴影沿用 `elevation-xs`；内容宽度、字号、内边距与控制排版各自保留。未知总量不显示百分比；圆环表达当前阶段完成率，正文来自实际任务阶段和文件名。后端逐资产执行资料、封面和预览，页面不按演示计时器自动完成阶段。
 

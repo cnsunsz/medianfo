@@ -2,7 +2,7 @@
 """前端的门槛：固定主包与页面包、清单、契约与 vitest。
 
 ADR-0022 的取舍是「构建产物进 Git」：运行时的 Python 服务、PyInstaller 包和 macOS
-上的检出都没有 Node，`web/dist/peach-app.js` 必须是仓库里现成的文件。代价是产物会和
+上的检出都没有 Node，`web/dist/medianfo-app.js` 必须是仓库里现成的文件。代价是产物会和
 源码脱节，所以这里分两类断言：
 
 - **不需要 Node 的**：产物在不在、页面加载路径、独立模块图、清单是否
@@ -31,8 +31,8 @@ from support.conditions import missing_prerequisite
 ROOT = Path(__file__).resolve().parents[1]
 FRONTEND = ROOT / "frontend"
 DIST = ROOT / "web" / "dist"
-BUNDLE = DIST / "peach-app.js"
-APP_STYLES = DIST / "peach-app.css"
+BUNDLE = DIST / "medianfo-app.js"
+APP_STYLES = DIST / "medianfo-app.css"
 PAGES_BUNDLE = DIST / "peach-pages.js"
 PAGES_STYLES = DIST / "peach-pages.css"
 
@@ -64,20 +64,20 @@ class MainBundleTests(unittest.TestCase):
     def test_bundle_name_carries_no_content_hash(self):
         """运行时只分发固定名字的主包和独立页面包。"""
         names = sorted(path.name for path in DIST.iterdir() if path.is_file())
-        self.assertEqual(names, ["peach-app.css", "peach-app.js", "peach-pages.css", "peach-pages.js"])
+        self.assertEqual(names, ["medianfo-app.css", "medianfo-app.js", "peach-pages.css", "peach-pages.js"])
 
     def test_the_main_document_loads_one_module_entry(self):
         assets = PageAssets((ROOT / "web" / "index.html").read_text(encoding="utf-8"))
-        self.assertEqual([script["src"] for script in assets.scripts], ["/dist/peach-app.js"])
+        self.assertEqual([script["src"] for script in assets.scripts], ["/dist/medianfo-app.js"])
         self.assertEqual(assets.scripts[0].get("type"), "module")
 
     def test_the_startup_switches_and_their_payload_are_in_the_shipped_bundle(self):
         """「开机自启」那三颗开关的标签和它们发出去的键，判据落在产物上。
 
-        `web/dist/peach-app.js` 是提交进 Git 的产物。改了 `frontend/src` 不重建，浏览器拿到
+        `web/dist/medianfo-app.js` 是提交进 Git 的产物。改了 `frontend/src` 不重建，浏览器拿到
         的仍是旧的那一份，而 tsc 和 vitest 都只看源码，谁都不会红——只有扫产物这一条会。
         """
-        for label in ("开机后启动 Peach", "只启动托盘，不打开网页", "在桌面创建快捷方式"):
+        for label in ("开机后启动 MediaNfo", "只启动托盘，不打开网页", "在桌面创建快捷方式"):
             self.assertIn(label, self.bundle,
                           f"产物里没有「{label}」，先跑 npm --prefix frontend run build")
         payload = self.bundle[self.bundle.index('"/api/configuration/startup"'):][:240]
@@ -106,7 +106,7 @@ class BoardTokenTests(unittest.TestCase):
             found.update(re.findall(r"(--color-[\w-]+):\s*([^;]+);", block.group(1)))
         return found
 
-    #: Peach 自己定值、不跟上游的 token。每一条都要在 `boardui/ORIGIN.md` 的差异表里
+    #: MediaNfo 自己定值、不跟上游的 token。每一条都要在 `boardui/ORIGIN.md` 的差异表里
     #: 有一行写清原因：默认逐字照抄，例外必须是写下来的决定，不是谁顺手改的一次。
     LOCAL_TOKEN_VALUES = {
         (".dark", "--color-border-checkbox-default"): "var(--color-neutral-600)",
@@ -159,12 +159,12 @@ class ReactBundleTests(unittest.TestCase):
         cls.pages_css = PAGES_STYLES.read_text(encoding="utf-8")
 
     def test_shipped_bundles_do_not_require_node_globals(self):
-        for name, bundle in (("peach-app.js", self.app), ("peach-pages.js", self.pages)):
+        for name, bundle in (("medianfo-app.js", self.app), ("peach-pages.js", self.pages)):
             self.assertNotIn("process.env", bundle, f"{name}：库模式没替换 NODE_ENV，浏览器里没有 process")
 
     def test_shipped_bundles_have_independent_module_graphs(self):
         """主包与页面包各自包含运行依赖，开发标注工具由本机开关单独加载。"""
-        for name, bundle, allowed_dynamic in (("peach-app.js", self.app, {"/dev/agentation.js"}),
+        for name, bundle, allowed_dynamic in (("medianfo-app.js", self.app, {"/dev/agentation.js"}),
                                               ("peach-pages.js", self.pages, set())):
             static = re.findall(r'(?m)^\s*(?:import\b[^;]*?|export\s*\*\s*)from\s*["\']([^"\']+)["\']'
                                 r'|^\s*import\s*["\']([^"\']+)["\']', bundle)
@@ -197,7 +197,7 @@ class ReactBundleTests(unittest.TestCase):
     def test_react_styles_load_before_the_legacy_stylesheets(self):
         """同名 `--color-*` token 由后面的 board.css 定值，未迁移页面的颜色才不受影响。"""
         assets = PageAssets((ROOT / "web" / "index.html").read_text(encoding="utf-8"))
-        order = [assets.styles.index(href) for href in ("/dist/peach-app.css", "/app.css", "/board.css")]
+        order = [assets.styles.index(href) for href in ("/dist/medianfo-app.css", "/app.css", "/board.css")]
         self.assertEqual(order, sorted(order))
 
     def test_the_first_frame_script_sets_the_dark_class(self):
@@ -234,7 +234,7 @@ class BoardUiUpstreamTests(unittest.TestCase):
         present = {file.relative_to(root).as_posix(): file for file in root.rglob("*")
                    if file.is_file() and file.name not in self.RECORDS}
         self.assertEqual(sorted(present), sorted(recorded),
-                         f"{name}/ 的文件要与 UPSTREAM.sha256 一一对应；Peach 自己的组合放在 {name}/ 外面")
+                         f"{name}/ 的文件要与 UPSTREAM.sha256 一一对应；MediaNfo 自己的组合放在 {name}/ 外面")
         for path, file in present.items():
             self.assertEqual(hashlib.sha256(file.read_bytes()).hexdigest(), recorded[path],
                              f"{name}/{path} 与复制时的上游内容不同；外观差异在 {name}/ 外面组合")
@@ -298,7 +298,7 @@ class FrontendManifestTests(unittest.TestCase):
 
     def test_the_bundle_is_committed_and_the_toolchain_is_not(self):
         tracked = subprocess.run(
-            ["git", "-C", str(ROOT), "check-ignore", "web/dist/peach-app.js"],
+            ["git", "-C", str(ROOT), "check-ignore", "web/dist/medianfo-app.js"],
             capture_output=True, text=True, encoding="utf-8", errors="replace", check=False)
         self.assertEqual(tracked.returncode, 1, "web/dist 被 .gitignore 排除了，产物发不出去")
         for ignored in ("frontend/node_modules/react/package.json",):
@@ -413,7 +413,7 @@ class BrowserSuiteWorkflowTests(unittest.TestCase):
         for step in ("runs-on: windows-latest", "actions/setup-node", 'node-version: "24"',
                      "npm --prefix frontend ci", "FedericoCarboni/setup-ffmpeg",
                      'ffmpeg-version: "9.0.1"',
-                     "PEACH_E2E_CHROME=", "& .\\scripts\\test.ps1 -Scope web"):
+                     "MEDIANFO_E2E_CHROME=", "& .\\scripts\\test.ps1 -Scope web"):
             self.assertIn(step, job, f"web-e2e job 缺了 {step}")
 
     def test_the_summary_requires_browser_and_frontend_jobs(self):
@@ -426,7 +426,7 @@ class BrowserSuiteWorkflowTests(unittest.TestCase):
         job = self.job("python")
         for step in ("actions/setup-node", "npm --prefix frontend ci",
                      "FedericoCarboni/setup-ffmpeg", 'ffmpeg-version: "9.0.1"',
-                     "PEACH_E2E_CHROME="):
+                     "MEDIANFO_E2E_CHROME="):
             self.assertIn(step, job, f"python 矩阵缺了 {step}，全量行上的用例会判失败")
 
 

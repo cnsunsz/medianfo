@@ -11,39 +11,39 @@
 # 补上 localhost / 127.0.0.1 / 本机当前局域网地址之后两个问题一起消失。
 #
 #   sh scripts/setup_local_tls.sh
-#   PEACH_EXTRA_IP=198.51.100.20 sh scripts/setup_local_tls.sh   # 再多加一个地址
+#   MEDIANFO_EXTRA_IP=198.51.100.20 sh scripts/setup_local_tls.sh   # 再多加一个地址
 set -eu
 
-# TLS 路径由两种 shell 共用的 Python 入口解析；PEACH_TLS_DIR 可显式覆盖。
-PEACH_REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-TLS_DIR="${PEACH_TLS_DIR:-}"
+# TLS 路径由两种 shell 共用的 Python 入口解析；MEDIANFO_TLS_DIR 可显式覆盖。
+MEDIANFO_REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+TLS_DIR="${MEDIANFO_TLS_DIR:-}"
 if [ -z "$TLS_DIR" ]; then
-    PEACH_TLS_PYTHON="$PEACH_REPO_ROOT/.venv/bin/python"
-    if [ ! -x "$PEACH_TLS_PYTHON" ]; then
-        PEACH_TLS_COMMON_GIT="$(git -C "$PEACH_REPO_ROOT" rev-parse --path-format=absolute --git-common-dir)"
-        PEACH_TLS_PYTHON="$(dirname "$PEACH_TLS_COMMON_GIT")/.venv/bin/python"
+    MEDIANFO_TLS_PYTHON="$MEDIANFO_REPO_ROOT/.venv/bin/python"
+    if [ ! -x "$MEDIANFO_TLS_PYTHON" ]; then
+        MEDIANFO_TLS_COMMON_GIT="$(git -C "$MEDIANFO_REPO_ROOT" rev-parse --path-format=absolute --git-common-dir)"
+        MEDIANFO_TLS_PYTHON="$(dirname "$MEDIANFO_TLS_COMMON_GIT")/.venv/bin/python"
     fi
-    [ -x "$PEACH_TLS_PYTHON" ] || { echo "找不到项目 Python：$PEACH_TLS_PYTHON" >&2; exit 1; }
-    TLS_DIR="$("$PEACH_TLS_PYTHON" -X utf8 "$PEACH_REPO_ROOT/scripts/resolve_tls_directory.py")"
+    [ -x "$MEDIANFO_TLS_PYTHON" ] || { echo "找不到项目 Python：$MEDIANFO_TLS_PYTHON" >&2; exit 1; }
+    TLS_DIR="$("$MEDIANFO_TLS_PYTHON" -X utf8 "$MEDIANFO_REPO_ROOT/scripts/resolve_tls_directory.py")"
 fi
 CA_CRT="$TLS_DIR/peach-local-ca.crt"
 CA_KEY="$TLS_DIR/peach-local-ca.key"
-NAME="${PEACH_MDNS_NAME:-peach}.local"
+NAME="${MEDIANFO_MDNS_NAME:-peach}.local"
 # 局域网地址是**会变的**：换网络或 DHCP 续租之后证书里这条就作废了，届时用
-# 局域网 IP 访问会报错（用 peach.local 不受影响）。`PEACH_LAN_IP=none` 可以不写。
-LAN_IP="${PEACH_LAN_IP:-$(ipconfig getifaddr "$(route -n get default 2>/dev/null | awk '/interface:/{print $2}')" 2>/dev/null || true)}"
+# 局域网 IP 访问会报错（用 peach.local 不受影响）。`MEDIANFO_LAN_IP=none` 可以不写。
+LAN_IP="${MEDIANFO_LAN_IP:-$(ipconfig getifaddr "$(route -n get default 2>/dev/null | awk '/interface:/{print $2}')" 2>/dev/null || true)}"
 [ "$LAN_IP" = "none" ] && LAN_IP=""
 # 397 天，不是随便挑的：Apple 从 2020-09 起拒绝有效期超过 398 天的 TLS 服务器
 # 证书，iOS 上即使根证书已被信任也照样报「不受信任」。Windows 那份
 # setup_local_tls.ps1 用的也是 397。CA 本身不受这条限制（它是 3650 天）。
-DAYS="${PEACH_CERT_DAYS:-397}"
+DAYS="${MEDIANFO_CERT_DAYS:-397}"
 
 [ -f "$CA_CRT" ] || { echo "找不到 CA 证书：$CA_CRT" >&2; exit 1; }
 [ -f "$CA_KEY" ] || { echo "找不到 CA 私钥：$CA_KEY（只有它能重签）" >&2; exit 1; }
 
 SAN="DNS:${NAME},DNS:localhost,IP:127.0.0.1"
 [ -n "$LAN_IP" ] && SAN="${SAN},IP:${LAN_IP}"
-[ -n "${PEACH_EXTRA_IP:-}" ] && SAN="${SAN},IP:${PEACH_EXTRA_IP}"
+[ -n "${MEDIANFO_EXTRA_IP:-}" ] && SAN="${SAN},IP:${MEDIANFO_EXTRA_IP}"
 
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
@@ -54,7 +54,7 @@ distinguished_name = dn
 prompt = no
 [dn]
 CN = ${NAME}
-O = Peach
+O = MediaNfo
 [ext]
 subjectAltName = ${SAN}
 keyUsage = critical, digitalSignature, keyEncipherment

@@ -9,9 +9,9 @@ import unittest
 from contextlib import closing
 from pathlib import Path
 
-from peach import record_rehome, web_batch
-from peach import web_contract as rm_web
-from peach.web_orphan_records import q_orphan_records, w_orphan_attach
+from medianfo import record_rehome, web_batch
+from medianfo import web_contract as rm_web
+from medianfo.web_orphan_records import q_orphan_records, w_orphan_attach
 
 from support.ledger import fresh_ledger
 

@@ -1,5 +1,5 @@
 ---
-name: peach-jav-cover-workflow
+name: medianfo-jav-cover-workflow
 description: 在用户说 JAV 封面、高清封面、缺封面、封面刮削、重探、来源比较或继续抓取时使用。
 ---
 

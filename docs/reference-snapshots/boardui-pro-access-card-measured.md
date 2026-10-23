@@ -39,9 +39,9 @@
 `transform .42s cubic-bezier(.4,0,.2,1)`。
 
 BoardUI 的 76 个组件里没有图片网格或 gallery 控件，只有 carousel、file-upload 和 avatar：
-竖图候选网格没有可照抄的上游件，按 Peach 自己的规范自查。
+竖图候选网格没有可照抄的上游件，按 MediaNfo 自己的规范自查。
 
-## Peach 主动保留的差异
+## MediaNfo 主动保留的差异
 
 - **换头像弹层不做中间那层沉下去的容器**。BoardUI 那块里放的是两行文字步骤，靠沉下去的底
   才分得出段；换头像这一屏中间放的是一格一格的候选图，图本身就是边界，再沉一层加一圈描边
@@ -51,13 +51,13 @@ BoardUI 的 76 个组件里没有图片网格或 gallery 控件，只有 carouse
   `--surface` 接的是 `background-primary-default`，于是它在浅色是 `#fff`、暗色是 `#262626`，
   跟着上游一起对调了角色。`--page` 在两档里都是「最靠那一端的那个面」，设置弹层的卡片用的
   也是它。
-- **圆角走 Peach 的 token**：卡片 `--floating-radius`（board.css 一档是 20px），不取 28px；
-  候选格 `--surface-radius`。28px、24px 不在 Peach 的圆角清单里。
+- **圆角走 MediaNfo 的 token**：卡片 `--floating-radius`（board.css 一档是 20px），不取 28px；
+  候选格 `--surface-radius`。28px、24px 不在 MediaNfo 的圆角清单里。
 - **徽章不占右上角**：那儿归关闭键——弹层跟页面里的一张卡片差着一件事，它要能关掉，而右上角
   是全站弹层放关闭键的位置。徽章跟到标题后面，用 `.geist-badge`（圆角 `--badge-radius`，
   不是整圆）。
 - **按钮悬停只换填充，不动那圈线**。判据取的是 BoardUI 的强调档而不是 secondary：用户要
-  「不应该有线，应该有高亮」，而 primary 与 ghost 两档正是这么做的（见下节）。Peach 的
+  「不应该有线，应该有高亮」，而 primary 与 ghost 两档正是这么做的（见下节）。MediaNfo 的
   次级按钮因此在 `web/board.css` 的 Board secondary 那一条上走
   `background:var(--control-hover)`——浅色 #ebebeb、暗色 #404040，都是同一套面色里的下一档
   实色。不照抄 BoardUI secondary 的 `hover:border-border-button-hover`：那一档要同时点亮边，
@@ -82,7 +82,7 @@ BoardUI 的 76 个组件里没有图片网格或 gallery 控件，只有 carouse
 `focus-visible:ring-2 ring-offset-2 ring-border-focus-ring`。
 
 暗色档的 `--color-background-primary-hover` 上游写的是
-`color-mix(in srgb, lab(27.036%) 60%, transparent)`——即 60% 的 #404040，Peach 映射成的
+`color-mix(in srgb, lab(27.036%) 60%, transparent)`——即 60% 的 #404040，MediaNfo 映射成的
 `#40404099` 是忠实的，两边算出来都只比 #262626 亮几个色阶。
 
 ### primary 的三档：`.bg-button-primary` 规则原文
@@ -127,16 +127,16 @@ BoardUI 的 76 个组件里没有图片网格或 gallery 控件，只有 carouse
 
 悬停填充 `#f7f7f7` 比那条线 `#ebebeb` 浅，所以压哪一半，线都还在，两侧填充各自停在它两边。
 
-## Peach 采用与差异（Button 与 Button Group）
+## MediaNfo 采用与差异（Button 与 Button Group）
 
 - 强调档全站一副面，三档渐变、`::before` 的交叉淡入和 `border:0` 都照上游；token 是
   `--board-blue`、`--board-blue-hover`、`--board-blue-active`，规则写在 `web/board.css` 的
   `body :is(…).primary:not(:disabled)`；错误页、登录页和首启页由页面包画，主按钮是 BoardUI Button。
 - `border:0` 不是省事：补一圈透明边在 `box-sizing:border-box` 下会把内容盒压掉 2px，而
   `background-origin` 是 padding-box，渐变被压到 34px 再延展回 36px，色标跟上游错开一像素。
-- **`padding` 是 Peach 的主动差异**：取 `8px 12px` 而不是上游四边 `8px`，中文字比拉丁字宽，
+- **`padding` 是 MediaNfo 的主动差异**：取 `8px 12px` 而不是上游四边 `8px`，中文字比拉丁字宽，
   四边等距时两侧字贴着边。上游 `active` 那一下的 0.98 缩放（`transform .42s`）没有跟，
   按下换渐变已经读得出来。
-- 分体按钮的分隔线按上游的做法交给右半的 `border-left`，上下顶满；两半的悬停走 Peach 自己的
+- 分体按钮的分隔线按上游的做法交给右半的 `border-left`，上下顶满；两半的悬停走 MediaNfo 自己的
   `--control-hover`（浅色 #ebebeb、暗色 #404040）而不是上游的 `background-primary-hover`，
   理由与次级按钮那一条相同，见上一节。

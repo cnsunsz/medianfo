@@ -8,8 +8,8 @@ from threading import Event
 from unittest.mock import Mock, patch
 from types import SimpleNamespace
 
-from peach.jav_cache import DAY, PublicSnapshots, cache_fresh, cache_lifetime, stable_after
-from peach.javdb_public import PublicAPI, PublicSourceUnavailable, public_cache_scope, cache_checked_at
+from medianfo.jav_cache import DAY, PublicSnapshots, cache_fresh, cache_lifetime, stable_after
+from medianfo.javdb_public import PublicAPI, PublicSourceUnavailable, public_cache_scope, cache_checked_at
 
 
 def stamp(day):
@@ -103,8 +103,8 @@ class PublicationCacheTests(unittest.TestCase):
             self.assertEqual(api._json.call_count, 1)
 
     def test_discovery_rebuilds_a_missing_projection_from_the_fixed_source_timestamp(self):
-        from peach.jav_discovery_metadata import DiscoveryMetadata
-        from peach.web_jav_discovery import _cached_movie
+        from medianfo.jav_discovery_metadata import DiscoveryMetadata
+        from medianfo.web_jav_discovery import _cached_movie
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             now = [stamp('2026-10-13')]
@@ -114,7 +114,7 @@ class PublicationCacheTests(unittest.TestCase):
             reader = self.api(root / 'jav-public', now)
             metadata = DiscoveryMetadata(root / 'metadata.json', api=reader, clock=lambda: now[0])
             contract = SimpleNamespace(cover_root=root / 'covers')
-            with patch('peach.javdb_public.PUBLIC_API', reader), patch('peach.web_jav_discovery.discovery_metadata', return_value=metadata):
+            with patch('medianfo.javdb_public.PUBLIC_API', reader), patch('medianfo.web_jav_discovery.discovery_metadata', return_value=metadata):
                 self.assertEqual(_cached_movie('EXM-001', contract), movie)
             self.assertEqual(metadata.peek('EXM-001')[1]['metadata_checked_at'], stamp('2026-10-13'))
 

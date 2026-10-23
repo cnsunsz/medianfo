@@ -6,7 +6,7 @@ import time
 import unittest
 from pathlib import Path
 
-from peach.process_job import assign_to_job, close_job, create_kill_on_close_job
+from medianfo.process_job import assign_to_job, close_job, create_kill_on_close_job
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -15,7 +15,7 @@ TRAY_STAND_IN = """
 import sys, time
 from pathlib import Path
 from unittest import mock
-from peach.tray import ServiceManager, ServiceSpec
+from medianfo.tray import ServiceManager, ServiceSpec
 
 spec = ServiceSpec("http", "http://127.0.0.1:9/healthz",
                    (sys.executable, "-c", "import time; time.sleep(120)"), True)
@@ -28,7 +28,7 @@ time.sleep(120)
 
 
 def descendants(root: int) -> set[int]:
-    from peach.windows_restart import _process_paths_and_parents
+    from medianfo.windows_restart import _process_paths_and_parents
     _paths, parents = _process_paths_and_parents()
     found, frontier = set(), [root]
     while frontier:
@@ -116,7 +116,7 @@ class KillOnCloseJobTests(unittest.TestCase):
         """
         with tempfile.TemporaryDirectory() as directory:
             environment = {**os.environ, "PYTHONPATH": str(ROOT / "src"),
-                           "PEACH_DATA_ROOT": directory}
+                           "MEDIANFO_DATA_ROOT": directory}
             tray = subprocess.Popen(
                 [sys.executable, "-c", TRAY_STAND_IN, directory], stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL, text=True, encoding="utf-8", env=environment,

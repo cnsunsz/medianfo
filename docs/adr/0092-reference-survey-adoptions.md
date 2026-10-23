@@ -13,7 +13,7 @@ javranking、Cuelume 等 16 个项目的最新版做了一轮调研，最新代�
 
 ## 决策
 
-下表里的「待办 N」指 [公开路线图](https://github.com/orgs/peach-mitao/projects/7)「尚未实现」的编号。
+下表里的「待办 N」指 [公开路线图](https://github.com/cnsunsz/projects/7)「尚未实现」的编号。
 
 ### 已落地
 
@@ -87,14 +87,14 @@ javlibrary 六站，写在 [docs/SOURCING.md](../SOURCING.md) 的 minnano 一节
 
 | 做法 | 来源项目 | 理由 |
 | --- | --- | --- |
-| 外部来源值与本地覆盖值分两列 | SakuraMedia | Peach 已有 `field_owners` 的字段归属与覆盖规则（ADR-0018、ADR-0025） |
+| 外部来源值与本地覆盖值分两列 | SakuraMedia | MediaNfo 已有 `field_owners` 的字段归属与覆盖规则（ADR-0018、ADR-0025） |
 | 媒体「复活」 | SakuraMedia | ADR-0087 的接回已覆盖 |
 | 书签满 14 天、30 天提醒 | OpenAver | 想要清单在页签里看，不推提醒；出现需求再议 |
 | 外部网页清单导入与消歧 | Javdex | 没有批量导入需求 |
 | 片库分析联动 | OpenAver | 口味页已覆盖 |
 | 自动下载闭环 | SakuraMedia、NASSAV | 默认不动用户文件；可控的形态只有用户自己给磁力的网盘离线（ADR-0089） |
 | 截流媒体地址 | javm | 在 WebView 里注入脚本取流媒体地址，不适合 |
-| garage、Atlas 的解析器 | garage、Atlas | 覆盖面不及 Peach 现有 |
+| garage、Atlas 的解析器 | garage、Atlas | 覆盖面不及 MediaNfo 现有 |
 | NASSAV 整体 | NASSAV | 数据源全是未授权转载站，Memo 有会员墙 |
 
 ## 理由

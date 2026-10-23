@@ -7,7 +7,7 @@
 import unittest
 from dataclasses import dataclass
 
-from peach.follow_variants import (
+from medianfo.follow_variants import (
     PROVIDER_PRIORITY, VariantVerdict, classify, group_duplicates, normalize_handle,
 )
 

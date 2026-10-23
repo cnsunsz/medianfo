@@ -9,17 +9,17 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
-from peach import followups as followups_module
-from peach import seed_followup, seed_pack, seed_validation
-from peach import task_runs as task_runs_module
-from peach.avatar_followup import TASK_KEY as AVATAR_TASK_KEY
-from peach.avatar_followup import followup_key, parse_key, plan
-from peach.followups import FollowupRunner, FollowupType, lanes
-from peach.jav_cover_fetch import NotFound
-from peach.jobs import BackgroundJob
-from peach.library_processing import process_library
-from peach.repository import LedgerDatabase
-from peach.task_runs import MAX_FOLLOWUPS, TaskRunStore
+from medianfo import followups as followups_module
+from medianfo import seed_followup, seed_pack, seed_validation
+from medianfo import task_runs as task_runs_module
+from medianfo.avatar_followup import TASK_KEY as AVATAR_TASK_KEY
+from medianfo.avatar_followup import followup_key, parse_key, plan
+from medianfo.followups import FollowupRunner, FollowupType, lanes
+from medianfo.jav_cover_fetch import NotFound
+from medianfo.jobs import BackgroundJob
+from medianfo.library_processing import process_library
+from medianfo.repository import LedgerDatabase
+from medianfo.task_runs import MAX_FOLLOWUPS, TaskRunStore
 from support.conditions import windows_ledger_roots
 from support.ledger import fresh_ledger
 
@@ -223,7 +223,7 @@ class RunnerTests(LedgerTestCase):
             queued = self.store.enqueue_followups(
                 parent.id, [("entity-avatar:performer:1", AVATAR_TASK_KEY, "甲")])["queued"]
             self.store.finish(parent.id, "succeeded", summary={"followups": 1})
-            with self.assertLogs("peach.followups", level="WARNING") as captured:
+            with self.assertLogs("medianfo.followups", level="WARNING") as captured:
                 FollowupRunner(self.contract()).drain()
             self.assertIn("取不到这张图", "\n".join(captured.output))
         child = self.store.get(queued[0])
@@ -275,7 +275,7 @@ class RestartTests(LedgerTestCase):
 
 class BackgroundJobDispatchTests(LedgerTestCase):
     def job(self, runner=None):
-        return BackgroundJob("PeachTestJob", task_key="library-processing",
+        return BackgroundJob("MediaNfoTestJob", task_key="library-processing",
                              runs=self.store, followup_runner=runner)
 
     def declared(self):
@@ -359,7 +359,7 @@ class AvatarFollowupTests(LedgerTestCase):
         self.assertEqual({item.task_key for item in found}, {AVATAR_TASK_KEY})
 
     def test_an_entity_that_already_has_an_avatar_is_a_no_op(self):
-        from peach.avatar_followup import run as avatar_run
+        from medianfo.avatar_followup import run as avatar_run
 
         avatars = self.root / "avatars"
         avatars.mkdir()
@@ -376,7 +376,7 @@ class AvatarFollowupTests(LedgerTestCase):
             parse_key(f"{AVATAR_TASK_KEY}:studio:1")
 
     def test_a_vanished_entity_is_not_a_failure(self):
-        from peach.avatar_followup import run as avatar_run
+        from medianfo.avatar_followup import run as avatar_run
 
         avatars = self.root / "avatars"
         avatars.mkdir()
@@ -427,11 +427,11 @@ class CoverFaceFollowupTests(LedgerTestCase):
                         if share else None)
                 return {"ratio": width / height, "px": [width, height], "face": face}
 
-        patcher = mock.patch("peach.avatar_face.FaceProbe", Probe)
+        patcher = mock.patch("medianfo.avatar_face.FaceProbe", Probe)
         patcher.start()
         self.addCleanup(patcher.stop)
         # 装图那一步会顺手算人脸边车，同样不出网。
-        sidecar = mock.patch("peach.avatar_provider.FaceProbe")
+        sidecar = mock.patch("medianfo.avatar_provider.FaceProbe")
         sidecar.start().return_value.return_value = None
         self.addCleanup(sidecar.stop)
 
@@ -458,7 +458,7 @@ class CoverFaceFollowupTests(LedgerTestCase):
             cache_bust=lambda: None)
 
     def run_followup(self) -> dict:
-        from peach.avatar_followup import run as avatar_run
+        from medianfo.avatar_followup import run as avatar_run
 
         return avatar_run(self.contract(), followup_key("performer", self.person), mock.Mock())
 
@@ -489,8 +489,8 @@ class CoverFaceFollowupTests(LedgerTestCase):
                          [("cover-face", "FC2-PPV-2"), ("cover-face", "FC2-PPV-3")])
 
     def test_stock_skips_her_once_tried_until_her_works_change(self):
-        from peach.avatar_followup import stock
-        from peach.followups import Attempts, attempts_root
+        from medianfo.avatar_followup import stock
+        from medianfo.followups import Attempts, attempts_root
 
         self.work(1, "FC2-PPV-1", (1800, 1000))
         chosen = self.entity("performer", "人挑过")
@@ -605,7 +605,7 @@ class FaceStubCase(LedgerTestCase):
             unavailable = ""
 
             def on_bytes(self, body):
-                from peach.images import measure_image_size
+                from medianfo.images import measure_image_size
                 width, height = measure_image_size(body)
                 return {"ratio": width / height, "px": [width, height],
                         "face": {"cx": 0.5, "cy": 0.75, "w": 0.2, "h": 0.2, "score": 0.9}}
@@ -627,16 +627,16 @@ class FaceStubCase(LedgerTestCase):
                     (a - b) ** 2 for a, b in zip(colour, pixel)))
                 return vectors[nearest]
 
-        for target, value in (("peach.avatar_face.FaceProbe", Probe),
-                              ("peach.face_match.FaceMatcher", Matcher)):
+        for target, value in (("medianfo.avatar_face.FaceProbe", Probe),
+                              ("medianfo.face_match.FaceMatcher", Matcher)):
             patcher = mock.patch(target, value)
             patcher.start()
             self.addCleanup(patcher.stop)
-        sidecar = mock.patch("peach.avatar_provider.FaceProbe")
+        sidecar = mock.patch("medianfo.avatar_provider.FaceProbe")
         sidecar.start().return_value.return_value = None
         self.addCleanup(sidecar.stop)
         # 候选都在缓存里：真要联网就是用例写错了。
-        offline = mock.patch("peach.http.HttpxTransport",
+        offline = mock.patch("medianfo.http.HttpxTransport",
                              return_value=mock.Mock(side_effect=AssertionError("不许出网")))
         offline.start()
         self.addCleanup(offline.stop)
@@ -655,8 +655,8 @@ class FaceStubCase(LedgerTestCase):
 
     def candidate(self, category: str, size: tuple[int, int], colour) -> str:
         """往图库索引里加一张 `梨奈` 名下的候选，图预先放进缓存。返回它的 ref。"""
-        from peach import gfriends
-        from peach.avatar_provider import AvatarCandidateCache, inspect_avatar
+        from medianfo import gfriends
+        from medianfo.avatar_provider import AvatarCandidateCache, inspect_avatar
 
         filename = f"梨奈-{len(self.gallery)}.jpg"
         self.gallery.setdefault(category, {})["梨奈.jpg"] = filename
@@ -846,7 +846,7 @@ class FaceMatchFollowupTests(FaceStubCase):
         self.assertEqual(self.provenance()["provider"], "cover-face")
 
     def test_without_the_model_she_falls_back_and_is_tried_again_next_round(self):
-        from peach.followups import Attempts, attempts_root
+        from medianfo.followups import Attempts, attempts_root
 
         self.unavailable = "缺少人脸比对模型"
         self.candidate("1-S1", (400, 600), self.HER)
@@ -857,13 +857,13 @@ class FaceMatchFollowupTests(FaceStubCase):
         self.assertTrue(summary["face_match_unavailable"])
         key = followup_key("performer", self.person)
         with self.database.read_connection() as connection:
-            from peach.avatar_followup import fingerprint
+            from medianfo.avatar_followup import fingerprint
             current = fingerprint(connection, self.person)
         self.assertFalse(Attempts(attempts_root(self.root / "generated")).settled(key, current))
 
     def test_a_new_alias_changes_the_fingerprint_and_queues_her_again(self):
-        from peach.avatar_followup import fingerprint, stock
-        from peach.followups import Attempts, attempts_root
+        from medianfo.avatar_followup import fingerprint, stock
+        from medianfo.followups import Attempts, attempts_root
 
         self.work(1, "IPX-001", self.BLANK)
         attempts = Attempts(attempts_root(self.root / "generated"))
@@ -937,7 +937,7 @@ class FaceMatchFollowupTests(FaceStubCase):
         self.assertEqual(self.provenance()["name_source"], "face-match")
 
     def test_a_manual_crop_is_preserved_with_a_profile_candidate(self):
-        from peach import avatar_picker
+        from medianfo import avatar_picker
         body = self.picture((204, 204), self.HER_AGAIN)
         avatar_picker.install(self.providers, self.avatars, "performer", self.person, body,
                               {"provider": "gfriends", "source_kind": "user_cropped"})
@@ -946,7 +946,7 @@ class FaceMatchFollowupTests(FaceStubCase):
         self.assertEqual((self.avatars / f"performer-{self.person}.img").read_bytes(), body)
 
     def test_an_automatic_official_thumbnail_can_use_a_verified_gallery_portrait(self):
-        from peach import avatar_picker
+        from medianfo import avatar_picker
         body = self.picture((125, 125), self.HER_AGAIN)
         avatar_picker.install(self.providers, self.avatars, "performer", self.person, body,
                               {"provider": "r18dev", "source_kind": "official_profile"})
@@ -956,7 +956,7 @@ class FaceMatchFollowupTests(FaceStubCase):
         self.assertEqual(self.provenance()["source_kind"], "gallery_face_matched")
 
     def test_an_official_thumbnail_without_a_verified_upgrade_is_preserved(self):
-        from peach import avatar_picker
+        from medianfo import avatar_picker
         body = self.picture((125, 125), self.HER_AGAIN)
         avatar_picker.install(self.providers, self.avatars, "performer", self.person, body,
                               {"provider": "r18dev", "source_kind": "official_profile"})
@@ -966,7 +966,7 @@ class FaceMatchFollowupTests(FaceStubCase):
         self.assertEqual((self.avatars / f"performer-{self.person}.img").read_bytes(), body)
 
     def test_a_manually_selected_official_thumbnail_is_preserved(self):
-        from peach import avatar_picker
+        from medianfo import avatar_picker
         body = self.picture((125, 125), self.HER_AGAIN)
         avatar_picker.install(self.providers, self.avatars, "performer", self.person, body,
                               {"provider": "r18dev", "source_kind": "official_profile",
@@ -977,8 +977,8 @@ class FaceMatchFollowupTests(FaceStubCase):
         self.assertEqual((self.avatars / f"performer-{self.person}.img").read_bytes(), body)
 
     def test_a_manually_selected_cover_face_is_not_queued_or_replaced(self):
-        from peach import avatar_picker
-        from peach.avatar_followup import needs_avatar
+        from medianfo import avatar_picker
+        from medianfo.avatar_followup import needs_avatar
         body = self.picture((125, 125), self.HER_AGAIN)
         avatar_picker.install(self.providers, self.avatars, "performer", self.person, body,
                               {"provider": "cover-face", "source_kind": "cover_face_crop",
@@ -996,8 +996,8 @@ class FaceMatchFollowupTests(FaceStubCase):
         self.assertEqual(self.provenance()["provider"], "cover-face")
 
     def test_a_cover_face_replaces_a_small_picture_later(self):
-        from peach.avatar_followup import stock
-        from peach.followups import Attempts, attempts_root
+        from medianfo.avatar_followup import stock
+        from medianfo.followups import Attempts, attempts_root
 
         self.candidate("y-AVDC", (199, 299), self.HER)
         self.run_followup()
@@ -1029,7 +1029,7 @@ class OffsiteCoverFaceTests(FaceStubCase):
 
         class Pages:
             def get(self, url):
-                from peach.performer_alias_followup import Blocked
+                from medianfo.performer_alias_followup import Blocked
 
                 if test.blocked:
                     raise Blocked("avwikidb 在冷却")
@@ -1050,15 +1050,15 @@ class OffsiteCoverFaceTests(FaceStubCase):
                 pass
 
         def transport(request, _timeout, _limit):
-            from peach.http import HttpResponse
+            from medianfo.http import HttpResponse
 
             test.fetched.append(request.url)
             body = test.images.get(request.url)
             return HttpResponse(200 if body else 404, {}, body or b"", request.url)
 
-        for target, value in (("peach.performer_profile_followup.avwikidb_pages",
+        for target, value in (("medianfo.performer_profile_followup.avwikidb_pages",
                                mock.Mock(return_value=Pages())),
-                              ("peach.http.HttpxTransport", mock.Mock(return_value=transport))):
+                              ("medianfo.http.HttpxTransport", mock.Mock(return_value=transport))):
             patcher = mock.patch(target, value)
             patcher.start()
             self.addCleanup(patcher.stop)
@@ -1152,8 +1152,8 @@ class OffsiteCoverFaceTests(FaceStubCase):
         self.assertEqual(self.fetched, [])
 
     def test_a_blocked_site_is_tried_again_next_round(self):
-        from peach.avatar_followup import fingerprint
-        from peach.followups import Attempts, attempts_root
+        from medianfo.avatar_followup import fingerprint
+        from medianfo.followups import Attempts, attempts_root
 
         self.bind()
         self.blocked = True
@@ -1166,8 +1166,8 @@ class OffsiteCoverFaceTests(FaceStubCase):
         self.assertFalse(Attempts(attempts_root(self.root / "generated")).settled(key, current))
 
     def test_binding_an_avwikidb_id_queues_her_again(self):
-        from peach.avatar_followup import fingerprint, stock
-        from peach.followups import Attempts, attempts_root
+        from medianfo.avatar_followup import fingerprint, stock
+        from medianfo.followups import Attempts, attempts_root
 
         attempts = Attempts(attempts_root(self.root / "generated"))
         key = followup_key("performer", self.person)
@@ -1198,7 +1198,7 @@ class AccountFaceFollowupTests(FaceStubCase):
         self.identify(self.account)
 
     def identify(self, entity_id: int) -> None:
-        from peach.entity_classification import write_claim
+        from medianfo.entity_classification import write_claim
 
         with self.database.write_transaction(notify=False) as connection:
             write_claim(connection, entity_id=entity_id, facet="identity", value="person",
@@ -1245,7 +1245,7 @@ class AccountFaceFollowupTests(FaceStubCase):
             cache_bust=lambda: None, snapshot_file=snapshot_file)
 
     def run_followup(self) -> dict:
-        from peach.avatar_followup import run as avatar_run
+        from medianfo.avatar_followup import run as avatar_run
 
         return avatar_run(self.contract(), followup_key("creator", self.account), mock.Mock())
 
@@ -1288,8 +1288,8 @@ class AccountFaceFollowupTests(FaceStubCase):
         self.assertIn("凑不齐两部互证", self.run_followup()["outcome"])
 
     def test_an_account_without_identity_is_neither_planned_nor_recorded(self):
-        from peach.avatar_followup import NO_IDENTITY, fingerprint, stock
-        from peach.followups import Attempts, attempts_root
+        from medianfo.avatar_followup import NO_IDENTITY, fingerprint, stock
+        from medianfo.followups import Attempts, attempts_root
 
         unknown = self.entity("creator", "未核实的号")
         self.post(1, self.HER, owners=(self.account, unknown))
@@ -1300,7 +1300,7 @@ class AccountFaceFollowupTests(FaceStubCase):
         for keys in (planned, stocked):
             self.assertIn(followup_key("creator", self.account), keys)
             self.assertNotIn(followup_key("creator", unknown), keys)
-        from peach.avatar_followup import run as avatar_run
+        from medianfo.avatar_followup import run as avatar_run
 
         key = followup_key("creator", unknown)
         self.assertEqual(avatar_run(self.contract(), key, mock.Mock())["outcome"], NO_IDENTITY)
@@ -1309,8 +1309,8 @@ class AccountFaceFollowupTests(FaceStubCase):
         self.assertFalse(attempts.settled(key, current))
 
     def test_a_new_contact_sheet_queues_the_account_again(self):
-        from peach.avatar_followup import stock
-        from peach.followups import Attempts, attempts_root
+        from medianfo.avatar_followup import stock
+        from medianfo.followups import Attempts, attempts_root
 
         attempts = Attempts(attempts_root(self.root / "generated"))
         key = followup_key("creator", self.account)
@@ -1333,7 +1333,7 @@ class AccountFaceFollowupTests(FaceStubCase):
 class ProcessLibraryTests(LedgerTestCase):
     """一整条链走通：刮削登记新女优 → 声明后继 → 派出 → 真的跑完。
 
-    这里不桩 `avatar_followup`：跑的就是补头像那条后继本身。图库索引在临时 Peach 数据目录下是空的，
+    这里不桩 `avatar_followup`：跑的就是补头像那条后继本身。图库索引在临时 MediaNfo 数据目录下是空的，
     封面目录也是空的，于是它两档都给不出图并正常收尾——判不准不装图，本来就是这条后继的判据。
     实体种子换成临时目录里的一份小包（`seed()`）：仓库里的真包会给这位真人补上 avwikidb 编号，
     补头像那条就会真的去站上找单人作品，结论随当天有没有网而变。
@@ -1353,7 +1353,7 @@ class ProcessLibraryTests(LedgerTestCase):
         return pack
 
     def sample(self):
-        from peach.settings_file import PeachConfig
+        from medianfo.settings_file import MediaNfoConfig
 
         media = self.root / 'media'
         media.mkdir()
@@ -1361,7 +1361,7 @@ class ProcessLibraryTests(LedgerTestCase):
         (media / 'ABW-358.nfo').write_text(
             '<movie><title>作品</title><sorttitle>ABW-358</sorttitle></movie>',
             encoding='utf-8')
-        return media, PeachConfig(self.root, self.root / 'config.toml', present=True,
+        return media, MediaNfoConfig(self.root, self.root / 'config.toml', present=True,
                                   locations={'local': (str(media),)})
 
     def provider(self):
@@ -1380,7 +1380,7 @@ class ProcessLibraryTests(LedgerTestCase):
     def test_a_scrape_declares_dispatches_and_runs_its_avatar_followups(self):
         _media, config = self.sample()
         seed = seed_pack.load(self.seed())
-        with mock.patch('peach.library_processing._generate_previews', return_value=0):
+        with mock.patch('medianfo.library_processing._generate_previews', return_value=0):
             result = process_library(config, self.db, self.root / 'generated',
                                      self.root / 'covers',
                                      provider_factory=mock.Mock(return_value=self.provider()),
@@ -1392,7 +1392,7 @@ class ProcessLibraryTests(LedgerTestCase):
                 " AND canonical_name='涼森れむ'").fetchone()[0]
         # 一、刮削自己声明了后继：随仓库走的实体种子一条排最前（ADR-0075），再是这位新女优的
         # 补头像、补别名、补女优资料各一条，实体身份就在 key 里。
-        from peach import performer_alias_followup, performer_profile_followup
+        from medianfo import performer_alias_followup, performer_profile_followup
         self.assertEqual([item['key'] for item in result['followups']],
                          [seed_followup.followup_key(seed['version'], seed_validation.digest(seed)),
                           followup_key('performer', entity_id),
@@ -1443,7 +1443,7 @@ class ProcessLibraryTests(LedgerTestCase):
 
 class TaskPayloadTests(LedgerTestCase):
     def test_the_detail_endpoint_gives_both_ends_of_the_chain(self):
-        from peach.web_tasks import q_task
+        from medianfo.web_tasks import q_task
 
         parent = self.parent()
         queued = self.store.enqueue_followups(

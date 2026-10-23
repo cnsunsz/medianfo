@@ -19,7 +19,7 @@ EvilCharts 是 shadcn 注册表形态的图表组件，MIT 许可，同时有 Re
 `motion@12.43.0`、`clsx@2.1.1`。这一支画 SVG，系列颜色是 CSS 变量：`ChartConfig` 里写
 `var(--color-chart-N)`，深浅两档跟着 BoardUI token 走，不用在 JS 里读色值；提示浮层、轴刻度写的是 Tailwind
 类，桥到 BoardUI 已有 token 就能用。上游文件不改，差异（路径别名、`cn`、语义色名、reduced motion、浮层内容、
-lint 排除）全在 Peach 自己的文件里，由 `UPSTREAM.sha256` 与 `tests/test_frontend_build.py` 守住。浮层内容要重组，
+lint 排除）全在 MediaNfo 自己的文件里，由 `UPSTREAM.sha256` 与 `tests/test_frontend_build.py` 守住。浮层内容要重组，
 是因为上游容器写的 `grid` 类与旧样式表卡片网格的 `.grid` 同名。
 
 **二、不用 ECharts 分支。** ECharts 默认画在 canvas 上，颜色是 option 里的字面值：换深浅色要在 JS 里重读
@@ -33,7 +33,7 @@ Recharts 是 React 组件树，和现有的 React Aria、Query 在同一棵根�
 `frontend/src/react/charts/chart-tip.tsx` 那一块面，页头读数照旧跟着指到的那一格走。
 
 **四、流向图保留 `d3-sankey`。** EvilCharts 的桑基图按节点名生成 CSS 变量和渐变 id，创作者名不能直接当
-标识符；节点标签只能附节点总量，Peach 右侧要显示的是线索占比；节点和流都不能用键盘聚焦。换过去这三样
+标识符；节点标签只能附节点总量，MediaNfo 右侧要显示的是线索占比；节点和流都不能用键盘聚焦。换过去这三样
 都要回头补，改动不可控，所以只共用卡片外壳与页头。
 
 ## 后果

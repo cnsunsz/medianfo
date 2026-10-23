@@ -32,19 +32,19 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import DATABASE_PATH, GENERATED_DIR, LOCATION_ROOT_DECLARATIONS
-from peach.media_sources import SCANNABLE_LOCATIONS
-from peach.personal_records import record_holders
-from peach.platform import root_online, translate_ledger_path, within_root
-from peach.review_csv import read_rows, write_rows
-from peach.scripting import (
+from medianfo.config import DATABASE_PATH, GENERATED_DIR, LOCATION_ROOT_DECLARATIONS
+from medianfo.media_sources import SCANNABLE_LOCATIONS
+from medianfo.personal_records import record_holders
+from medianfo.platform import root_online, translate_ledger_path, within_root
+from medianfo.review_csv import read_rows, write_rows
+from medianfo.scripting import (
     add_ledger_write_args, counts_of, open_for_write, open_readonly, verify_after_write,
 )
-from peach.web_batch import (
+from medianfo.web_batch import (
     AUTO_TRASH_SCORE, MEDIA_SIDECAR_SUFFIXES, q_ads, purge_assets, _finish_purge,
     _restore_staged_media,
 )
-from peach.web_contract import WebContract
+from medianfo.web_contract import WebContract
 
 FIELDS = ["id", "score", "location", "medium", "size_mb", "name", "why", "path"]
 TRASHABLE_LOCATIONS = SCANNABLE_LOCATIONS

@@ -1,7 +1,7 @@
 # Stash 遗留：继承的缺陷与许可证边界
 
-Peach 的代码不连 Stash，适配层与离线导入脚本都已删除（ADR-0021）。要不要卸载本机的 Stash
-进程和它的 generated 数据，是本机运维的事，与 Peach 无关。
+MediaNfo 的代码不连 Stash，适配层与离线导入脚本都已删除（ADR-0021）。要不要卸载本机的 Stash
+进程和它的 generated 数据，是本机运维的事，与 MediaNfo 无关。
 
 这份文档只回答两件事：从 Stash 导入的数据带着哪些缺陷，以及分发前必须处理的许可证边界。
 
@@ -20,10 +20,10 @@ Peach 的代码不连 Stash，适配层与离线导入脚本都已删除（ADR-0
 
 ## 许可证边界
 
-Stash v0.31.1 是 AGPL-3.0。Peach 没有复制它的 Go 实现，只通过公开协议调用过它的独立进程。
+Stash v0.31.1 是 AGPL-3.0。MediaNfo 没有复制它的 Go 实现，只通过公开协议调用过它的独立进程。
 
-分发前要先解决的是 FFmpeg：Peach 管理的那份是从本机既有构建复制来的 GPLv3/x264/x265 shared
+分发前要先解决的是 FFmpeg：MediaNfo 管理的那份是从本机既有构建复制来的 GPLv3/x264/x265 shared
 bundle，完整 `LICENSE.txt` 已保留，只供这个个人实例运行。它不进 Git；在处理完源码、许可证和
-通知义务之前，不能随 Peach 安装包分发。这一条归 ADR-0023 的发布准备阶段。
+通知义务之前，不能随 MediaNfo 安装包分发。这一条归 ADR-0023 的发布准备阶段。
 
 官方依据：[Stash 架构](https://github.com/stashapp/stash/blob/develop/docs/ARCHITECTURE.md)、[Scene schema](https://github.com/stashapp/stash/blob/v0.31.1/graphql/schema/types/scene.graphql)、[AGPL-3.0](https://raw.githubusercontent.com/stashapp/stash/v0.31.1/LICENSE)、[FFmpeg 法律说明](https://www.ffmpeg.org/legal.html)。

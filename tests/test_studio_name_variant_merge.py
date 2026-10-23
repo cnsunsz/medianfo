@@ -234,7 +234,7 @@ class RelinkTests(unittest.TestCase):
 
     def setUp(self):
         self.module = load_module()
-        from peach.previews import logo_key
+        from medianfo.previews import logo_key
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name).resolve()
         self.row = {"keep_name": "Prestige", "drop_name": "プレステージ"}

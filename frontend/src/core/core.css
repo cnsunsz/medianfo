@@ -1,4 +1,4 @@
-/* 走出 Peach 的那一枚标（`icon('external-link', 'ui-externalmark')`），全站一个写法。
+/* 走出 MediaNfo 的那一枚标（`icon('external-link', 'ui-externalmark')`），全站一个写法。
    2026-09-06 实测 vercel.com/geist/colors 的 `Learn More`：14px/20px 的文字配 16×16 图标、
    紧跟文字 2px、与文字行居中、颜色就是链接自己的 currentColor
    （docs/reference-snapshots/vercel-geist-external-link-mark.md）。尺寸不是全站一个常数，

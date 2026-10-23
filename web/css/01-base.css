@@ -90,9 +90,9 @@
      部署行、设置 fieldset 的正文和次级按钮是 --ds-background-100 #FFFFFF 配 1px 的 8% 黑，
      不带投影；fieldset 的操作条落回 #FAFAFA，与页面底是同一个 token。
      暗色那档 Vercel 是纯黑页面配 #0A0A0A 的面——方向不变，仍是面比底亮。
-     Peach 的暗色底带蓝，所以按同一方向在 --ground 之下取一档，不跳到纯黑。
+     MediaNfo 的暗色底带蓝，所以按同一方向在 --ground 之下取一档，不跳到纯黑。
      顶栏与窄栏是与 Vercel 有意分开的一处：Vercel 的页头和页面底同色、不浮，
-     Peach 有一条从上贯到底的窄栏，两条一起留在 --ground 才不会在左上角撞出两种白。 */
+     MediaNfo 有一条从上贯到底的窄栏，两条一起留在 --ground 才不会在左上角撞出两种白。 */
   --page:#FAFAFA;
   /* 选中填的那张面，就是上面那个中间色。判据是「跟周围不同」，不是「更亮」：选中格多半
      站在白卡上，往亮里填等于白叠白，一排 tab 里哪一枚被选中读不出来。Geist 的取法是往下
@@ -313,7 +313,7 @@ button,[role="button"],summary{user-select:none;-webkit-user-select:none;-webkit
    上看不出来；用墨色混合而不是某个固定 token，是因为浅色要往下压、深色要往上抬。 */
 .geist-button:hover:not(:disabled){background:color-mix(in srgb,var(--ink) 8%,var(--ground))}
 .geist-button,.geist-button:hover{text-decoration:none}
-/* 按钮里唯一还挂图标的一类是走出 Peach 的链接，那一枚的长相由下面两条说。 */
+/* 按钮里唯一还挂图标的一类是走出 MediaNfo 的链接，那一枚的长相由下面两条说。 */
 .geist-button svg{width:14px;height:14px;flex:none;stroke:currentColor;fill:none;stroke-width:2}
 .geist-button:focus-visible{outline:2px solid var(--tungsten);outline-offset:2px}
 .geist-button:disabled{background:var(--sunk);color:var(--muted);cursor:not-allowed}
@@ -355,19 +355,19 @@ button.danger.danger:disabled{
 /* 覆盖式滚动条：原生的藏掉，滑块浮在内容上，一列宽度都不占。
    2026-09-05 实测 vercel.com 侧栏（`nav.overflow-y-auto` + 它的兄弟 `div.group/track`）：
    容器 `scrollbar-width:none`、`padding-right:0`，轨道 `absolute right-0 top-2 bottom-2`
-   宽 12px、底透明；滑块 `absolute right-0` 宽 3px、`border-radius` 实测 9999px（Peach 走
+   宽 12px、底透明；滑块 `absolute right-0` 宽 3px、`border-radius` 实测 9999px（MediaNfo 走
    --pill-radius 的 999px，整圆只留一个来源）、
    `background:var(--ds-gray-500)`（浅色一档实测 rgb(201,201,201)，暗色一档 rgb(69,69,69)），
    轨道悬停时宽到 6px，`transition:width .15s cubic-bezier(.4,0,.2,1)`；高度和位移写在滑块的
    行内样式上，按可视高/内容高的比例算。
-   Peach 的 --field-ring-hover 是 rgba(0,0,0,.21)，压在白面上正好是 rgb(201,201,201)，
+   MediaNfo 的 --field-ring-hover 是 rgba(0,0,0,.21)，压在白面上正好是 rgb(201,201,201)，
    同一个数还自带暗色一档，所以直接用它，不再为滑块单开一个颜色 token。
    轨道 12px 只是好瞄的命中区，看得见的永远只有那 3px。
-   有意差异一：Vercel 的轨道是 `hidden pointer-fine:block`，粗指针一档整条不画。Peach 让滑块
+   有意差异一：Vercel 的轨道是 `hidden pointer-fine:block`，粗指针一档整条不画。MediaNfo 让滑块
    照画，只把「能拖」收给细指针。原生滚动条已被容器关掉，跟着 Vercel 收掉整条就等于触屏上
    既没有滑块也没有系统指示器，读不出这一列有多长、自己在哪儿；而滑块本身不占宽度，
    留着不挡任何东西。拖不动的东西不该吃走触摸事件，所以命中区由 pointer-events 分档。
-   有意差异二：Vercel 只在内部滚动区这么做，根滚动条留给浏览器；Peach 整页也换掉，见上面
+   有意差异二：Vercel 只在内部滚动区这么做，根滚动条留给浏览器；MediaNfo 整页也换掉，见上面
    `html` 那条。整页那一条的命中区必须收到滑块本身：轨道横跨整个窗口右边，12px 宽的透明
    条会把右边缘所有点击吃掉——设置面板就贴在那儿。 */
 .ovtrack{position:absolute;z-index:2;pointer-events:none}

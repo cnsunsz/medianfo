@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from peach import runtime_prepare, windows_restart
+from medianfo import runtime_prepare, windows_restart
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -29,7 +29,7 @@ def load_entry():
 
 class RestartWindowsTrayTests(unittest.TestCase):
     def test_process_probe_reuses_read_only_pid_check(self):
-        with mock.patch("peach.jobs.PidFileLock._running", return_value=True) as running, mock.patch("os.kill") as kill:
+        with mock.patch("medianfo.jobs.PidFileLock._running", return_value=True) as running, mock.patch("os.kill") as kill:
             self.assertTrue(windows_restart.process_alive(123))
             running.assert_called_once_with(123)
             kill.assert_not_called()
@@ -42,8 +42,8 @@ class RestartWindowsTrayTests(unittest.TestCase):
         # self.service，services() 返回空、循环空转，最后把 find_windows 的假迭代器
         # 耗尽成 StopIteration。
         self.root = Path(self.temp.name).resolve()
-        self.target = self.root / "dist" / "Peach" / "Peach.exe"
-        self.service = self.root / ".venv" / "Scripts" / "peach.exe"
+        self.target = self.root / "dist" / "MediaNfo" / "MediaNfo.exe"
+        self.service = self.root / ".venv" / "Scripts" / "medianfo.exe"
         self.target.parent.mkdir(parents=True)
         self.service.parent.mkdir(parents=True)
         self.target.write_bytes(b"tray")
@@ -61,8 +61,8 @@ class RestartWindowsTrayTests(unittest.TestCase):
         self.assertIn("唯一", result.message)
         start.assert_not_called()
 
-    BOOTSTRAP = ("import os,runpy;os.environ['PEACH_DATA_ROOT']=r'X'"
-                 ";runpy.run_module('peach.tray',run_name='__main__')")
+    BOOTSTRAP = ("import os,runpy;os.environ['MEDIANFO_DATA_ROOT']=r'X'"
+                 ";runpy.run_module('medianfo.tray',run_name='__main__')")
 
     def test_the_source_search_runs_its_own_win32_declarations(self):
         """两步筛的第一步是一串 ctypes 声明，名字取错要到调用那一刻才炸。
@@ -135,7 +135,7 @@ class RestartWindowsTrayTests(unittest.TestCase):
             start=start,
         )
         self.assertFalse(result.ok)
-        self.assertIn("peach.tray", result.message)
+        self.assertIn("medianfo.tray", result.message)
         start.assert_not_called()
 
     def test_timeout_never_force_kills_or_starts_a_second_tray(self):
@@ -279,7 +279,7 @@ class RestartWindowsTrayTests(unittest.TestCase):
             self.assertEqual(windows_restart.owned_service_pids(7, self.service), (100,))
 
     def stage(self) -> Path:
-        staged = self.root / "staging" / "Peach.exe"
+        staged = self.root / "staging" / "MediaNfo.exe"
         staged.parent.mkdir()
         staged.write_bytes(b"new")
         return staged
@@ -352,7 +352,7 @@ class RestartPreparationTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         root = Path(self.temp.name).resolve()
         self.pythonw = root / ".venv" / "Scripts" / "pythonw.exe"
-        self.service = self.pythonw.with_name("peach.exe")
+        self.service = self.pythonw.with_name("medianfo.exe")
         self.pythonw.parent.mkdir(parents=True)
         self.pythonw.write_bytes(b"shim")
         self.service.write_bytes(b"service")
@@ -405,13 +405,13 @@ class RestartPreparationTests(unittest.TestCase):
 
 class VenvHolderTests(unittest.TestCase):
     def test_only_venv_processes_outside_the_tray_and_this_script_hold_the_venv(self):
-        venv = Path(tempfile.gettempdir()).resolve() / "peach-app" / ".venv"
+        venv = Path(tempfile.gettempdir()).resolve() / "medianfo-app" / ".venv"
         scripts = venv / "Scripts"
         base = str(Path(tempfile.gettempdir()).resolve() / "python" / "python.exe")
         paths = {
             1: str(scripts / "python.exe"), 2: base,           # 本脚本：启动器与解释器
             10: str(scripts / "pythonw.exe"), 11: base,        # 旧托盘：启动器与解释器
-            12: str(scripts / "peach.exe"), 13: base,          # 旧托盘的子服务
+            12: str(scripts / "medianfo.exe"), 13: base,          # 旧托盘的子服务
             20: str(scripts / "python.exe"), 21: base,         # 别人起的调试服务
             30: base,                                          # 别的 venv 外进程
             40: str(venv.parent / ".venv-other" / "python.exe"),
@@ -424,7 +424,7 @@ class VenvHolderTests(unittest.TestCase):
 
 class RestartEntryTests(unittest.TestCase):
     def setUp(self):
-        # 入口默认读真实账本的任务表与 Peach 数据目录下的启动记录；这里换成空闸门与给定记录。
+        # 入口默认读真实账本的任务表与 MediaNfo 数据目录下的启动记录；这里换成空闸门与给定记录。
         # 入口用 `from … import` 绑定名字，所以补丁打在来源模块上、并且先于 `load_entry()`。
         self.gate = runtime_prepare.TaskGate()
         self.startup = None

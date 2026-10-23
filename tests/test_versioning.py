@@ -6,12 +6,12 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from peach import buildinfo
-from peach.buildinfo import BuildInfo
-from peach.versioning import (
+from medianfo import buildinfo
+from medianfo.buildinfo import BuildInfo
+from medianfo.versioning import (
     UNKNOWN_BUILD_AGE, VersionManager, VersionSnapshot, discover_repository_root,
 )
-from peach.windows_update import windows_tray_rebuild_required
+from medianfo.windows_update import windows_tray_rebuild_required
 
 
 def git(path: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -23,7 +23,7 @@ def git(path: Path, *args: str) -> subprocess.CompletedProcess[str]:
 
 def initialize_repo(path: Path) -> None:
     subprocess.run(["git", "init", "-b", "master", str(path)], capture_output=True, check=True)
-    git(path, "config", "user.name", "Peach Tests")
+    git(path, "config", "user.name", "MediaNfo Tests")
     git(path, "config", "user.email", "tests@peach.local")
     (path / "version.txt").write_text("one\n", encoding="utf-8")
     git(path, "add", "version.txt")
@@ -53,7 +53,7 @@ class VersionManagerTests(unittest.TestCase):
                 git(repo, "push", "-u", "origin", "master")
                 subprocess.run(["git", "clone", str(remote), str(other)],
                                capture_output=True, check=True)
-                git(other, "config", "user.name", "Peach Tests")
+                git(other, "config", "user.name", "MediaNfo Tests")
                 git(other, "config", "user.email", "tests@peach.local")
             yield repo, other, git_env
 
@@ -62,7 +62,7 @@ class VersionManagerTests(unittest.TestCase):
             root = Path(directory)
             repo = root / "repo"
             initialize_repo(repo)
-            executable = root / "elsewhere" / "Peach.exe"
+            executable = root / "elsewhere" / "MediaNfo.exe"
 
             self.assertEqual(
                 discover_repository_root(repo, executable=executable),
@@ -75,7 +75,7 @@ class VersionManagerTests(unittest.TestCase):
             repo = root / "repo"
             initialize_repo(repo)
             bundle_root = root / "pyinstaller" / "_MEI12345"
-            executable = repo / "dist" / "Peach" / "Peach.exe"
+            executable = repo / "dist" / "MediaNfo" / "MediaNfo.exe"
 
             self.assertEqual(
                 discover_repository_root(bundle_root, executable=executable),
@@ -86,7 +86,7 @@ class VersionManagerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             bundle_root = root / "pyinstaller" / "_MEI12345"
-            executable = root / "portable" / "Peach.exe"
+            executable = root / "portable" / "MediaNfo.exe"
 
             self.assertEqual(
                 discover_repository_root(bundle_root, executable=executable),
@@ -130,7 +130,7 @@ class VersionManagerTests(unittest.TestCase):
                 git(repo, "remote", "add", "origin", str(remote))
                 git(repo, "push", "-u", "origin", "master")
                 subprocess.run(["git", "clone", str(remote), str(other)], capture_output=True, check=True)
-                git(other, "config", "user.name", "Peach Tests")
+                git(other, "config", "user.name", "MediaNfo Tests")
                 git(other, "config", "user.email", "tests@peach.local")
                 (other / "version.txt").write_text("two\n", encoding="utf-8")
                 git(other, "add", "version.txt")
@@ -226,7 +226,7 @@ class PackagedBuildAgeTests(unittest.TestCase):
         built_at = git(repo, "rev-parse", "HEAD").stdout.strip()
         (repo / "src" / "peach").mkdir(parents=True)
         (repo / "src" / "peach" / "tray.py").write_text("tray\n", encoding="utf-8")
-        git(repo, "add", "src/peach/tray.py")
+        git(repo, "add", "src/medianfo/tray.py")
         git(repo, "commit", "-m", "tray change")
         return repo, built_at
 
@@ -281,7 +281,7 @@ class PackagedBuildAgeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             repo, built_at = self.repo_with_two_commits(Path(directory).resolve())
             paths = VersionManager(repo).stale_build_paths(built_at)
-            self.assertEqual(paths, ("src/peach/tray.py",))
+            self.assertEqual(paths, ("src/medianfo/tray.py",))
             self.assertTrue(windows_tray_rebuild_required(paths))
 
     def test_an_unmeasurable_build_falls_back_to_a_value_that_forces_a_rebuild(self):
@@ -291,7 +291,7 @@ class PackagedBuildAgeTests(unittest.TestCase):
             manager = VersionManager(repo)
             for unmeasurable in (None, "", "0" * 40):
                 paths = manager.stale_build_paths(unmeasurable)
-                self.assertEqual(paths, ("src/peach/",))
+                self.assertEqual(paths, ("src/medianfo/",))
                 self.assertTrue(windows_tray_rebuild_required(paths))
 
     def test_a_standalone_package_never_reports_a_stale_build(self):
@@ -299,7 +299,7 @@ class PackagedBuildAgeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             repo, built_at = self.repo_with_two_commits(Path(directory).resolve())
             with self.packaged(built_at), \
-                    mock.patch("peach.distribution.standalone", return_value=True):
+                    mock.patch("medianfo.distribution.standalone", return_value=True):
                 snapshot = VersionManager(repo).inspect()
             self.assertIsNone(snapshot.build_behind)
             self.assertFalse(snapshot.build_stale)

@@ -20,7 +20,7 @@ from . import (changelog, check_readme_impact, co_author, commit_subject,
 from .release_tag import MASTER_WRITER
 
 #: `create` 的落点，建在主检出旁边（ADR-0017 的四个运行时目录之一）。
-WORKTREE_ROOT = "peach-worktrees"
+WORKTREE_ROOT = "medianfo-worktrees"
 
 #: Claude Code 内置工作树的落点。分支集成后它自己不收：目录留在主检出里，成了一份看不出
 #: 区别的旧副本（见 CLAUDE.md）。`tests/test_repo_hygiene.py` 拦得住，但拦住之后没有任何
@@ -83,7 +83,7 @@ def create(repo: Path, agent: str, task: str, root: Path | None = None) -> dict[
     if _git(main, "show-ref", "--verify", f"refs/heads/{branch}", check=False).returncode == 0:
         raise WorkspaceError(f"branch exists: {branch}")
     target_root.mkdir(parents=True, exist_ok=True)
-    _git(main, "worktree", "add", "--lock", "--reason", "Peach active agent task",
+    _git(main, "worktree", "add", "--lock", "--reason", "MediaNfo active agent task",
          "-b", branch, str(target), "HEAD")
     _install_hooks(main)
     # 开工前就报出父进程已经不在的残留进程：别的会话还在跑的进程有父进程，不在这里出现。
@@ -383,7 +383,7 @@ def _sweep_unregistered(main: Path, here: Path, *, apply: bool
     `BUILTIN_WORKTREES`。这些目录不在 `git worktree list` 里，上面那轮按登记项遍历的
     回收永远碰不到它们，人却会走进去当工作树用——而在里面跑 git 全作用于主检出的
     master。漏掉 `create` 那一侧最贵：那里是智能体被告知要去干活的地方。
-    2026-09-13 清点：`peach-worktrees/` 下四个未登记目录共 246 MB，两份是带 `.venv`
+    2026-09-13 清点：`medianfo-worktrees/` 下四个未登记目录共 246 MB，两份是带 `.venv`
     的整树副本，其中一份的句柄还被一个跑在 8931 端口的预览服务占着。  # copy-lint-disable-line
 
     只删空的：里面还有文件就可能是别人正在用的检出，或者是没提交的东西，那种一律
@@ -485,7 +485,7 @@ def prune(repo: Path, target_branch: str = "master", *,
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Isolated Peach agent worktree coordinator")
+    parser = argparse.ArgumentParser(description="Isolated MediaNfo agent worktree coordinator")
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
     sub = parser.add_subparsers(dest="command", required=True)
     start = sub.add_parser("create")

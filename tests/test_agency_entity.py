@@ -6,10 +6,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from peach import web_contract as rm_web
-from peach.entities import merge_entity
-from peach.migrations import needs_foreign_keys_off, upgrade
-from peach.web_entity import PROFILE_KINDS, scope_predicate
+from medianfo import web_contract as rm_web
+from medianfo.entities import merge_entity
+from medianfo.migrations import needs_foreign_keys_off, upgrade
+from medianfo.web_entity import PROFILE_KINDS, scope_predicate
 from scripts.dedupe_entity_links import collect as dedupe_plan
 from scripts.dedupe_entity_links import destination
 from scripts.install_agencies import collect as agency_plan

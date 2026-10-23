@@ -7,7 +7,7 @@
  * （`test/legacy-class-names.test.ts`）。
  *
  * 本文件按来源的先后排：基础几何在前，Board UI 的玻璃与面板在后，收起态与窄屏穿插在各自的来源位置；
- * 同权重时后写的胜出，这个顺序是外观的一部分。`peach-app.css` 先于 `/app.css` 加载，遗留层里同权重的
+ * 同权重时后写的胜出，这个顺序是外观的一部分。`medianfo-app.css` 先于 `/app.css` 加载，遗留层里同权重的
  * 规则会压过这里，所以 `body` 写成 `html>body`。
  *
  * `backdrop-filter` 只写标准属性，前缀由构建补：同一条里手写 `-webkit-backdrop-filter`，构建会把两条折成

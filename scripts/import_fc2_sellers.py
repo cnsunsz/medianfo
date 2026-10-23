@@ -9,9 +9,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 
-from peach import fc2_sellers
-from peach.config import DATABASE_PATH
-from peach.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
+from medianfo import fc2_sellers
+from medianfo.config import DATABASE_PATH
+from medianfo.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
 
 
 def main() -> int:

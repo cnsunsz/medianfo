@@ -24,7 +24,7 @@ describe('库外 JAV 作品详情', () => {
           content: '评论正文及作品信息。'.repeat(40),
         })) } });
       });
-      await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/works/EXM-001');
+      await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/works/EXM-001');
       const side = page.locator('[data-jav-info]');
       await side.locator('h1').waitFor();
       await page.locator('#stage').evaluate(node => Promise.all(node.getAnimations().map(animation => animation.finished)));
@@ -79,7 +79,7 @@ describe('库外 JAV 作品详情', () => {
           resources++;
           return route.fulfill({ json: { state: 'ready', items: [], warnings: [], error: '', checked_at: checked } });
         });
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/works/EXM-001');
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/works/EXM-001');
         for (let visit = 0; visit < 2; visit++) {
           await page.locator('[data-jav-info] h1').waitFor();
           await page.locator('[data-jav-reviews] summary').click();
@@ -112,14 +112,14 @@ describe('库外 JAV 作品详情', () => {
       let release!: () => void;
       const held = new Promise<void>(resolve => { release = resolve });
       try {
-        await context.addInitScript(() => localStorage.setItem('peach.settings.v1', JSON.stringify({ detailAutoplay: false })));
+        await context.addInitScript(() => localStorage.setItem('medianfo.settings.v1', JSON.stringify({ detailAutoplay: false })));
         const page = await context.newPage();
         await mockJavDetail(page);
         await page.route(/\/api\/jav\/detail\?/, async route => {
           await held;
           await route.fulfill({ json: { ...JAV_DETAIL, preview_count: 0 } });
         });
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/works/EXM-001', { waitUntil: 'domcontentloaded' });
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/works/EXM-001', { waitUntil: 'domcontentloaded' });
         const skeleton = page.locator('#stage [data-skeleton="detail"]');
         await skeleton.waitFor();
         const bounds = await skeleton.evaluate(node => {
@@ -148,7 +148,7 @@ describe('库外 JAV 作品详情', () => {
     it(`${viewport.name} 新作在站内打开、预览切换、评论分页与关闭返回`, { timeout: 60000 }, async () => {
       const context = await browser.newContext({ viewport: { width: viewport.width, height: viewport.height }, isMobile: viewport.mobile, hasTouch: viewport.mobile, reducedMotion: 'reduce' });
       try {
-        await context.addInitScript(() => localStorage.setItem('peach.settings.v1', JSON.stringify({ detailAutoplay: false, feedAutoScroll: false })));
+        await context.addInitScript(() => localStorage.setItem('medianfo.settings.v1', JSON.stringify({ detailAutoplay: false, feedAutoScroll: false })));
         const page = await context.newPage();
         const errors: string[] = [];
         page.on('pageerror', error => errors.push(error.message));
@@ -164,7 +164,7 @@ describe('库外 JAV 作品详情', () => {
         await page.route(/\/api\/feeds\/discoveries\?/, route => route.fulfill({ json: { ok: true, items: [
           { id: 1, code: 'EXM-001', title: '示例新作', performers: '示例人物', release_date: '2026-10-30' },
         ] } }));
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/');
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/');
         const card = page.locator('#feedNew [data-feed-id="1"]');
         await card.waitFor({ state: 'visible' });
         await card.getByRole('link', { name: '打开 EXM-001 的作品详情' }).click();
@@ -380,13 +380,13 @@ describe('库外 JAV 作品详情', () => {
         assert.deepEqual(errors, []);
         await page.screenshot({ path: `../build/jav-detail-${viewport.name}.png` });
         await page.locator('#closeStage').click();
-        await page.waitForURL(requiredEnv('PEACH_E2E_ORIGIN') + '/');
+        await page.waitForURL(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/');
         await card.waitFor({ state: 'visible' });
         assert.equal(await page.locator('#stage').count(), 0);
         await page.goBack();
         await page.locator('#stage [data-jav-detail] h1').waitFor({ state: 'visible' });
         await page.keyboard.press('Escape');
-        await page.waitForURL(requiredEnv('PEACH_E2E_ORIGIN') + '/');
+        await page.waitForURL(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/');
         await card.getByRole('link', { name: '打开 EXM-001 的作品详情' }).click();
         const detailUrl = page.url();
         await page.locator('[data-id-cell="studio"]').click();
@@ -401,7 +401,7 @@ describe('库外 JAV 作品详情', () => {
         await mockJavDetail(page);
         await page.route(/\/api\/jav\/detail\?/, route => route.fulfill({ json: { ...JAV_DETAIL,
           preview_count: 0, source_image: false, studio_refs: [{ id: 50, name: '示例厂牌', has_logo: false }] } }));
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/works/EXM-001');
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/works/EXM-001');
         const studio = page.locator('button[data-id-cell="studio"]');
         await studio.waitFor();
         await studio.click();
@@ -428,7 +428,7 @@ describe('库外 JAV 作品详情', () => {
           await route.fulfill({ json: { ...JAV_DETAIL, state: 'partial', source_image: false,
             preview_count: 0, message: '作品资料未取得，请稍后重试' } });
         });
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/works/EXM-001');
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/works/EXM-001');
         await page.getByText('作品资料未取得，请稍后重试', { exact: true }).waitFor({ state: 'visible' });
         const heights = await page.evaluate(() => (window as unknown as { coldDetailHeights: number[] }).coldDetailHeights);
         assert.ok(heights.length > 5 && Math.max(...heights) - Math.min(...heights) < 1, JSON.stringify(heights));
@@ -455,7 +455,7 @@ describe('库外 JAV 作品详情', () => {
           }
           return route.fulfill({ json: { available: true, providers: [{ key: '115', label: '115', configured: true, target: '/fixture' }], tasks: [] } });
         });
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/works/EXM-001');
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/works/EXM-001');
         assert.equal(await page.getByRole('button', { name: '想要', exact: true }).isDisabled(), readOnly);
         await page.locator('[data-jav-resources] > details > summary').click();
         const add = page.locator('[data-jav-resources]').getByRole('button', { name: '添加下载', exact: true }).first();

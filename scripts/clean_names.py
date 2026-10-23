@@ -3,7 +3,7 @@
 """
 文件名净化 —— 去掉盗版站塞进文件名的推广域名与残留噪声。
 
-只做可逆、无歧义的改写。番号使用 Peach 的统一规范：大写、标准连字符、片商番号
+只做可逆、无歧义的改写。番号使用 MediaNfo 的统一规范：大写、标准连字符、片商番号
 至少三位数字；FC2 统一为 ``FC2-PPV-<数字>``。
   * 不动 "xxx.mp4.jpg"：那是该 mp4 的缩略图，不是双后缀（真的双后缀只有 2 条）。
   * 不重排标题/不套命名模板：只替换 ledger 已确认的番号片段。
@@ -31,11 +31,11 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.review_csv import write_rows
-from peach.catalog_rules import is_jav_code, normalise_code_key
-from peach.config import DATABASE_PATH, GENERATED_DIR, LOG_DIR
-from peach.media_sources import SCANNABLE_LOCATIONS
-from peach.scripting import (
+from medianfo.review_csv import write_rows
+from medianfo.catalog_rules import is_jav_code, normalise_code_key
+from medianfo.config import DATABASE_PATH, GENERATED_DIR, LOG_DIR
+from medianfo.media_sources import SCANNABLE_LOCATIONS
+from medianfo.scripting import (
     add_ledger_write_args, open_for_write, open_readonly, verify_after_write,
 )
 

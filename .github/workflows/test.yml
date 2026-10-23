@@ -17,7 +17,7 @@ concurrency:
 # 消息大量是中文——`print(f"首尾帧审计失败：{error}")` 在 runner 上直接抛
 # UnicodeEncodeError，15 个脚本类用例因此全红，本地却全绿。
 #
-# `tests/test_subprocess_encoding.py` 已经把这条口径写死过一次：「由 Peach 控制的
+# `tests/test_subprocess_encoding.py` 已经把这条口径写死过一次：「由 MediaNfo 控制的
 # 子进程还必须用 PYTHONIOENCODING=utf-8 固定输出端」。CI 缺的正是这一层——那条
 # 测试管的是源码里怎么调 subprocess，管不到 runner 自己的 stdout。
 env:
@@ -175,7 +175,7 @@ jobs:
         run: |
           $peachChrome = Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'
           if (-not (Test-Path -LiteralPath $peachChrome)) { throw "runner 上没有 Chrome：$peachChrome" }
-          "PEACH_E2E_CHROME=$peachChrome" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "MEDIANFO_E2E_CHROME=$peachChrome" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - name: 安装 Windows 依赖
         if: runner.os == 'Windows'
         shell: pwsh
@@ -285,7 +285,7 @@ jobs:
         run: |
           $peachChrome = Join-Path $env:ProgramFiles 'Google\Chrome\Application\chrome.exe'
           if (-not (Test-Path -LiteralPath $peachChrome)) { throw "runner 上没有 Chrome：$peachChrome" }
-          "PEACH_E2E_CHROME=$peachChrome" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "MEDIANFO_E2E_CHROME=$peachChrome" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
       - name: 安装 Python 依赖
         shell: pwsh
         run: |

@@ -12,7 +12,7 @@ describe('馆藏 JAV 官方预览', () => {
     const opened = await openItemPage(browser, '/', viewport, { ready: '[data-media-grid]', settings: { seekSeconds: 1 } });
     const { page } = opened;
     try {
-      await page.route('**/stream?*', route => route.continue({ url: new URL(`/stream?id=${process.env.PEACH_E2E_ITEM}`, page.url()).href }));
+      await page.route('**/stream?*', route => route.continue({ url: new URL(`/stream?id=${process.env.MEDIANFO_E2E_ITEM}`, page.url()).href }));
       await page.goto(new URL(`/assets/${COVER_ONLY_ITEM.id}`, page.url()).href);
       const frame = page.locator('[data-item-gallery]');
       const video = frame.locator('video.vjs-tech');
@@ -43,7 +43,7 @@ describe('馆藏 JAV 官方预览', () => {
     const { page } = opened;
     const samples: string[] = [];
     try {
-      await page.route('**/stream?*', route => route.continue({ url: new URL(`/stream?id=${process.env.PEACH_E2E_ITEM}`, page.url()).href }));
+      await page.route('**/stream?*', route => route.continue({ url: new URL(`/stream?id=${process.env.MEDIANFO_E2E_ITEM}`, page.url()).href }));
       await page.route(url => ['/sample-image', '/sample-thumb'].includes(url.pathname), route => {
         samples.push(route.request().url());
         return route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600"><rect width="900" height="600" fill="#777"/></svg>' });
@@ -115,7 +115,7 @@ describe('馆藏 JAV 官方预览', () => {
     const pending = new Promise<void>(resolve => { release = resolve });
     let details = 0, images = 0;
     try {
-      await page.route('**/stream?*', route => route.continue({ url: new URL(`/stream?id=${process.env.PEACH_E2E_ITEM}`, page.url()).href }));
+      await page.route('**/stream?*', route => route.continue({ url: new URL(`/stream?id=${process.env.MEDIANFO_E2E_ITEM}`, page.url()).href }));
       await page.route('**/api/jav/detail?*', async route => {
         details++;
         await pending;

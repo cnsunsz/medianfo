@@ -1,4 +1,4 @@
-/* React 子树的样式入口（`web/dist/peach-app.css`）。
+/* React 子树的样式入口（`web/dist/medianfo-app.css`）。
  *
  * 旧样式表仍在同一页面上，所以和上游 globals.css 的写法有四处不同，来源与原因见
  * `boardui/ORIGIN.md`：
@@ -570,7 +570,7 @@
 
 /* 关注表格坐在关注列表的 secondary 外框里，自己的 primary 面负责浅色的白底与暗色的
  * 实体卡面；选中行回到 BoardUI Data Table 的 secondary 反馈。这里的边线取 button border，
- * 因为 Peach 暗色 primary 与 separator 同为 neutral-800，用 separator 会完全消失。 */
+ * 因为 MediaNfo 暗色 primary 与 separator 同为 neutral-800，用 separator 会完全消失。 */
 .peach-react [data-board-data-table] {
   /* 隐藏列标题的绝对定位由表格外框承接，滚动内容不扩大页面。 */
   position: relative;

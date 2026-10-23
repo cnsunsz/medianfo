@@ -28,15 +28,15 @@
 - Disabled 变体：`--ds-gray-800`（dark `#8f8f8f`）+ `cursor:not-allowed`。
 - 文档页未提供溢出截断/折叠行为；示例最多三级。
 
-## Peach 采用与差异
+## MediaNfo 采用与差异
 
 - 语义照搬：`nav[aria-label="Breadcrumb"] > ol > li`，当前项
   `aria-current="true"`（Geist 用 `"true"` 不是 `"page"`）、最后一项分隔符隐藏、
   分隔符不随当前项提亮。
-- 数值映射到 Peach token：14px/20px = `--fs-md`/20px；gray-900 → `--muted`、
-  gray-1000 → `--ink`（Peach 只用 `:root` 已有 token，不复制 Geist 色值）；
+- 数值映射到 MediaNfo token：14px/20px = `--fs-md`/20px；gray-900 → `--muted`、
+  gray-1000 → `--ink`（MediaNfo 只用 `:root` 已有 token，不复制 Geist 色值）；
   分隔符复用本地 Lucide `chevron-right` 16px 描边图标，不引 Geist 私有 SVG。
-- Peach 只在「有上一级页面的子页」渲染 breadcrumb：数据管理 hub 的五张卡
+- MediaNfo 只在「有上一级页面的子页」渲染 breadcrumb：数据管理 hub 的五张卡
   对应的子页（垃圾文件、重复文件、人工复核、回收站、高清版）以
   「数据管理」为父级；hub 本身与统计/口味/关注不再画面包屑。
 - 垃圾文件/重复文件此前页面 h2 顶着「数据管理」，引入 breadcrumb 后

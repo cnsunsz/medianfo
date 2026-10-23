@@ -12,9 +12,9 @@
 - 在 Windows、macOS 桌面分发之外提供 Linux 无桌面容器，修订 ADR-0023 的平台范围。
 - 复用 FastAPI、CLI、Windows 形态账本路径与 POSIX 挂载映射，不建立第二套应用或数据库。
 - `peach.server` 只维护 Web 子进程、配置重载和用户发起的资料处理；调度与媒体任务仍由应用持有。
-- Docker 镜像、CloudDrive2 镜像独立，媒体通过挂载传播共享。Peach 不申请 FUSE 或特权权限。
+- Docker 镜像、CloudDrive2 镜像独立，媒体通过挂载传播共享。MediaNfo 不申请 FUSE 或特权权限。
 - 持久化数据与媒体独立于镜像。已有账本不由入口自动迁移，缺配置时拒绝初始化。
-- Docker Hub 使用 `longmeidao/peach`，先验收再上传；初始目标为 amd64，ARM 通过实际验收后再纳入。
+- Docker Hub 使用 `cnsunsz/medianfo`，先验收再上传；初始目标为 amd64，ARM 通过实际验收后再纳入。
 - 安全模型仍为单人私有访问，容器端口默认只绑定宿主机回环。
 - 无桌面入口使用标准库地址分类，允许经过鉴权的回环与私有网络客户端管理配置，拒绝公网、链路本地、保留地址与带转发头的管理请求；桌面的本机管理边界保持独立。
 

@@ -8,7 +8,7 @@ from unittest.mock import patch
 import httpx
 from fastapi import FastAPI, Depends
 
-from peach import access, routes_auth, routes_configuration
+from medianfo import access, routes_auth, routes_configuration
 
 
 class AccessTests(unittest.IsolatedAsyncioTestCase):
@@ -154,8 +154,8 @@ class AccessTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await self.login("wrong")).status_code, 429)
 
     def test_first_setup_initializes_optional_password_but_keeps_existing_policy(self):
-        from peach import onboarding, settings_file
-        config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.path.parent)})
+        from medianfo import onboarding, settings_file
+        config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.path.parent)})
         path = config.directory("secrets") / "access.json"
         tree = SimpleNamespace(token_created=True)
         with patch.object(onboarding, "configure", return_value=config), patch.object(onboarding, "create_data_tree", return_value=tree), patch.object(settings_file, "write", return_value=config.path):

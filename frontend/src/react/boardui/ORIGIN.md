@@ -6,8 +6,8 @@
 许可证为 MIT，原文见 `web/vendor/boardui-LICENSE.txt`。
 
 本目录逐字复制条目里 `files[].content`，相对路径与上游 `path` 相同，上游源码里的
-`@/utils/cx` 因此不用改写。这里的文件不做修改：Peach 需要不同的组合或外观时，
-在 `../settings/` 这类 Peach 自己的目录里组合，差异写进下表。
+`@/utils/cx` 因此不用改写。这里的文件不做修改：MediaNfo 需要不同的组合或外观时，
+在 `../settings/` 这类 MediaNfo 自己的目录里组合，差异写进下表。
 
 `UPSTREAM.sha256` 记着复制时每个文件的 SHA-256，`tests/test_frontend_build.py` 逐文件比对：
 改了副本、多出没登记的文件都会红。升级上游时重新复制、重算对应行，并更新下表的条目哈希。
@@ -37,14 +37,14 @@
 
 ## 没有逐字复制的部分
 
-目录浏览保留首页筛选、排序、卡片和详情结构。树采用 `small` 档和受控展开、选中状态，子目录按需从账本读取。面包屑按钮由 Peach 导航；上游 `next/link` 导入通过构建别名连接 `../components/board-navigation-link.tsx`，只承担原生链接槽，不引入 Next.js。上游目录树需要的 `menu-styles.ts` 继续使用已登记副本。全部依赖已由当前 React、React Aria、Motion 和 Remix Icon 清单覆盖。
+目录浏览保留首页筛选、排序、卡片和详情结构。树采用 `small` 档和受控展开、选中状态，子目录按需从账本读取。面包屑按钮由 MediaNfo 导航；上游 `next/link` 导入通过构建别名连接 `../components/board-navigation-link.tsx`，只承担原生链接槽，不引入 Next.js。上游目录树需要的 `menu-styles.ts` 继续使用已登记副本。全部依赖已由当前 React、React Aria、Motion 和 Remix Icon 清单覆盖。
 
 | 上游 | 处理 | 原因 |
 | --- | --- | --- |
 | `globals`（`693885494e6f229637fe118852efbfb3df820dd8d174a2a7e47f65dadfcd96bf`） | 不复制整份；用到的 `check-draw` 动画、根元素的字体平滑和 `.bui-table` 那一组规则逐字搬进 `../styles.css`，作用域是 `.peach-react` | 整份 `@import "tailwindcss"` 会把 Preflight 和 `html`、`body` 的底色铺到整页，未迁移页面仍由旧样式表绘制。`table` 条目的外观全在 `globals.css` 里（React Aria 的集合组件包不进自定义组件），不搬就只剩一张没有边线和字阶的裸表 |
-| `data-table`（`7bb73a6cd099b9b16390e5fe00f8ba2d55b5ef96c1e8f90a056168cd2e3235e6`） | 不复制；表格视图用 `table` 条目的 `Table` 配 `@tanstack/react-table`，列定义、排序、行选择与分页写在 `../follow-manage/` 里 | 该条目是 `registry:block`，只有一份 `docs/examples/data-table-example.tsx` 示例，依赖的 avatar、segmented-control、status-dot、tooltip 等条目 Peach 都没有；它演示的正是「`table` 加 TanStack Table」这套接法 |
+| `data-table`（`7bb73a6cd099b9b16390e5fe00f8ba2d55b5ef96c1e8f90a056168cd2e3235e6`） | 不复制；表格视图用 `table` 条目的 `Table` 配 `@tanstack/react-table`，列定义、排序、行选择与分页写在 `../follow-manage/` 里 | 该条目是 `registry:block`，只有一份 `docs/examples/data-table-example.tsx` 示例，依赖的 avatar、segmented-control、status-dot、tooltip 等条目 MediaNfo 都没有；它演示的正是「`table` 加 TanStack Table」这套接法 |
 | Tailwind Preflight | `../preflight-scoped.css` 逐字包进 `@scope (.peach-react)` | 同上 |
-| 深色模式 | 上游读 `<html class="dark">`；`appearance/theme.ts` 的 `applyTheme()` 与 `index.html` 首帧脚本按实际深浅加减这个类 | Peach 的主题选择写在 `data-theme`，跟随系统时不写属性 |
+| 深色模式 | 上游读 `<html class="dark">`；`appearance/theme.ts` 的 `applyTheme()` 与 `index.html` 首帧脚本按实际深浅加减这个类 | MediaNfo 的主题选择写在 `data-theme`，跟随系统时不写属性 |
 | 与 `web/board.css` 同名的 `--color-*` token | `:root` 上由 `board.css` 定值；`../styles.css` 在 `.peach-react` 与 `.dark .peach-react` 上按 `theme.css` 原文重新声明 | 未迁移页面的颜色保持不变，React 子树读到上游值 |
 | 深色的 `--color-border-checkbox-default` | 两份定值都抬到 `neutral-600`，不取上游的 `neutral-700`；`tests/test_frontend_build.py` 的 `LOCAL_TOKEN_VALUES` 记着这一条 | 未选中的勾选框底色就是卡面色，形状全靠那 1px 边线说话。`neutral-700` 压在 `neutral-800` 上只差 11 个 CIE 明度，浅色那一对有 15，低亮度那头的细线当场消失，暗色下看着就是没有框 |
 | 深色的 `--color-separator-border` | 两份定值都抬到 `neutral-700`，不取上游的 `neutral-800`；`tests/test_frontend_build.py` 的 `LOCAL_TOKEN_VALUES` 记着这一条 | 深色的 `--color-background-primary-default` 也是 `neutral-800`，两者同色。复核卡的外框、候选块与它下面那段证据之间的线、卡片脚注带的上边线全画在那种面上，明度差是 0.0，不是弱而是没有。`neutral-700` 在卡面上差 11.9，浅色那一对是 9.1；再亮一档就成了抢眼的白线 |
@@ -69,14 +69,14 @@
 | 主键带下拉 | `../library-processing/processing-actions.tsx` 的 `ProcessingActions`：扫描与缺图补全共用，触发键是一颗 `iconOnly` 的 `Button`，面板用 React Aria 的 `Popover` + `MenuDialog`，行的外观取 `components/base/dropdown/menu-styles.ts` | `dropdown` 条目的 `DropdownTrigger` 自己就是那颗按钮、外观全由 `className` 给，`@shadcn/lint` 的 `no-restyle` 只放行布局类，套不进 `Button` 的档位 |
 | 常驻处理任务 | `../library-processing/library-processing-notice.tsx` 与 `library-processing-dock.tsx` 组合进度、折叠正文、估时和直接控制，Sonner 按目标栈管理位置与持久停留 | 用户要求参考公开 Agent Progress 自行实现，任务由服务端真实阶段推进；取证与领域差异见 `docs/reference-snapshots/processing-task-controls.md` |
 | 进度环 | 同上的 `Gauge`：SVG 两圈，`pathLength={100}` 把一圈长度钉成 100，画出来的那一段就是当前阶段百分比 | 任务总量未知时使用静态任务图标，已知总量才绘制读数 |
-| 三档处理强度 | `../library-processing/processing-effort.tsx` 基于 React Aria Slider 和已登记的 Button、Popover 组合，最高档 SVG 流光读取强调色色阶 | 用户要求参考 Composer Panel Effort 公开演示重建，六档适配低占用、标准、全速；流光绘制为 Peach 重建方案 |
+| 三档处理强度 | `../library-processing/processing-effort.tsx` 基于 React Aria Slider 和已登记的 Button、Popover 组合，最高档 SVG 流光读取强调色色阶 | 用户要求参考 Composer Panel Effort 公开演示重建，六档适配低占用、标准、全速；流光绘制为 MediaNfo 重建方案 |
 | 模态弹层 | `../avatar-picker/avatar-picker-page.tsx` 用 React Aria 的 `ModalOverlay` + `Modal` + `Dialog` 组合，遮罩取 `../styles.css` 的 `--color-scrim`（同旧样式表 `.geist-modal::backdrop` 的黑 60%） | 注册表里没有模态弹层，也就没有它的遮罩底色 |
 | 候选网格 | 同上：一排四张 3:4 的候选，弹层宽度与格子比例取 `../styles.css` 的 `--container-avatar-picker` 与 `--aspect-avatar-choice` | 注册表里没有图片选择网格；这两档在工具类里没有对应档位，写成 `@theme` 而不是任意值 |
 | 空态里的去处 | `../components/empty-state.tsx` 的 `EmptyState` 收一个 `actions`，按钮与链接画在说明下面 | 上游没有空态组件；标题、说明和那个去处必须在同一个组件里，散到调用处就会各排各的 |
 | 读数兼页签 | `../stats/stats-page.tsx` 的四张读数卡是 React Aria 的 `Tabs`／`TabList`／`Tab`，选中态是一圈 `border-focus-ring` | `tabs` 条目是页面级导航的下划线页签，这里切的是同一页里的四层细节，而且页签本身要显示读数 |
 | 径向图 | `../stats/radial-card.tsx`：圈由 EvilCharts 的 `EvilRadialChart` 画（`../evilcharts/ORIGIN.md`），图下的图例格子取 `background-tertiary-default` 与 `border-focus-ring`，高亮是 React 状态 | 注册表里没有图表条目；`library-processing-notice.tsx` 的 `Gauge` 是单圈进度，排不下多段对比 |
 | 排行 | 同上页面的 `TagRanking`：两列的 `ol`，收起时露前十，展开键是一颗 `secondary` 按钮 | 注册表里没有排行榜；`table` 条目带表头与排序，这里一行只有名次、名字和一个数 |
-| 两套证据的切换 | `../taste/taste-page.tsx` 顶上用 React Aria 的 `Tabs`／`TabList`／`Tab` 整块切浏览器记录与 Peach 内部，选中态取 `background-tertiary-default` | `segmented-control` 没有条目，`tabs` 条目是页面级导航；这里切的是两块各自成篇的内容，不是同一个字段的两种填法 |
+| 两套证据的切换 | `../taste/taste-page.tsx` 顶上用 React Aria 的 `Tabs`／`TabList`／`Tab` 整块切浏览器记录与 MediaNfo 内部，选中态取 `background-tertiary-default` | `segmented-control` 没有条目，`tabs` 条目是页面级导航；这里切的是两块各自成篇的内容，不是同一个字段的两种填法 |
 | 雷达图与排行条 | `../taste/charts.tsx` 的 `TasteRadar` 与 `RankedBars`：由 EvilCharts 的 `EvilRadarChart` 与横向 `EvilBarChart` 画（`../evilcharts/ORIGIN.md`），颜色只取 `chart-4` | 注册表里没有图表条目；`../stats/radial-card.tsx` 是环形占比，画不出多维度的形状与并排的长度 |
 | 热力图 | `../charts/heat-card.tsx` 的 `ActivityHeat`，统计页与口味页共用：一格一个 `rect`，浓度是 `fill-opacity`，指到哪一格读数换成哪一格，浮层与 EvilCharts 图共用 `../charts/chart-tip.tsx` | 注册表里没有热力图，EvilCharts 的 Recharts 分支也没有；一格单独没有标注，不换读数就只剩一片颜色深浅 |
 | 流向图 | `../taste/charts.tsx` 的 `CreatorSankey`：布局由 `d3-sankey` 算，路径与节点是 SVG，淡入淡出用 `stroke-opacity` | 注册表里没有流向图；`table` 条目排得出同样的数，但看不出来源与创作者之间的分流 |

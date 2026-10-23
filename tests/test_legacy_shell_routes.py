@@ -8,7 +8,7 @@ import pathlib
 import re
 import unittest
 
-import peach
+import medianfo
 
 REPO = pathlib.Path(peach.__file__).resolve().parents[2]
 APP = REPO / "web" / "app.js"
@@ -126,7 +126,7 @@ class LegacyShellRouteTests(unittest.TestCase):
                          "路由树按模式登记的页面变了；新增一种同样算加页面")
 
     def test_the_application_has_no_unbundled_shell_entry(self):
-        self.assertFalse(APP.exists(), "主页面入口应为固定的 peach-app 构建产物")
+        self.assertFalse(APP.exists(), "主页面入口应为固定的 medianfo-app 构建产物")
 
 
 if __name__ == "__main__":

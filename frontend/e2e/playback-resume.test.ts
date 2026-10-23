@@ -23,7 +23,7 @@ describe('视频退出续播', () => {
 
   before(async () => {
     browser = await launch();
-    const origin = process.env.PEACH_E2E_ORIGIN!;
+    const origin = process.env.MEDIANFO_E2E_ORIGIN!;
     const result = await (await fetch(new URL('/api/items?medium=video&limit=1', origin))).json();
     clip = new URL(`/stream?id=${result.items[0].id}`, origin).toString();
   });

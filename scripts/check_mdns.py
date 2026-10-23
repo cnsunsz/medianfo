@@ -54,7 +54,7 @@ def query(hostname: str, seconds: float) -> list[str]:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="验证 peach.local 在局域网上可解析")
-    parser.add_argument("--name", default="peach", help="mDNS 名字，默认 peach")
+    parser.add_argument("--name", default="medianfo", help="mDNS 名字，默认 medianfo")
     parser.add_argument("--expect", help="期望应答的地址；给了就核对")
     parser.add_argument("--seconds", type=float, default=3.0)
     return parser
@@ -70,7 +70,7 @@ def run(args: argparse.Namespace) -> int:
     print(f"{hostname}：{'、'.join(responders)}")
     if len(responders) > 1:
         # 同一个名字两台机器都在广播。不会报错，只是有一边按名字访问不到。
-        print("  撞名：多台机器在广播同一个名字，一次只开一台，或用 PEACH_MDNS_NAME 换名")
+        print("  撞名：多台机器在广播同一个名字，一次只开一台，或用 MEDIANFO_MDNS_NAME 换名")
         return 1
     if args.expect and args.expect not in responders:
         print(f"  期望 {args.expect}，实际不在应答列表里")

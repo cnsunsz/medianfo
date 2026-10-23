@@ -16,7 +16,7 @@ describe('配置表单与行间距', () => {
           const data = await (await route.fetch()).json();
           await route.fulfill({ json: { ...data, updates: { ...data.updates, installation: '独立测试包',
             state: 'available', latest_version: '1.0.0', message: '有新版本可下载。', package_kind: 'update',
-            asset_size: 12 * 1048576, release_url: 'https://github.com/peach-mitao/peach/releases/tag/v1.0.0' },
+            asset_size: 12 * 1048576, release_url: 'https://github.com/cnsunsz/medianfo/releases/tag/v1.0.0' },
             update_job: { state: 'idle', progress: 0 } } });
         });
         await page.reload();
@@ -101,7 +101,7 @@ describe('配置表单与行间距', () => {
           await route.fulfill({ json: { ...data, uninstall: { ...data.uninstall, available: false } } });
         });
         await page.reload();
-        const region = page.getByRole('region', { name: '卸载 Peach', exact: true });
+        const region = page.getByRole('region', { name: '卸载 MediaNfo', exact: true });
         await region.getByText('完全卸载', { exact: true }).waitFor();
         await settle(page);
         const geometry = await region.evaluate(node => {

@@ -28,11 +28,11 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import DATABASE_PATH
-from peach.field_owners import script_owner
-from peach.metadata_auto_apply import _apply_metadata_candidate
-from peach.migrations import sqlite_backup
-from peach.review_csv import read_rows
+from medianfo.config import DATABASE_PATH
+from medianfo.field_owners import script_owner
+from medianfo.metadata_auto_apply import _apply_metadata_candidate
+from medianfo.migrations import sqlite_backup
+from medianfo.review_csv import read_rows
 
 #: 这一批写入在账本里的署名。用户当轮授权的批量写入仍然是脚本写的，记成
 #: `review:<来源>` 会让日后回溯以为有人在 `/review` 上逐条点过。

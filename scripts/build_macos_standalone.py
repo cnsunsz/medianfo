@@ -18,7 +18,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from peach import __version__
+from medianfo import __version__
 
 
 def minimum_system_version(app: Path) -> str:
@@ -44,7 +44,7 @@ def minimum_system_version(app: Path) -> str:
 
 def package_dmg(app: Path, destination: Path) -> Path:
     """以固定拖放布局分发应用，许可证随应用资源保留。"""
-    if not (app / "Contents" / "MacOS" / "Peach").is_file():
+    if not (app / "Contents" / "MacOS" / "MediaNfo").is_file():
         raise FileNotFoundError(f"找不到应用可执行文件：{app}")
     destination.parent.mkdir(parents=True, exist_ok=True)
     from dmgbuild import build_dmg
@@ -57,12 +57,12 @@ def package_dmg(app: Path, destination: Path) -> Path:
         for scale in (1, 2):
             path = background if scale == 1 else staging / "background@2x.png"
             path.write_bytes(svg_to_bytes(svg_path=source, zoom=scale))
-        build_dmg(str(destination), "Peach", settings={
+        build_dmg(str(destination), "MediaNfo", settings={
             "format": "UDZO", "files": [str(app)],
             "symlinks": {"Applications": "/Applications"},
             "background": str(background), "window_rect": ((160, 160), (640, 420)),
-            "icon_locations": {"Peach.app": (174, 220), "Applications": (466, 220)},
-            "icon_size": 128, "text_size": 13, "hide_extensions": ["Peach.app"],
+            "icon_locations": {"MediaNfo.app": (174, 220), "Applications": (466, 220)},
+            "icon_size": 128, "text_size": 13, "hide_extensions": ["MediaNfo.app"],
             "default_view": "icon-view", "arrange_by": None,
             "show_toolbar": False, "show_sidebar": False, "show_status_bar": False,
             "show_tab_view": False, "show_pathbar": False,
@@ -97,10 +97,10 @@ def build(destination: Path, *, dmg: bool = True, target_arch: str | None = None
     subprocess.run([
         sys.executable, "-m", "PyInstaller", "--noconfirm", "--clean",
         "--distpath", str(destination), "--workpath", str(work / "app"),
-        str(ROOT / "scripts" / "peach_macos.spec"),
-    ], check=True, cwd=ROOT, env={**os.environ, "PEACH_MACOS_BUILD_INFO": str(work / "build-info.json"),
-                                "PEACH_MACOS_TARGET_ARCH": architecture})
-    app = destination / "Peach.app"
+        str(ROOT / "scripts" / "medianfo_macos.spec"),
+    ], check=True, cwd=ROOT, env={**os.environ, "MEDIANFO_MACOS_BUILD_INFO": str(work / "build-info.json"),
+                                "MEDIANFO_MACOS_TARGET_ARCH": architecture})
+    app = destination / "MediaNfo.app"
     minimum = minimum_system_version(app)
     info_path = app / "Contents" / "Info.plist"
     info = plistlib.loads(info_path.read_bytes())
@@ -111,10 +111,10 @@ def build(destination: Path, *, dmg: bool = True, target_arch: str | None = None
     result = {"app": str(app), "version": __version__, "commit": commit,
               "architecture": architecture, "minimum_macos": minimum}
     if dmg:
-        image = destination / f"Peach-{__version__}-macos-{architecture}.dmg"
+        image = destination / f"MediaNfo-{__version__}-macos-{architecture}.dmg"
         result["dmg"] = str(package_dmg(app, image))
     # COLLECT 是 BUNDLE 的中间目录；只留下可分发的应用，避免重复占用与系统索引。
-    shutil.rmtree(destination / "Peach")
+    shutil.rmtree(destination / "MediaNfo")
     return result
 
 

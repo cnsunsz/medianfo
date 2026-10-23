@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "policy": "上游 Markdown 只作为待审证据；先比较锁定快照，再人工判断是否影响 Peach，禁止自动改代码。",
+  "policy": "上游 Markdown 只作为待审证据；先比较锁定快照，再人工判断是否影响 MediaNfo，禁止自动改代码。",
   "pins": [
     {
       "id": "amane-bridge",
@@ -25,7 +25,7 @@
         "ref": "refs/heads/main",
         "revision": "501c05a587404048c6877b1358b70d4a17f20169"
       },
-      "role": "MIT 的第三方设计手册，仅采用可解释 Peach 需求的原则；官方还原与参数自述不视为实测。",
+      "role": "MIT 的第三方设计手册，仅采用可解释 MediaNfo 需求的原则；官方还原与参数自述不视为实测。",
       "consumers": [
         "docs/DESIGN_GUIDELINES.md",
         "docs/reference-snapshots/open-claude-ui.md"
@@ -63,7 +63,7 @@
         "ref": "refs/heads/main",
         "revision": "501c05a587404048c6877b1358b70d4a17f20169"
       },
-      "role": "MIT 的纵向多段渐隐与边缘状态参考；Peach 保留现有滚动生命周期，曲线需视觉核验。",
+      "role": "MIT 的纵向多段渐隐与边缘状态参考；MediaNfo 保留现有滚动生命周期，曲线需视觉核验。",
       "consumers": [
         "docs/DESIGN_GUIDELINES.md",
         "docs/reference-snapshots/open-claude-ui.md"
@@ -155,7 +155,7 @@
         "ref": "refs/heads/main",
         "revision": "9a01e788ed52d25ea01b1f0d37934e5e371ae82b"
       },
-      "role": "AGPL-3.0 的独立暗色封面墙样式；视频比例与播放器行为由 Peach 处理。",
+      "role": "AGPL-3.0 的独立暗色封面墙样式；视频比例与播放器行为由 MediaNfo 处理。",
       "consumers": [
         "frontend/src/react/video-wall/video-wall.css"
       ]
@@ -173,7 +173,7 @@
         "ref": "refs/heads/main",
         "revision": "9a01e788ed52d25ea01b1f0d37934e5e371ae82b"
       },
-      "role": "AGPL-3.0 的矩形块模板算法参考；固定三列续页并使用 Peach 的单一视频播放器。",
+      "role": "AGPL-3.0 的矩形块模板算法参考；固定三列续页并使用 MediaNfo 的单一视频播放器。",
       "consumers": [
         "frontend/src/react/video-wall/wall-layout.ts",
         "frontend/src/react/video-wall/folia/blockTemplates.ts"
@@ -187,7 +187,7 @@
       "snapshot": "docs/reference-snapshots/upstream/fluid-springs.json",
       "checked_on": "2026-10-13",
       "sha256": "25dba808aba95d87fe3924ae214084013b8718fc26a102db3fee9e55b201f781",
-      "role": "普通分段控件与短菜单的无回弹短程参数参考；保留 Peach 主题与无障碍行为。",
+      "role": "普通分段控件与短菜单的无回弹短程参数参考；保留 MediaNfo 主题与无障碍行为。",
       "consumers": [
         "frontend/src/react/components/use-moving-surface.ts"
       ]
@@ -213,7 +213,7 @@
       "snapshot": "docs/reference-snapshots/vercel-report-design.md",
       "checked_on": "2026-10-13",
       "sha256": "3af49d9dcb22463f0926d006ad67bbcefa32d5a2185f81c7754c26b5bba4020d",
-      "role": "报告与证据型页面的版式、层级、语言和数据表达参考；Peach 仅复用可迁移原则。",
+      "role": "报告与证据型页面的版式、层级、语言和数据表达参考；MediaNfo 仅复用可迁移原则。",
       "consumers": [
         "web/css/",
         "frontend/src/react/taste/taste-page.tsx",
@@ -266,7 +266,7 @@
       "snapshot": "docs/reference-snapshots/fiu758-studio-logo-discovery.md",
       "checked_on": "2026-08-27",
       "sha256": "18c384344c0889885ba236081d75db5675902f78d88859230290b57c8ed3d427",
-      "role": "只作厂牌日文分类名和 Logo 候选发现；第三方博客不直接升级为 Peach 真相或已安装素材。",
+      "role": "只作厂牌日文分类名和 Logo 候选发现；第三方博客不直接升级为 MediaNfo 真相或已安装素材。",
       "consumers": [
         "scripts/normalize_studio_logos.py"
       ]
@@ -281,8 +281,8 @@
       "sha256": "ecb09c351d934ac18f1cb8f335d4e20102a3e4f57a7922c58e157b8cc8f70197",
       "role": "关注页标签类型配色、Rule34Video 内容标签补全与跨作者合集排除证据。",
       "consumers": [
-        "src/peach/follow_sources.py",
-        "src/peach/web_follow.py",
+        "src/medianfo/follow_sources.py",
+        "src/medianfo/web_follow.py",
         "web/css/",
         "frontend/src/react/follow-feed/follow-feed-page.tsx",
         "frontend/src/react/follow-detail/follow-detail-page.tsx",
@@ -300,7 +300,7 @@
       "sha256": "b4fa8a7c397f330ed2f2880fe0dbc1bc7a34e47bb91d935e5f42f2c9502f206d",
       "role": "F95 Cookie 解掩码、文件站目标校验、Gofile 文件列表未取得说明与 Mix 计数边界。",
       "consumers": [
-        "src/peach/follow_sources.py",
+        "src/medianfo/follow_sources.py",
         "frontend/src/react/follow-feed/follow-feed-page.tsx",
         "frontend/src/react/components/mix-card.tsx",
         "tests/test_follow_sources.py",
@@ -318,9 +318,9 @@
       "sha256": "a1e2d6d66b7acab8d4b13639fb38ed37764a24ae4f60ff36e84adfa50abc611a",
       "role": "FANBOX 多图顺序、Gofile Bearer 文件列表、Paheal 标签订阅和出处去重证据。",
       "consumers": [
-        "src/peach/follow_sources.py",
-        "src/peach/follow_stream.py",
-        "src/peach/web_follow.py",
+        "src/medianfo/follow_sources.py",
+        "src/medianfo/follow_stream.py",
+        "src/medianfo/web_follow.py",
         "frontend/src/react/follow-detail/follow-detail-page.tsx",
         "tests/test_follow_sources.py",
         "tests/test_follow_store.py",
@@ -345,8 +345,8 @@
       "role": "FANBOX 公开 post.info 的 Firefox TLS/HTTP2 传输边界；不复用登录、下载器或质询处理。",
       "consumers": [
         "pyproject.toml",
-        "src/peach/http.py",
-        "src/peach/follow_sources.py",
+        "src/medianfo/http.py",
+        "src/medianfo/follow_sources.py",
         "tests/test_http.py",
         "tests/test_follow_sources.py"
       ]
@@ -360,7 +360,7 @@
       "snapshot": "docs/reference-snapshots/beeg-profile-layout.md",
       "checked_on": "2026-08-30",
       "sha256": "324fd6f91be176898d8564ca807fcc326bbe04730f4eae6a6941a5b69edb2135",
-      "role": "女优、厂牌与关注页的无标题信息轨道参考；资料页以单个 32px PicsIcon 在标签左侧切换视频与照片，合集详情按 Peach 现有详情结构适配。",
+      "role": "女优、厂牌与关注页的无标题信息轨道参考；资料页以单个 32px PicsIcon 在标签左侧切换视频与照片，合集详情按 MediaNfo 现有详情结构适配。",
       "consumers": [
         "web/css/",
         "frontend/src/react/entity-page/entity-page-view.tsx",
@@ -457,10 +457,10 @@
         "ref": "refs/heads/main",
         "revision": "8cc17e50453d9f69a81f5fee1a072df80f7aab73"
       },
-      "role": "相关推荐使用 Tag IDF 与结构化共同点的固定算法参考；Peach 独立增加 MMR、多样性和稳定破同分。",
+      "role": "相关推荐使用 Tag IDF 与结构化共同点的固定算法参考；MediaNfo 独立增加 MMR、多样性和稳定破同分。",
       "consumers": [
-        "src/peach/related.py",
-        "src/peach/web_contract.py",
+        "src/medianfo/related.py",
+        "src/medianfo/web_contract.py",
         "scripts/audit_related_ranker.py",
         "tests/test_related.py"
       ]
@@ -474,7 +474,7 @@
       "snapshot": "docs/reference-snapshots/youtube-stats-buffer-measured.md",
       "checked_on": "2026-08-29",
       "sha256": "cc2d01738821be9c0aff2c9c772bc015ae02ca7d4feae6336dd8194e4d6efdc7",
-      "role": "播放统计中的连接速度、网络活动和缓冲健康滚动历史图参考；Peach 保留自己的播放器、色彩与数据口径。时间轴不采用本条，见快照的移植说明。",
+      "role": "播放统计中的连接速度、网络活动和缓冲健康滚动历史图参考；MediaNfo 保留自己的播放器、色彩与数据口径。时间轴不采用本条，见快照的移植说明。",
       "consumers": [
         "web/css/",
         "frontend/src/player/stats.ts",
@@ -489,7 +489,7 @@
       "snapshot": "docs/reference-snapshots/upstream/vercel-geist-tabs.md",
       "checked_on": "2026-09-03",
       "sha256": "41d0602d64c6a941e350d01b3c70b86e6a57a3f55d621ba43af26e081b46e347",
-      "role": "分类切换条的组件归属、条数上限、计数徽标与可访问性语义；secondary 变体是 Peach 现有 chip 条的规范原型。",
+      "role": "分类切换条的组件归属、条数上限、计数徽标与可访问性语义；secondary 变体是 MediaNfo 现有 chip 条的规范原型。",
       "consumers": [
         "web/css/",
         "frontend/src/react/entity-filter/entity-filter-page.tsx",
@@ -521,7 +521,7 @@
       "snapshot": "docs/reference-snapshots/upstream/readme-immich.md",
       "checked_on": "2026-09-06",
       "sha256": "27b511ae6ee3be2295c4c1e0674dd0ac5b0c6023d9fdd9187869b1605ff56fad",
-      "role": "短定位、下载与文档入口、精简功能层级；Peach 仅借鉴信息结构。",
+      "role": "短定位、下载与文档入口、精简功能层级；MediaNfo 仅借鉴信息结构。",
       "consumers": [
         "README.md",
         "README.en.md"
@@ -535,7 +535,7 @@
       "snapshot": "docs/reference-snapshots/upstream/readme-bruno.md",
       "checked_on": "2026-10-13",
       "sha256": "fec8af393e65aae5f85c89a2e4cc787bc7ed014b94336ab8179762386c0930b2",
-      "role": "小尺寸具象 Logo 配短介绍；Peach 使用自己的桃形 Logo，不复制上游品牌素材。",
+      "role": "小尺寸具象 Logo 配短介绍；MediaNfo 使用自己的桃形 Logo，不复制上游品牌素材。",
       "consumers": [
         "README.md",
         "README.en.md"
@@ -549,7 +549,7 @@
       "snapshot": "docs/reference-snapshots/upstream/readme-hoppscotch.md",
       "checked_on": "2026-09-06",
       "sha256": "f943825e526b79841882127fbf6a3c043359efd1ca6f47794c851f827a6373b4",
-      "role": "集中导航与图片替代文本；Peach 统一三枚 flat 徽章，不复制长功能清单。",
+      "role": "集中导航与图片替代文本；MediaNfo 统一三枚 flat 徽章，不复制长功能清单。",
       "consumers": [
         "README.md",
         "README.en.md"
@@ -563,7 +563,7 @@
       "snapshot": "docs/reference-snapshots/upstream/boardui-input.json",
       "checked_on": "2026-10-08",
       "sha256": "13ceeea958db33a449ac8114819a5956072410655ec7e669c96113ff275bcc1a",
-      "role": "输入框焦点口径：field 基类是 ring-2 ring-inset ring-transparent，悬停 border-button-hover、聚焦 border-button-active 且聚焦压过悬停，无外发光，transition 明确列了 box-shadow；Peach 输入面板按用户的决定保留白底与静止那条边，环画在边的内侧。",
+      "role": "输入框焦点口径：field 基类是 ring-2 ring-inset ring-transparent，悬停 border-button-hover、聚焦 border-button-active 且聚焦压过悬停，无外发光，transition 明确列了 box-shadow；MediaNfo 输入面板按用户的决定保留白底与静止那条边，环画在边的内侧。",
       "consumers": [
         "web/css/22-followmanage.css",
         "web/css/01-base.css",
@@ -581,7 +581,7 @@
       "snapshot": "docs/reference-snapshots/upstream/boardui-theme.json",
       "checked_on": "2026-10-08",
       "sha256": "060b0fd6818f34dbc086007a4aae8477ac0780429ce0304ba020e6ce6ed9f75a",
-      "role": "border-button-active 的取值出处（浅色 neutral-400、深色 neutral-600）；Peach 只取该档，不搬全量变量表。",
+      "role": "border-button-active 的取值出处（浅色 neutral-400、深色 neutral-600）；MediaNfo 只取该档，不搬全量变量表。",
       "consumers": [
         "web/board.css",
         "web/css/22-followmanage.css",
@@ -598,7 +598,7 @@
       "snapshot": "docs/reference-snapshots/upstream/boardui-auth-card.json",
       "checked_on": "2026-10-08",
       "sha256": "334f65d6dbd7be9ed9275239b58c607e101df586c5b9a0e78d9624bde1c0bc78",
-      "role": "同底色下的嵌套卡层次：一条发丝边加 shadow-xs（0 1px 2px 0 rgb(0 0 0 / 0.18)），shadow-sm 与它同批取自上游的主题 token；xs 是在 auth-card 的 24px 大圆角上成立的，Peach 这两处是 10px 小圆角，贴地细影只剩一条硬边读成环，所以改用 sm 的两档扩散，圆角沿用本站 token。",
+      "role": "同底色下的嵌套卡层次：一条发丝边加 shadow-xs（0 1px 2px 0 rgb(0 0 0 / 0.18)），shadow-sm 与它同批取自上游的主题 token；xs 是在 auth-card 的 24px 大圆角上成立的，MediaNfo 这两处是 10px 小圆角，贴地细影只剩一条硬边读成环，所以改用 sm 的两档扩散，圆角沿用本站 token。",
       "consumers": [
         "web/board.css",
         "web/css/22-followmanage.css",
@@ -618,11 +618,11 @@
         "ref": "refs/heads/main",
         "revision": "cc42cee6ecf290cf05af1caa347d2dc2d5aeffcd"
       },
-      "role": "按内容类型给一条有序来源链的原则，以及逐站的领域判断：javdb 没有国产分区且不解析 plot、javbus 欧美目录不可用、kin8 从任意番号抽数字拼详情会误匹配、mgstage 不进有码默认表否则有码号也会去问它、单厂牌 API 对每个候选 SKU 都发请求、DMM 与厂牌官网的日期是 SKU 分层不必相等。Peach 只取可迁移的原则与站点判断，链上成员限于自己已接解析器的来源；候选与人工复核的契约、不落盘 NFO 是 Peach 自己的边界，上游没有这两条。",
+      "role": "按内容类型给一条有序来源链的原则，以及逐站的领域判断：javdb 没有国产分区且不解析 plot、javbus 欧美目录不可用、kin8 从任意番号抽数字拼详情会误匹配、mgstage 不进有码默认表否则有码号也会去问它、单厂牌 API 对每个候选 SKU 都发请求、DMM 与厂牌官网的日期是 SKU 分层不必相等。MediaNfo 只取可迁移的原则与站点判断，链上成员限于自己已接解析器的来源；候选与人工复核的契约、不落盘 NFO 是 MediaNfo 自己的边界，上游没有这两条。",
       "consumers": [
-        "src/peach/metadata_routes.py",
-        "src/peach/library_processing.py",
-        "src/peach/community_catalog.py",
+        "src/medianfo/metadata_routes.py",
+        "src/medianfo/library_processing.py",
+        "src/medianfo/community_catalog.py",
         "docs/SOURCING.md",
         "tests/test_metadata_routes.py"
       ]
@@ -640,7 +640,7 @@
         "ref": "refs/heads/main",
         "revision": "c3c0e41d21f4ae6538217a2c5d5dd12de0a2bb68"
       },
-      "role": "同类本地馆藏管理器的信息组织：人物页三个直达入口、本地作品与作品总数并列、页头的数据质量计数。源码未公开（README 自己写着这一条），结论来自 README 与它挂的 5 张演示图，加上论坛帖里 8 张真实截图的测读；截图给不出可哈希的上游字节，登记的是 README 本体。Peach 不复制它的界面，只取这三处的组织方式。README 另取它的页头链接行、粗体引导的主要功能短列表和「问题反馈要附什么、遮盖什么」的写法。",
+      "role": "同类本地馆藏管理器的信息组织：人物页三个直达入口、本地作品与作品总数并列、页头的数据质量计数。源码未公开（README 自己写着这一条），结论来自 README 与它挂的 5 张演示图，加上论坛帖里 8 张真实截图的测读；截图给不出可哈希的上游字节，登记的是 README 本体。MediaNfo 不复制它的界面，只取这三处的组织方式。README 另取它的页头链接行、粗体引导的主要功能短列表和「问题反馈要附什么、遮盖什么」的写法。",
       "consumers": [
         "README.md",
         "README.en.md"
@@ -659,7 +659,7 @@
         "ref": "refs/heads/main",
         "revision": "502278a3e09c7520838ffb00b2ff080323a4cdcb"
       },
-      "role": "同类本地影片管理器的 README 信息结构：页头几条粗体承诺、规格速览表、截图表与常见问题。Peach 只借结构，不复制文案、截图、功能承诺与免责声明条款。",
+      "role": "同类本地影片管理器的 README 信息结构：页头几条粗体承诺、规格速览表、截图表与常见问题。MediaNfo 只借结构，不复制文案、截图、功能承诺与免责声明条款。",
       "consumers": [
         "README.md",
         "README.en.md"
@@ -678,7 +678,7 @@
         "ref": "refs/heads/main",
         "revision": "cc42cee6ecf290cf05af1caa347d2dc2d5aeffcd"
       },
-      "role": "同类项目的极简 README：一行一个功能、安装只给入口、开发说明压到最后。Peach 只借篇幅控制，不复制文案。",
+      "role": "同类项目的极简 README：一行一个功能、安装只给入口、开发说明压到最后。MediaNfo 只借篇幅控制，不复制文案。",
       "consumers": [
         "README.md",
         "README.en.md"
@@ -697,7 +697,7 @@
         "ref": "refs/heads/develop",
         "revision": "b6b09dd5fd9b6be6e36deb3d20bc5c4cf52450a6"
       },
-      "role": "自托管成人馆藏应用的 README：一句定位加大截图、演示视频入口、首次运行的未签名提示与 FFmpeg 说明。Peach 只借这几处的位置，不复制文案与截图。",
+      "role": "自托管成人馆藏应用的 README：一句定位加大截图、演示视频入口、首次运行的未签名提示与 FFmpeg 说明。MediaNfo 只借这几处的位置，不复制文案与截图。",
       "consumers": [
         "README.md",
         "README.en.md"
@@ -716,7 +716,7 @@
         "ref": "refs/heads/main",
         "revision": "f7c1f336fc2bd3b35b82af7c6e69da09a196e3d2"
       },
-      "role": "同类元数据插件的 README：功能一行一条、详细说明全部链到文档。Peach 只借「README 不展开细节」的做法。",
+      "role": "同类元数据插件的 README：功能一行一条、详细说明全部链到文档。MediaNfo 只借「README 不展开细节」的做法。",
       "consumers": [
         "README.md",
         "README.en.md"
@@ -735,7 +735,7 @@
         "ref": "refs/heads/master",
         "revision": "58e3f930f2e864fceb8a53ceef818716e2a6413d"
       },
-      "role": "同类刮削器的 README：上游项目谱系与致谢写法。Peach 只借致谢的位置，不复制附加使用条款。",
+      "role": "同类刮削器的 README：上游项目谱系与致谢写法。MediaNfo 只借致谢的位置，不复制附加使用条款。",
       "consumers": [
         "README.md",
         "README.en.md"
@@ -754,7 +754,7 @@
         "ref": "refs/heads/main",
         "revision": "500ecd44c1fdcf319ba83ea68f3771bc76125974"
       },
-      "role": "统计页与口味页柱状、径向、雷达图的组件出处与依赖清单：Recharts 分支的 recharts-bar-chart、recharts-radial-chart、recharts-radar-chart 连同它们 import 的 chart、tooltip、legend、background、brush、dot 部件逐字复制进 frontend/src/react/evilcharts/registry/，逐文件哈希在同目录 UPSTREAM.sha256。上游没有热力图；ECharts 分支画在 Canvas 上，读不到 BoardUI 的 CSS token，不采用。浮层内容因旧样式表的 .grid 同名冲突由 Peach 重组，差异见 frontend/src/react/evilcharts/ORIGIN.md 与 ADR-0076。",
+      "role": "统计页与口味页柱状、径向、雷达图的组件出处与依赖清单：Recharts 分支的 recharts-bar-chart、recharts-radial-chart、recharts-radar-chart 连同它们 import 的 chart、tooltip、legend、background、brush、dot 部件逐字复制进 frontend/src/react/evilcharts/registry/，逐文件哈希在同目录 UPSTREAM.sha256。上游没有热力图；ECharts 分支画在 Canvas 上，读不到 BoardUI 的 CSS token，不采用。浮层内容因旧样式表的 .grid 同名冲突由 MediaNfo 重组，差异见 frontend/src/react/evilcharts/ORIGIN.md 与 ADR-0076。",
       "consumers": [
         "frontend/src/react/evilcharts/",
         "frontend/src/react/charts/",
@@ -776,11 +776,11 @@
         "ref": "refs/heads/main",
         "revision": "154c3b2fce82f890414388c120604f8ba6a0097a"
       },
-      "role": "SakuraMedia 后端（GPL-3.0）只作行为与算法边界证据，不引入代码：字幕同目录纯番号配对、封套左右分割点的对称判据（Peach 不采用对称判据，见 jav_poster_crop）、「想要」与关注分开、记录比文件重要、被并实体留指针，以及推荐权重、Torznab 客户端、自动下载判据、时刻合集、遥测与图片打包。",
+      "role": "SakuraMedia 后端（GPL-3.0）只作行为与算法边界证据，不引入代码：字幕同目录纯番号配对、封套左右分割点的对称判据（MediaNfo 不采用对称判据，见 jav_poster_crop）、「想要」与关注分开、记录比文件重要、被并实体留指针，以及推荐权重、Torznab 客户端、自动下载判据、时刻合集、遥测与图片打包。",
       "consumers": [
         "docs/REUSE.md",
-        "src/peach/jav_poster_crop.py",
-        "src/peach/wants.py"
+        "src/medianfo/jav_poster_crop.py",
+        "src/medianfo/wants.py"
       ]
     },
     {
@@ -812,12 +812,12 @@
         "ref": "refs/heads/main",
         "revision": "651048c70d6586d18196275f53062c495be7c5f0"
       },
-      "role": "NeoAVDC（MIT）的番号解析、字幕扩展名、HTTP 正文解码与封套折痕位置只作参照；Peach 的番号规则、字幕配对与正封取景各有自己的判据。待办第 25 条（NFO 与目录收纳）、第 59 条（番号清洗语料）引用它。",
+      "role": "NeoAVDC（MIT）的番号解析、字幕扩展名、HTTP 正文解码与封套折痕位置只作参照；MediaNfo 的番号规则、字幕配对与正封取景各有自己的判据。待办第 25 条（NFO 与目录收纳）、第 59 条（番号清洗语料）引用它。",
       "consumers": [
         "docs/REUSE.md",
-        "src/peach/catalog_rules.py",
-        "src/peach/http.py",
-        "src/peach/jav_poster_crop.py"
+        "src/medianfo/catalog_rules.py",
+        "src/medianfo/http.py",
+        "src/medianfo/jav_poster_crop.py"
       ]
     },
     {
@@ -833,11 +833,11 @@
         "ref": "refs/heads/main",
         "revision": "e7c5834916f1f1012d73dc901410c00d6597980b"
       },
-      "role": "JavBoss（GPL-3.0）只作流程证据：CloudDrive2 gRPC 离线下载的提交、轮询与 infohash 对账（ADR-0089），NFO 里 `javboss` 类型的番号字段，以及待办第 58 条的来源缺陷台账。Peach 不复制代码，只提交到已挂载的网盘目录、不拉回本地。",
+      "role": "JavBoss（GPL-3.0）只作流程证据：CloudDrive2 gRPC 离线下载的提交、轮询与 infohash 对账（ADR-0089），NFO 里 `javboss` 类型的番号字段，以及待办第 58 条的来源缺陷台账。MediaNfo 不复制代码，只提交到已挂载的网盘目录、不拉回本地。",
       "consumers": [
-        "src/peach/downloads.py",
-        "src/peach/downloads_clouddrive.py",
-        "src/peach/library_nfo.py"
+        "src/medianfo/downloads.py",
+        "src/medianfo/downloads_clouddrive.py",
+        "src/medianfo/library_nfo.py"
       ]
     },
     {
@@ -1079,7 +1079,7 @@
         "ref": "refs/heads/main",
         "revision": "d9e3ed31520b6afb6ad3ad5abd90b8f17a955e60"
       },
-      "role": "javinfo 的归档仓没有许可证，只借思路不借代码；它依赖的 r18 旧 API 已失效，没有 Peach 缺的解析器（待办第 65 条）。",
+      "role": "javinfo 的归档仓没有许可证，只借思路不借代码；它依赖的 r18 旧 API 已失效，没有 MediaNfo 缺的解析器（待办第 65 条）。",
       "consumers": []
     }
   ]

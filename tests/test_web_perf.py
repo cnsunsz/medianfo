@@ -25,18 +25,18 @@ if HAS_DEPS:
     from fastapi import FastAPI
     from fastapi.responses import Response, StreamingResponse
     from starlette.middleware.gzip import GZipMiddleware
-    from peach.api import COMPRESSION_EXCLUDED_TYPES, create_app
-    from peach.config import PeachSettings
-    from peach.web_catalog import q_related
-    from peach.web_state import WebContract
+    from medianfo.api import COMPRESSION_EXCLUDED_TYPES, create_app
+    from medianfo.config import MediaNfoSettings
+    from medianfo.web_catalog import q_related
+    from medianfo.web_state import WebContract
 
 
-def _settings(root: Path, page: Path, **overrides) -> "PeachSettings":
+def _settings(root: Path, page: Path, **overrides) -> "MediaNfoSettings":
     """把每个受管目录都指到临时目录下。
 
-    默认值指向本机真实的 `peach-data/generated`，漏一个就是测试去读真实数据。
+    默认值指向本机真实的 `medianfo-data/generated`，漏一个就是测试去读真实数据。
     """
-    return PeachSettings(
+    return MediaNfoSettings(
         db_path=root / "ledger.db", token="", page_path=page,
         vendor_path=root / "vendor", allowed_media_roots=(root / "media",),
         snapshot_root=root / "snapshots",
@@ -57,7 +57,7 @@ def _settings(root: Path, page: Path, **overrides) -> "PeachSettings":
 class CompressionGateTests(unittest.IsolatedAsyncioTestCase):
     """压缩按 Content-Type 决定，不按路由名单，所以每个闸门都要有一条对例。
 
-    这里测的是 Peach 实际装上去的那份配置（`COMPRESSION_EXCLUDED_TYPES`），不是
+    这里测的是 MediaNfo 实际装上去的那份配置（`COMPRESSION_EXCLUDED_TYPES`），不是
     Starlette 的默认值：默认名单排掉了 `video/*` 和已压缩的图片，但没排
     `application/octet-stream` 和 `text/plain`，而 `FileResponse` 猜不出扩展名时
     正是回落到 `text/plain`——`/stream`、`/photo` 都不传 media_type。
@@ -110,7 +110,7 @@ class CompressionGateTests(unittest.IsolatedAsyncioTestCase):
             async def generate():
                 yield "a" * 2000
                 yield "b" * 2000
-            # 用 text/csv 而不是 text/plain：后者在 Peach 的排除名单里（见上面
+            # 用 text/csv 而不是 text/plain：后者在 MediaNfo 的排除名单里（见上面
             # 那条「猜错成文本的媒体」），拿它测流式压缩会测成「被排除了」。
             return StreamingResponse(generate(), media_type="text/csv; charset=utf-8")
 
@@ -185,7 +185,7 @@ class PageAssetDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.addCleanup(self.tmp.cleanup)
         root = Path(self.tmp.name).resolve()
         (root / "dist").mkdir()
-        self.app_js = root / "dist" / "peach-app.js"
+        self.app_js = root / "dist" / "medianfo-app.js"
         # 要大于 gzip 的 minimum_size，否则压缩那条断言测的是「太小所以没压」。
         self.app_js.write_text(
             "const peach=1;export default peach;\n" + "// filler\n" * 200,
@@ -199,8 +199,8 @@ class PageAssetDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.css_parts[1].write_text(".card{display:grid}\n", encoding="utf-8")
         (root / "board.css").write_text(".ptoggle{width:42px}\n", encoding="utf-8")
         page = root / "index.html"
-        page.write_text("<!doctype html><title>Peach test</title>", encoding="utf-8")
-        (root / "dist" / "peach-app.css").write_text(
+        page.write_text("<!doctype html><title>MediaNfo test</title>", encoding="utf-8")
+        (root / "dist" / "medianfo-app.css").write_text(
             ".peach-react{display:block}\n" + "/* filler */\n" * 200, encoding="utf-8")
         (root / "dist" / "peach-pages.js").write_text("export const ok=1;", encoding="utf-8")
         (root / "dist" / "peach-pages.css").write_text(".page{}", encoding="utf-8")
@@ -211,7 +211,7 @@ class PageAssetDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.addAsyncCleanup(self.client.aclose)
 
     async def test_main_script_revalidates_instead_of_being_refetched(self):
-        first = await self.client.get("/dist/peach-app.js")
+        first = await self.client.get("/dist/medianfo-app.js")
         self.assertEqual(first.status_code, 200)
         self.assertIn("export default peach", first.text)
         # no-cache 不是「不缓存」：它是「每次回源问一次」，与 no-store 的更新语义
@@ -219,20 +219,20 @@ class PageAssetDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(first.headers["cache-control"], "no-cache")
         etag = first.headers["etag"]
 
-        cached = await self.client.get("/dist/peach-app.js", headers={"if-none-match": etag})
+        cached = await self.client.get("/dist/medianfo-app.js", headers={"if-none-match": etag})
         self.assertEqual(cached.status_code, 304)
         self.assertEqual(cached.content, b"")
         self.assertEqual(cached.headers["etag"], etag)
 
         # 文件一变，同一个 ETag 必须立刻失效——这是复验能替掉 no-store 的全部前提。
         self.app_js.write_text("const peach=2;export default peach;", encoding="utf-8")
-        updated = await self.client.get("/dist/peach-app.js", headers={"if-none-match": etag})
+        updated = await self.client.get("/dist/medianfo-app.js", headers={"if-none-match": etag})
         self.assertEqual(updated.status_code, 200)
         self.assertNotEqual(updated.headers["etag"], etag)
         self.assertIn("const peach=2", updated.text)
 
     async def test_every_asset_route_shares_the_same_revalidation_contract(self):
-        for path in ("/app.css", "/board.css", "/dist/peach-app.js", "/dist/peach-app.css",
+        for path in ("/app.css", "/board.css", "/dist/medianfo-app.js", "/dist/medianfo-app.css",
                      "/dist/peach-pages.js", "/dist/peach-pages.css"):
             first = await self.client.get(path)
             self.assertEqual(first.status_code, 200, path)
@@ -273,7 +273,7 @@ class PageAssetDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.headers["cache-control"], "no-store")
 
     async def test_the_real_app_compresses_its_scripts_and_styles(self):
-        for path in ("/dist/peach-app.js", "/dist/peach-app.css", "/app.css"):
+        for path in ("/dist/medianfo-app.js", "/dist/medianfo-app.css", "/app.css"):
             response = await self.client.get(path, headers={"accept-encoding": "gzip"})
             self.assertEqual(response.status_code, 200, path)
             self.assertEqual(response.headers.get("content-encoding"), "gzip", path)
@@ -365,7 +365,7 @@ class RelatedEndpointCacheTests(unittest.IsolatedAsyncioTestCase):
                 "VALUES(1,1,'performer','test',1.0)")
             con.commit()
         page = root / "index.html"
-        page.write_text("<!doctype html><title>Peach test</title>", encoding="utf-8")
+        page.write_text("<!doctype html><title>MediaNfo test</title>", encoding="utf-8")
         (root / "covers").mkdir()
         self.app = create_app(_settings(root, page))
         self.client = httpx.AsyncClient(
@@ -375,7 +375,7 @@ class RelatedEndpointCacheTests(unittest.IsolatedAsyncioTestCase):
     async def test_repeated_requests_only_rank_once_until_the_ledger_changes(self):
         # patch 打在 `web_router` 上，不是 `web_contract`：那个 shim 只是再导出，
         # 处理器读的是自己模块里的名字。
-        with patch("peach.web_router.q_related", side_effect=q_related) as spy:
+        with patch("medianfo.web_router.q_related", side_effect=q_related) as spy:
             first = await self.client.get("/api/related?id=1")
             second = await self.client.get("/api/related?id=1")
         self.assertEqual(first.status_code, 200)
@@ -383,13 +383,13 @@ class RelatedEndpointCacheTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(spy.call_count, 1)
 
         self.app.state.web_contract.cache_bust()
-        with patch("peach.web_router.q_related", side_effect=q_related) as spy:
+        with patch("medianfo.web_router.q_related", side_effect=q_related) as spy:
             await self.client.get("/api/related?id=1")
         self.assertEqual(spy.call_count, 1, "cache_bust 之后必须重算")
 
     async def test_a_different_limit_is_a_different_result(self):
         """限流后的 limit 进了缓存键；不进的话第二次请求会拿到条数不对的列表。"""
-        with patch("peach.web_router.q_related", side_effect=q_related) as spy:
+        with patch("medianfo.web_router.q_related", side_effect=q_related) as spy:
             await self.client.get("/api/related?id=1&limit=24")
             await self.client.get("/api/related?id=1&limit=48")
         self.assertEqual(spy.call_count, 2)

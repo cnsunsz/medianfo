@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from peach.review_csv import ENCODING, read_rows, write_rows
+from medianfo.review_csv import ENCODING, read_rows, write_rows
 
 FIELDS = ("code", "name")
 
@@ -108,8 +108,8 @@ class ReviewCsvTests(unittest.TestCase):
                 raise refusals.pop()
             real_replace(source, destination)
 
-        with mock.patch("peach.fsutil.os.replace", side_effect=replace), \
-                mock.patch("peach.fsutil.time.sleep"):
+        with mock.patch("medianfo.fsutil.os.replace", side_effect=replace), \
+                mock.patch("medianfo.fsutil.time.sleep"):
             write_rows(target, FIELDS, [{"code": "new", "name": "新"}], atomic=True)
         self.assertEqual(read_rows(target), [{"code": "new", "name": "新"}])
         self.assertEqual([p.name for p in self.root.iterdir() if p.name.startswith(".")], [])

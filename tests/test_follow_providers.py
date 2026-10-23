@@ -2,17 +2,17 @@ import inspect
 import unittest
 from pathlib import Path
 
-from peach import follow_discovery, follow_providers, web_follow
-from peach.follow_sources import CONNECTORS, ParsedSource, _BaseConnector
-from peach.follow_stream import _PROVIDER_HOSTS
-from peach.follow_variants import PROVIDER_PRIORITY
-from peach.follow_secrets import (
+from medianfo import follow_discovery, follow_providers, web_follow
+from medianfo.follow_sources import CONNECTORS, ParsedSource, _BaseConnector
+from medianfo.follow_stream import _PROVIDER_HOSTS
+from medianfo.follow_variants import PROVIDER_PRIORITY
+from medianfo.follow_secrets import (
     CREDENTIAL_GUIDE,
     SYNCABLE_FIELDS,
     credential_store_for,
 )
-from peach.follow_store import _OFFICIAL_IDENTITY_PROVIDERS
-from peach.web_follow import PROVIDER_LABELS, _BACKFILL_PROVIDERS
+from medianfo.follow_store import _OFFICIAL_IDENTITY_PROVIDERS
+from medianfo.web_follow import PROVIDER_LABELS, _BACKFILL_PROVIDERS
 
 
 class ProviderRegistryTests(unittest.TestCase):

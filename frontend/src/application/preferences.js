@@ -116,7 +116,7 @@ export function setCensored(on){
 }
 
 export function setHighContrast(on){
-  localStorage.setItem('peach.high-contrast',String(on));
+  localStorage.setItem('medianfo.high-contrast',String(on));
   document.documentElement.classList.toggle('board-high-contrast',on);
   preferencesState.settingsStore.notify();
 }

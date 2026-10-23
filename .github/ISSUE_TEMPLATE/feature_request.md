@@ -12,7 +12,7 @@ type: Feature
 
 ## 期望的行为 / Desired behavior
 
-<!-- 希望 Peach 怎样帮助完成？/ How should Peach help with this? -->
+<!-- 希望 MediaNfo 怎样帮助完成？/ How should MediaNfo help with this? -->
 
 ## 补充（可选）/ Additional context (optional)
 

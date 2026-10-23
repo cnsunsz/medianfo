@@ -4,9 +4,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from peach import web_contract as rm_web
-from peach.entities import merge_entity
-from peach.migrations import upgrade
+from medianfo import web_contract as rm_web
+from medianfo.entities import merge_entity
+from medianfo.migrations import upgrade
 from scripts.install_label_makers import install, plan
 
 ROOT = Path(__file__).resolve().parents[1]

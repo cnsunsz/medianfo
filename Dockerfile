@@ -14,15 +14,15 @@ COPY resources ./resources
 RUN uv sync --locked --no-dev --no-editable
 
 FROM python:3.14.8-slim-trixie
-LABEL org.opencontainers.image.title="Peach" \
-      org.opencontainers.image.source="https://github.com/peach-mitao/peach" \
+LABEL org.opencontainers.image.title="MediaNfo" \
+      org.opencontainers.image.source="https://github.com/cnsunsz/medianfo" \
       org.opencontainers.image.licenses="AGPL-3.0-or-later"
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg openssl ca-certificates mesa-va-drivers vainfo \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --gid 1000 peach && useradd --uid 1000 --gid 1000 --create-home peach \
     && mkdir /data && chown peach:peach /data
 COPY --from=build /app/.venv /app/.venv
-ENV PATH="/app/.venv/bin:$PATH" PEACH_DATA_ROOT=/data PYTHONUNBUFFERED=1 \
+ENV PATH="/app/.venv/bin:$PATH" MEDIANFO_DATA_ROOT=/data PYTHONUNBUFFERED=1 \
     PYTHONIOENCODING=utf-8 PYTHONUTF8=1
 WORKDIR /data
 USER peach
@@ -30,4 +30,4 @@ EXPOSE 8900
 VOLUME ["/data"]
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
     CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8900/healthz?ready=1', timeout=3).read()"]
-ENTRYPOINT ["python", "-m", "peach.server"]
+ENTRYPOINT ["python", "-m", "medianfo.server"]

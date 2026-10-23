@@ -11,10 +11,10 @@ from unittest.mock import Mock
 
 from fastapi.testclient import TestClient
 
-from peach import downloads as dl
-from peach.api import create_app
-from peach.config import PROJECT_ROOT, PeachSettings
-from peach.jav_browser import CREDENTIAL, JavBrowser, code_key, source_page, source_sites
+from medianfo import downloads as dl
+from medianfo.api import create_app
+from medianfo.config import PROJECT_ROOT, MediaNfoSettings
+from medianfo.jav_browser import CREDENTIAL, JavBrowser, code_key, source_page, source_sites
 from support.ledger import fresh_ledger
 
 HASH = "c9e15763f722f23e98a29decdfae341b98d53056"
@@ -27,7 +27,7 @@ class BrowserTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name).resolve()
-        self.app = create_app(PeachSettings(
+        self.app = create_app(MediaNfoSettings(
             db_path=fresh_ledger(self.root), configured=True, token="admin-secret",
             follow_state_root=self.root / "state", secrets_root=self.root / "secrets"))
         self.addCleanup(self.app.state.http_transport.close)
@@ -242,7 +242,7 @@ class BrowserTests(unittest.TestCase):
     def test_search_errors_stop_without_automatic_resubmission(self):
         self.service.search.side_effect = RuntimeError("upstream unavailable")
         self.add()
-        with self.assertLogs("peach.jav_browser", level="ERROR"):
+        with self.assertLogs("medianfo.jav_browser", level="ERROR"):
             self.service.process_one()
         self.assertEqual(self.status().json()["state"], "failed")
         self.assertFalse(self.service.process_one())
@@ -271,8 +271,8 @@ class BrowserTests(unittest.TestCase):
         self.assertTrue(response.text.startswith("// ==UserScript=="))
         self.assertIn("application/javascript", response.headers["content-type"])
         self.assertNotIn(self.token, response.text)
-        self.assertNotIn("__PEACH_JAV_SITES__", response.text)
-        self.assertNotIn("__PEACH_JAV_MATCHES__", response.text)
+        self.assertNotIn("__MEDIANFO_JAV_SITES__", response.text)
+        self.assertNotIn("__MEDIANFO_JAV_MATCHES__", response.text)
         for host in ("javdb.com", "javbus.com", "javlibrary.com", "dmm.co.jp"):
             self.assertIn(f"// @match        https://{host}/*", response.text)
         directory = PROJECT_ROOT / "web" / "integrations"

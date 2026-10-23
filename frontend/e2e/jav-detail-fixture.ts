@@ -13,7 +13,7 @@ export const JAV_DETAIL = {
 };
 export async function mockJavDetail(page: Page) {
   await page.route(/\/api\/jav\/detail\?/, route => route.fulfill({ json: { ...JAV_DETAIL,
-    preview_video_url: `/stream?id=${process.env.PEACH_E2E_ITEM}` } }));
+    preview_video_url: `/stream?id=${process.env.MEDIANFO_E2E_ITEM}` } }));
   await page.route(/\/logo\?/, route => route.fulfill({ contentType: 'image/svg+xml', body:
     '<svg xmlns="http://www.w3.org/2000/svg" width="46" height="46"><rect width="46" height="46" fill="#ccc"/></svg>' }));
   await page.route(/\/api\/jav\/image\?/, route => route.fulfill({ json: { ok: true,

@@ -1,6 +1,6 @@
 /* 全站唯一的浏览器历史（`@peach/history`）。
  *
- * Application 与 React 路由树直接引用本模块，随 peach-app.js 发出同一个历史实例。
+ * Application 与 React 路由树直接引用本模块，随 medianfo-app.js 发出同一个历史实例。
  * 启动地址清理与重定向使用 shellNavigate，Router 的 navigator 也读这一份。
  *
  * 实现是 React Router 自己的 `createBrowserHistory`（`v5Compat` 档：push / replace 也通知监听者），
@@ -33,7 +33,7 @@ export interface Navigation {
 export type NavigationListener = (navigation: Navigation) => void;
 
 /** 给 `<Router navigator>` 用的那一份，外加当前这一次变化与订阅。 */
-export interface PeachHistory extends Navigator {
+export interface MediaNfoHistory extends Navigator {
   readonly navigation: Navigation;
   listen(listener: NavigationListener): () => void;
 }
@@ -71,7 +71,7 @@ function canonicalTo(to: To): To {
   return { ...to, pathname: target.pathname, search: target.search, hash: target.hash };
 }
 
-export const peachHistory: PeachHistory = {
+export const peachHistory: MediaNfoHistory = {
   get navigation() { return current },
   listen(listener) {
     listeners.add(listener);

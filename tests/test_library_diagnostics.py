@@ -7,10 +7,10 @@ from contextlib import closing
 from pathlib import Path
 from unittest.mock import patch
 
-from peach import library_diagnostics as diagnostics
-from peach.config import PeachSettings
-from peach.migrations import upgrade
-from peach.settings_file import PeachConfig
+from medianfo import library_diagnostics as diagnostics
+from medianfo.config import MediaNfoSettings
+from medianfo.migrations import upgrade
+from medianfo.settings_file import MediaNfoConfig
 
 
 class LibraryDiagnosticsTests(unittest.TestCase):
@@ -20,8 +20,8 @@ class LibraryDiagnosticsTests(unittest.TestCase):
         self.root = Path(self.temp.name).resolve()
         self.db = self.root / 'ledger.db'
         upgrade(self.db, Path(__file__).resolve().parents[1] / 'migrations')
-        self.config = PeachConfig(self.root, self.root / 'config.toml')
-        self.settings = PeachSettings(db_path=self.db, cover_root=self.root / 'covers', poster_root=self.root / 'posters')
+        self.config = MediaNfoConfig(self.root, self.root / 'config.toml')
+        self.settings = MediaNfoSettings(db_path=self.db, cover_root=self.root / 'covers', poster_root=self.root / 'posters')
         for name in ('state', 'covers', 'posters'):
             (self.root / name).mkdir()
         with closing(sqlite3.connect(self.db)) as connection, connection:
@@ -118,7 +118,7 @@ class LibraryDiagnosticsTests(unittest.TestCase):
             self.assertIsNone(diagnostics.inventory(self.root))
 
     def test_source_history_and_absent_checks_have_explicit_states(self):
-        from peach.scraping_access import record_source_check
+        from medianfo.scraping_access import record_source_check
         root = self.config.directory('secrets')
         record_source_check(root, 'airav', 'metadata', {
             'ok': True, 'kind': 'ok', 'reason': 'parsed', 'checked_at': 1_700_000_000})
@@ -133,7 +133,7 @@ class LibraryDiagnosticsTests(unittest.TestCase):
         self.assertTrue({'mgstage', 'dmm', 'fc2'} <= rows.keys())
 
     def test_connection_and_parsing_evidence_remain_distinct_for_all_bridge_sources(self):
-        from peach.scraping_access import record_source_check
+        from medianfo.scraping_access import record_source_check
         root = self.config.directory('secrets')
         record_source_check(root, 'airav', 'connection', {
             'ok': True, 'kind': 'ok', 'reason': 'ok', 'checked_at': 1_700_000_000, 'elapsed_s': 1.2})

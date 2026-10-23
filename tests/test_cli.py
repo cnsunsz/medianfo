@@ -17,8 +17,8 @@ from dataclasses import replace
 from pathlib import Path, PureWindowsPath
 from unittest import mock
 
-from peach import cli, onboarding, settings_file
-from peach.migrations import plan, upgrade
+from medianfo import cli, onboarding, settings_file
+from medianfo.migrations import plan, upgrade
 
 ROOT = Path(__file__).resolve().parents[1]
 MIGRATIONS = ROOT / "migrations"
@@ -101,7 +101,7 @@ class InitCommandTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name).resolve() / "peach-data"
+        self.root = Path(self.tmp.name).resolve() / "medianfo-data"
         # 证书生成要调 openssl；那是 `test_certs.py` 的事，这里只验初始化流程。
         patcher = mock.patch.object(cli.onboarding.certs, "bootstrap_certificates")
         self.certs = patcher.start()
@@ -131,7 +131,7 @@ class InitCommandTests(unittest.TestCase):
     def test_fresh_init_output_is_readable_by_the_settings_layer(self):
         self._init("--mdns-name", "peach-two", "--port", "9443",
                    "--mount", "local=/mnt/media")
-        loaded = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.root)})
+        loaded = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.root)})
         self.assertTrue(loaded.present)
         self.assertTrue(loaded.configured)
         self.assertEqual(loaded.server.mdns_name, "peach-two")
@@ -182,16 +182,16 @@ class InitCommandTests(unittest.TestCase):
             (self.root / "config.toml").read_text(encoding="utf-8"), stamp)
 
     def test_from_existing_only_writes_the_settings_file(self):
-        code, _ = self._init("--from-existing", "--smb-host", "peach-writer.local",
+        code, _ = self._init("--from-existing", "--smb-host", "medianfo-writer.local",
                              "--smb-user", "someone")
         self.assertEqual(code, 0)
         self.assertFalse((self.root / "database").exists())
         self.assertFalse((self.root / "generated").exists())
         self.certs.assert_not_called()
-        loaded = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.root)})
+        loaded = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.root)})
         # 现有部署本来就在复制；写一份设置文件不该把它悄悄关掉。
         self.assertTrue(loaded.replication.enabled)
-        self.assertEqual(loaded.replication.smb_host, "peach-writer.local")
+        self.assertEqual(loaded.replication.smb_host, "medianfo-writer.local")
         self.assertEqual(loaded.replication.smb_user, "someone")
 
     def test_from_existing_says_so_when_the_old_file_is_unreadable(self):
@@ -207,7 +207,7 @@ class InitCommandTests(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertIn("media.mounts", output)      # 原始错误里的升级提示
         self.assertIn("没有**继承", output)
-        loaded = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.root)})
+        loaded = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.root)})
         self.assertEqual(loaded.mounts, {})
 
     def test_blank_coordinates_are_listed_instead_of_guessed(self):
@@ -237,7 +237,7 @@ class InteractiveInitTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name).resolve()
-        self.data_root = self.root / "peach-data"
+        self.data_root = self.root / "medianfo-data"
         self.home = self.root / "home"
         self.home.mkdir()
         self.media = self.root / "media"
@@ -247,8 +247,8 @@ class InteractiveInitTests(unittest.TestCase):
         patcher = mock.patch.object(cli.onboarding.certs, "bootstrap_certificates")
         self.certs = patcher.start()
         self.addCleanup(patcher.stop)
-        # 第一题的默认值要落在临时目录里，回车接受默认才不会碰真实 Peach 数据目录。
-        env = mock.patch.dict(os.environ, {"PEACH_DATA_ROOT": str(self.data_root)})
+        # 第一题的默认值要落在临时目录里，回车接受默认才不会碰真实 MediaNfo 数据目录。
+        env = mock.patch.dict(os.environ, {"MEDIANFO_DATA_ROOT": str(self.data_root)})
         env.start()
         self.addCleanup(env.stop)
 
@@ -273,7 +273,7 @@ class InteractiveInitTests(unittest.TestCase):
             connection.close()
 
     def _loaded(self):
-        return settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.data_root)})
+        return settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.data_root)})
 
     @unittest.skipUnless(NATIVE_WINDOWS, "本用例需要真实存在的 Windows 盘符目录")
     def test_windows_flow_declares_the_directory_and_scans_it(self):
@@ -362,10 +362,10 @@ class InteractiveInitTests(unittest.TestCase):
 
         import httpx
 
-        from peach import web_resource_sync
-        from peach.api import create_app
-        from peach.config import PeachSettings
-        from peach.platform import translate_roots
+        from medianfo import web_resource_sync
+        from medianfo.api import create_app
+        from medianfo.config import MediaNfoSettings
+        from medianfo.platform import translate_roots
 
         self._run(["", str(self.media), "", "", "", "", ""], windows=NATIVE_WINDOWS)
         loaded = self._loaded()
@@ -374,7 +374,7 @@ class InteractiveInitTests(unittest.TestCase):
         active = mock.patch.object(settings_file, "active", lambda: loaded)
         active.start()
         self.addCleanup(active.stop)
-        settings = PeachSettings(
+        settings = MediaNfoSettings(
             db_path=loaded.directory("database") / "ledger.db", configured=True, token="secret",
             allowed_media_roots=translate_roots(tuple(root for roots in loaded.locations.values() for root in roots)),
         )
@@ -388,7 +388,7 @@ class InteractiveInitTests(unittest.TestCase):
                 sources = await client.get("/api/sources", headers={"Cookie": "tok=secret"})
                 return health, items, sources
 
-        with mock.patch("peach.config.LOCATION_ROOT_DECLARATIONS", dict(loaded.locations)), \
+        with mock.patch("medianfo.config.LOCATION_ROOT_DECLARATIONS", dict(loaded.locations)), \
                 mock.patch.object(web_resource_sync, "LOCATION_ROOT_DECLARATIONS",
                                   dict(loaded.locations)):
             health, items, sources = asyncio.run(probe())
@@ -412,7 +412,7 @@ class InitDispatchTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name).resolve() / "peach-data"
+        self.root = Path(self.tmp.name).resolve() / "medianfo-data"
         patcher = mock.patch.object(cli, "_init_interactive", return_value=0)
         self.interactive = patcher.start()
         self.addCleanup(patcher.stop)
@@ -430,7 +430,7 @@ class InitDispatchTests(unittest.TestCase):
         self.interactive.assert_called_once_with()
 
     def test_bare_init_without_a_terminal_stays_non_interactive(self):
-        with mock.patch.dict(os.environ, {"PEACH_DATA_ROOT": str(self.root)}):
+        with mock.patch.dict(os.environ, {"MEDIANFO_DATA_ROOT": str(self.root)}):
             self.assertEqual(self._run(["init"], tty=False), 0)
         self.interactive.assert_not_called()
         self.assertTrue((self.root / "config.toml").is_file())
@@ -440,7 +440,7 @@ class InitDispatchTests(unittest.TestCase):
         self.assertEqual(
             self._run(["init", "--data-root", str(self.root), "--no-input", "--force"], tty=True), 0)
         self.interactive.assert_not_called()
-        loaded = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.root)})
+        loaded = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.root)})
         # 非交互设置写出三个来源的默认数据库路径前缀。
         self.assertEqual(set(loaded.locations), {"local", "115", "pikpak"})
 
@@ -496,7 +496,7 @@ class ScanCommandTests(unittest.TestCase):
     def test_configured_scan_uses_each_online_source_id(self):
         fixed = replace(settings_file.active(), locations={'115': ('B:/',), 'pikpak': ('A:/',)})
         with mock.patch.object(settings_file, 'active', return_value=fixed), \
-             mock.patch('peach.platform.root_online', side_effect=[False, True]), \
+             mock.patch('medianfo.platform.root_online', side_effect=[False, True]), \
              mock.patch.object(cli.scan, 'scan_location') as scanner:
             code, output = self._run(['scan', 'configured', '--db', str(self.db)])
         self.assertEqual(code, 0)
@@ -538,7 +538,7 @@ class ProcessCommandTests(unittest.TestCase):
 
     def _run(self, result):
         output = io.StringIO()
-        with mock.patch("peach.library_processing.process_library", return_value=result), \
+        with mock.patch("medianfo.library_processing.process_library", return_value=result), \
                 redirect_stdout(output):
             code = cli.main(["process", "--db", str(self.db)])
         connection = sqlite3.connect(self.db)
@@ -602,7 +602,7 @@ class BrokenSettingsTests(unittest.TestCase):
 
     def test_commands_refuse_to_run_and_name_the_file(self):
         broken = settings_file.SettingsFileError(
-            "设置文件读不出来：/tmp/peach-data/config.toml：TOML 语法错误")
+            "设置文件读不出来：/tmp/medianfo-data/config.toml：TOML 语法错误")
         with mock.patch.object(cli, "SETTINGS_ERROR", broken):
             with self.assertRaises(SystemExit) as caught:
                 cli.main(["status", "--db", "/tmp/nope.db"])
@@ -623,9 +623,9 @@ class PackagedEntryTests(unittest.TestCase):
         cls.entry = load_script("build_app_entry")
 
     def setUp(self):
-        self.enterContext(mock.patch("peach.error_reporting.install"))
-        self.enterContext(mock.patch("peach.error_reporting.event"))
-        self.enterContext(mock.patch("peach.error_reporting.console_ready"))
+        self.enterContext(mock.patch("medianfo.error_reporting.install"))
+        self.enterContext(mock.patch("medianfo.error_reporting.event"))
+        self.enterContext(mock.patch("medianfo.error_reporting.console_ready"))
 
     def test_every_cli_subcommand_is_reachable_from_the_packaged_entry(self):
         subcommands = set()
@@ -645,15 +645,15 @@ class PackagedEntryTests(unittest.TestCase):
         self.assertEqual(output.getvalue(), "服务已启动\n".encode("utf-8"))
 
     def test_tray_still_starts_when_the_first_argument_is_not_a_subcommand(self):
-        self.assertFalse(self.entry.wants_cli(["peach.exe"]))
-        self.assertFalse(self.entry.wants_cli(["peach.exe", "--tray-only"]))
-        self.assertTrue(self.entry.wants_cli(["peach.exe", "status"]))
-        self.assertTrue(self.entry.wants_cli(["peach.exe", "ledger-sync"]))
+        self.assertFalse(self.entry.wants_cli(["medianfo.exe"]))
+        self.assertFalse(self.entry.wants_cli(["medianfo.exe", "--tray-only"]))
+        self.assertTrue(self.entry.wants_cli(["medianfo.exe", "status"]))
+        self.assertTrue(self.entry.wants_cli(["medianfo.exe", "ledger-sync"]))
 
     def test_installer_hooks_reach_the_installer_handoff_not_the_tray(self):
-        with mock.patch("peach.desktop_installer.main", return_value=0) as handoff, \
+        with mock.patch("medianfo.desktop_installer.main", return_value=0) as handoff, \
                 mock.patch.object(self.entry, "tray_main") as tray:
-            self.assertEqual(self.entry.main(["peach.exe", "--installer-uninstall"]), 0)
+            self.assertEqual(self.entry.main(["medianfo.exe", "--installer-uninstall"]), 0)
         handoff.assert_called_once_with("--installer-uninstall")
         tray.assert_not_called()
 
@@ -662,7 +662,7 @@ class PackagedEntryTests(unittest.TestCase):
         with mock.patch.object(self.entry, "cli_main", side_effect=RuntimeError("migration failed")), mock.patch.object(
             self.entry, "_prepare_console"
         ), mock.patch.object(self.entry.sys, "stderr", output):
-            self.assertEqual(self.entry.main(["peach.exe", "migrate", "upgrade", "--yes"]), 1)
+            self.assertEqual(self.entry.main(["medianfo.exe", "migrate", "upgrade", "--yes"]), 1)
         self.assertIn("migration failed", output.getvalue())
 
 

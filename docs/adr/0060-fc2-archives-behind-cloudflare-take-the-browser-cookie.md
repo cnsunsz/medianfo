@@ -2,7 +2,7 @@
 
 - 状态：Accepted
 - 日期：2026-09-24
-- 修订：ADR-0043「移除 fc2ppvdb」那一节（旧域 fc2ppvdb.com 仍判已关；新域 fc2ppv-db.com 由 Peach 自写解析器接回）
+- 修订：ADR-0043「移除 fc2ppvdb」那一节（旧域 fc2ppvdb.com 仍判已关；新域 fc2ppv-db.com 由 MediaNfo 自写解析器接回）
 
 ## 背景
 
@@ -45,7 +45,7 @@ Cookie 对了也回验证页。只升不降，换了主机的明文地址仍按�
 **四、FC2PPV-DB 不交封面。** 缩略图连最低宽度都过不了，交下去只是白花一次请求；封面留给链上前后指着存储原件的几档。
 「流出」标记进 `extra['leaked']`，只作证据，不投影到账本字段。
 
-**五、UA 走整站那一份，不按来源另收。** `cf_clearance` 绑着解题那台浏览器的 UA，但 Peach 是单人自托管应用，
+**五、UA 走整站那一份，不按来源另收。** `cf_clearance` 绑着解题那台浏览器的 UA，但 MediaNfo 是单人自托管应用，
 浏览器就是用户这一台 Chrome：`peach.user_agent.USER_AGENT` 按它的 `chrome://version` 定（2026-09-24 为
 Chrome 153），Chrome 大版本升了就改那一处，全部对外请求一起换。用户的判据是「不要我单独输 UA」。
 `scraping_access.SOURCES` 里这两站收 `cookie`、`session`，`blocked_pause` 6 小时；保存新 Cookie 时清掉该来源的
@@ -58,7 +58,7 @@ Chrome 153），Chrome 大版本升了就改那一处，全部对外请求一起
 
 - FC2 链多两档，只在前面几档落空或缺演员时发请求；没配 Cookie 时各自 403 一次后整站冷却 15 分钟起、翻倍到 6 小时，
   链照常往下走，不影响别的档。
-- `cf_clearance` 有效期短（站方一般数小时到一天），过期就要用户重新贴。这是这两站的固有成本，不是 Peach 的缺陷；
+- `cf_clearance` 有效期短（站方一般数小时到一天），过期就要用户重新贴。这是这两站的固有成本，不是 MediaNfo 的缺陷；
   自动过验证（无头浏览器、第三方解题服务）不做。
 - Cookie 必须来自 UA 所指的那台 Chrome，连接方式必须选与它同一个出口；Chrome 升了大版本而 `USER_AGENT` 没跟上，
   表现是 Cookie 对了仍 403。

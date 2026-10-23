@@ -22,13 +22,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach.config import GENERATED_DIR  # noqa: E402
-from peach.field_owners import write_owned_fields  # noqa: E402
-from peach.metadata_alias_resolve import is_descriptive  # noqa: E402
-from peach.metadata_auto_apply import _fc2_seller_as_label  # noqa: E402
-from peach.scripting import (  # noqa: E402
+from medianfo.config import GENERATED_DIR  # noqa: E402
+from medianfo.field_owners import write_owned_fields  # noqa: E402
+from medianfo.metadata_alias_resolve import is_descriptive  # noqa: E402
+from medianfo.metadata_auto_apply import _fc2_seller_as_label  # noqa: E402
+from medianfo.scripting import (  # noqa: E402
     add_ledger_write_args, counts_of, open_for_write, verify_after_write)
-from peach.sources import fc2  # noqa: E402
+from medianfo.sources import fc2  # noqa: E402
 
 OWNER = "script:repair_fc2_sellers_and_descriptive_names"
 EXTRA_COUNTS = {

@@ -26,12 +26,12 @@
 | --- | --- | --- |
 | Vercel Geist `MiddleTruncate` | 官方行为页当前可查；公开可安装源码未取得 | 复用行为契约，不复制未取得的内部代码 |
 | `truncate-middle==2.0.1` | MIT、零依赖、约 1 年前发布 | 只按固定字符数切割，不读取容器宽度，也不处理复制与无障碍；不采用 |
-| `@telegraph/truncate` | 支持测量式 middle mode | React 组件；Peach 明确保持无构建原生前端，不为一个文本原语引入 React；不采用 |
+| `@telegraph/truncate` | 支持测量式 middle mode | React 组件；MediaNfo 明确保持无构建原生前端，不为一个文本原语引入 React；不采用 |
 | `@web-components/middle-truncate` | Web Component，项目自述为 work in progress | 稳定性不足；不采用 |
 
-## Peach 采用的差异
+## MediaNfo 采用的差异
 
-Peach 使用原生 `ResizeObserver`、`Intl.Segmenter` 与 Canvas 文本测量实现一个平铺 ES module，
+MediaNfo 使用原生 `ResizeObserver`、`Intl.Segmenter` 与 Canvas 文本测量实现一个平铺 ES module，
 不新增运行时依赖。首批消费者是重复文件名、重复文件路径、高清版目标文件名和照片详情文件名。
 媒体标题、创作者名、说明文字等语义文本继续使用末尾省略或多行截断。
 

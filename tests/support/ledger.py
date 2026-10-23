@@ -8,7 +8,7 @@
 模板只建一次，之后按文件复制。24 个 migration 跑一遍约 0.7 秒，每个 `setUp` 都跑
 会给套件加上分钟级的开销，而 SQLite 的库就是一个文件，复制它和建空库同价。
 
-真实账本 `peach-data/database/ledger.db` 与这里无关，测试只用临时目录。
+真实账本 `medianfo-data/database/ledger.db` 与这里无关，测试只用临时目录。
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ _template: Path | None = None
 def _ledger_template() -> Path:
     global _template
     if _template is None:
-        from peach import migrations
+        from medianfo import migrations
 
         holder = Path(tempfile.mkdtemp(prefix="peach-ledger-template-")).resolve()
         atexit.register(shutil.rmtree, holder, ignore_errors=True)

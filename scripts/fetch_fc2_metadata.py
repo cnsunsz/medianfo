@@ -49,16 +49,16 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.catalog_rules import normalise_code_key
-from peach.config import SECRETS_DIR
-from peach.scraping_access import client_for
-from peach.genre_decisions import load_genre_decisions
-from peach.genre_taxonomy import map_genres
-from peach.review_csv import read_rows, write_rows
-from peach.scripting import open_readonly
-from peach.config import DATABASE_PATH, GENERATED_DIR
-from peach.sources.fc2 import canonical_code
-from peach.sources.fc2cmadb import (VIDEO_ID, Fc2cmadbSource, collection_parts, inertia_props,
+from medianfo.catalog_rules import normalise_code_key
+from medianfo.config import SECRETS_DIR
+from medianfo.scraping_access import client_for
+from medianfo.genre_decisions import load_genre_decisions
+from medianfo.genre_taxonomy import map_genres
+from medianfo.review_csv import read_rows, write_rows
+from medianfo.scripting import open_readonly
+from medianfo.config import DATABASE_PATH, GENERATED_DIR
+from medianfo.sources.fc2 import canonical_code
+from medianfo.sources.fc2cmadb import (VIDEO_ID, Fc2cmadbSource, collection_parts, inertia_props,
                                     page_comments, parse_equivalences, parse_performers)
 
 FC2_COVER_WIDTH = 1200
@@ -209,10 +209,10 @@ def _candidate_key(code: str, field: str, value: object) -> str:
 
 
 def translated_tags(raw: str, genre_decisions=None) -> list[str]:
-    """Conservatively project archived FC2 labels into Peach's reviewed taxonomy.
+    """Conservatively project archived FC2 labels into MediaNfo's reviewed taxonomy.
 
     词表和 JAV 官方来源共用 `peach.genre_taxonomy`：同一个日文标签在 FC2 和
-    dmm/mgstage 上必须投影到同一个 Peach 标签，两份表迟早会漂移。用户在复核页
+    dmm/mgstage 上必须投影到同一个 MediaNfo 标签，两份表迟早会漂移。用户在复核页
     收录下来的那批也共用，不然收录一次只对其中一条抓取链生效。
     """
     return map_genres(str(raw or "").split(), genre_decisions)[0]

@@ -1,8 +1,8 @@
-# 参与 Peach
+# 参与 MediaNfo
 
 Issues and pull requests are welcome. Small fixes (bugs, copy, documentation, tests) can go straight to a PR; large changes — new pages, new connectors, contract or data-layer changes, anything an ADR covers — should be discussed in an issue first. Read [`AGENTS.md`](AGENTS.md) before opening a PR: it is the single entry point for development rules, and reviews follow it. Each platform has exactly one test entry point: `& .\scripts\test.ps1` on Windows and `./scripts/test.sh` on macOS/Linux. By submitting a contribution you agree to license it under AGPL-3.0-or-later. The rest of this document is in Chinese.
 
-Peach 是单人自托管应用，由一个人维护。欢迎提 Issue 和 PR。
+MediaNfo 是单人自托管应用，由一个人维护。欢迎提 Issue 和 PR。
 
 - 小修（修缺陷、改文案、补文档、补测试）可以直接提 PR。
 - 大改动（新页面、新连接器、改接口约定或数据层、涉及 ADR 的方向）请先开 issue 讨论，免得做完才发现和既定设计冲突。
@@ -11,8 +11,8 @@ Peach 是单人自托管应用，由一个人维护。欢迎提 Issue 和 PR。
 
 ## 开 Issue
 
-- **报缺陷**：写清 Peach 版本或构建、系统版本及架构、安装方式、复现步骤、期望结果和实际结果，附上完整报错。无法稳定复现时说明发生条件，不要求自行判断根因。Python 版本仅用于源码部署，可选；`/healthz` 返回也可选，服务无法启动时写「无法访问」即可。贴日志或诊断报告前先遮盖本机路径、网络地址、账号及凭据。
-- **提需求**：写清问题和使用场景。开放需求见 [公开路线图](https://github.com/orgs/peach-mitao/projects/7)，设计边界见 [总体架构](docs/ARCHITECTURE.md#明确不做)。涉及多用户、云托管、微服务或 PostgreSQL 的提案，先讨论是否需要新增 ADR。
+- **报缺陷**：写清 MediaNfo 版本或构建、系统版本及架构、安装方式、复现步骤、期望结果和实际结果，附上完整报错。无法稳定复现时说明发生条件，不要求自行判断根因。Python 版本仅用于源码部署，可选；`/healthz` 返回也可选，服务无法启动时写「无法访问」即可。贴日志或诊断报告前先遮盖本机路径、网络地址、账号及凭据。
+- **提需求**：写清问题和使用场景。开放需求见 [公开路线图](https://github.com/cnsunsz/projects/7)，设计边界见 [总体架构](docs/ARCHITECTURE.md#明确不做)。涉及多用户、云托管、微服务或 PostgreSQL 的提案，先讨论是否需要新增 ADR。
 - **安全问题**：不要开公开 issue，按 [`SECURITY.md`](SECURITY.md) 私下报告。
 
 ## Issue 处理规范
@@ -81,7 +81,7 @@ GitHub 的字段与模板机制见 [Issue types](https://docs.github.com/en/issu
 
 `frontend/` 需要 Node 24 或更高版本。
 
-运行 Peach 时不需要 Node，Python 服务和安装包直接读取构建好的 `web/dist/`，所以它要提交进 Git。改了 `frontend/src` 后，在同一个 PR 里运行 `npm --prefix frontend run build` 并提交 `web/dist/`；CI 的 `web-bundle` 任务会检查构建结果和源码是否一致。目录结构与样式约定见 [`docs/FRONTEND.md`](docs/FRONTEND.md)。
+运行 MediaNfo 时不需要 Node，Python 服务和安装包直接读取构建好的 `web/dist/`，所以它要提交进 Git。改了 `frontend/src` 后，在同一个 PR 里运行 `npm --prefix frontend run build` 并提交 `web/dist/`；CI 的 `web-bundle` 任务会检查构建结果和源码是否一致。目录结构与样式约定见 [`docs/FRONTEND.md`](docs/FRONTEND.md)。
 
 ## 提交说明与变更日志
 

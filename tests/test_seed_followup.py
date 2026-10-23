@@ -5,11 +5,11 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
-from peach import seed_followup, seed_pack, seed_validation
-from peach.entities import normalize_entity_name
-from peach.repository import LedgerDatabase
-from peach.review_csv import read_rows
-from peach.task_runs import TaskRunStore
+from medianfo import seed_followup, seed_pack, seed_validation
+from medianfo.entities import normalize_entity_name
+from medianfo.repository import LedgerDatabase
+from medianfo.review_csv import read_rows
+from medianfo.task_runs import TaskRunStore
 from support.ledger import fresh_ledger
 
 VERSION = "2026-09-25"

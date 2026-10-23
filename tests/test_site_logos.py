@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import unittest
 
-from peach import site_logos
+from medianfo import site_logos
 
 
 PAGE = """

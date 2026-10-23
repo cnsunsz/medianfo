@@ -1,11 +1,11 @@
 /* React 子树共用的样式基线：暗色变体、Inter、阴影 token、`.peach-react` 容器基线与 token 重声明、
- * 下拉高度、输入框静止态边线与横滚条。主界面的 `styles.css`（`peach-app.css`）与独立页面包的 `pages/pages.css`
+ * 下拉高度、输入框静止态边线与横滚条。主界面的 `styles.css`（`medianfo-app.css`）与独立页面包的 `pages/pages.css`
  * （`peach-pages.css`）各引一次，两份产物里的控件读到同一套值。这里不写 `@source`，
  * 扫描范围由各自的入口决定。 */
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* 上游 `--font-sans` 引用 Next.js 字体加载器注入的 `--font-inter`；Peach 的 Inter 由
+/* 上游 `--font-sans` 引用 Next.js 字体加载器注入的 `--font-inter`；MediaNfo 的 Inter 由
  * board.css 引入的 `/vendor/inter/` 提供。 */
 :root {
   --font-inter: "Inter Variable", "Inter";
@@ -149,7 +149,7 @@
  * 按钮）一眼就看得出来。
  *
  * 所以这一档写成整层的规则，不是某一排的补丁：逐排挂钩子的话，新加一排就得记得再挂一次，
- * 而漏挂和「这排本来就该这样」在屏幕上看不出区别。高度在 Peach 这一层从外面补齐，
+ * 而漏挂和「这排本来就该这样」在屏幕上看不出区别。高度在 MediaNfo 这一层从外面补齐，
  * `boardui/` 那份复制件逐字不改。
  *
  * 按 `aria-haspopup="listbox"` 认这颗 trigger：那是 react-aria 给下拉按钮的固定标记，
@@ -164,7 +164,7 @@
   height: calc(var(--spacing) * 8);
 }
 
-/* 输入框的静止态边线。BoardUI 的 Input 靠 tertiary 填充立住、静止态不画边，而 Peach 暗色
+/* 输入框的静止态边线。BoardUI 的 Input 靠 tertiary 填充立住、静止态不画边，而 MediaNfo 暗色
  * 的 tertiary 面与 primary 面同为 neutral-800：坐在 primary 卡面上的输入框（配置页「媒体」
  * 与首启页的文件夹行、媒体库名称）整块与卡面同色，框只在聚焦时由 ring 画出来。同一张表单里的
  * Select 本来就带 button border，这里按同一个 token 给输入框补上，两种控件静止态同形。
@@ -178,7 +178,7 @@
 }
 
 /* 输入框的失败态：填充照静止态，只把框线换成 danger 色，聚焦时那圈 ring 也是 danger 色。
- * BoardUI 默认整块铺粉底、下面的原因写红字；Peach 的失败态统一按 Vercel Fieldset 只让框线变色，
+ * BoardUI 默认整块铺粉底、下面的原因写红字；MediaNfo 的失败态统一按 Vercel Fieldset 只让框线变色，
  * 原因照常写在框下，用说明文字的颜色。上游副本不改（`boardui/ORIGIN.md`），在这里统一压过去。 */
 .peach-react [data-input-size] > div[data-rac][data-invalid] {
   background-color: var(--color-background-tertiary-default);

@@ -4,9 +4,9 @@
 
 当前 <https://vercel.com/geist/modal> 文字规范已读取：标题说明动作，按钮使用明确动词与对象；
 失败时让用户重试。Chrome 打开参考页返回 `js execution timed out; kernel reset`，当前渲染几何
-未取得；使用下方已有实测值及 Peach 共享组件，不声称重新测量整套动效。
+未取得；使用下方已有实测值及 MediaNfo 共享组件，不声称重新测量整套动效。
 数据管理等入口共用确认弹层，危险操作默认聚焦取消，提交期间阻止重复执行，失败留在弹层。
-Peach 的手机按钮保持 44px；可还原的记录清理采用中性主按钮，永久删除使用危险样式。
+MediaNfo 的手机按钮保持 44px；可还原的记录清理采用中性主按钮，永久删除使用危险样式。
 这是人工使用记录，沿用下方不登记上游快照表的理由。
 
 - 取证日期：2026-09-04
@@ -49,7 +49,7 @@ Peach 的手机按钮保持 44px；可还原的记录清理采用中性主按钮
 - 打开时锁焦点在弹层内，关掉后把焦点还给触发钮。
 - 成功后的 Toast 与主按钮的动词一一对应（`Delete Project` → `Project deleted`）。
 
-## Peach 复用了什么
+## MediaNfo 复用了什么
 
 `web/js/ui-components.js` 的 `confirmModal()` 与 `web/css/01-base.css` 的 `.geist-modal`
 据此实现：540 px 宽、窄屏两侧各留 10 px、12 px 圆角、正文 20 px 内边距、标题 20 px／26 px
@@ -57,9 +57,9 @@ Peach 的手机按钮保持 44px；可还原的记录清理采用中性主按钮
 那一节写：资料页换统称的弹层标题是「更改统称」，主按钮同为「更改统称」，成功 Toast 是
 「已把统称更改为 X」，取消键就写「取消」。
 
-## Peach 有意不同的地方
+## MediaNfo 有意不同的地方
 
-| 项 | Peach | 原因 |
+| 项 | MediaNfo | 原因 |
 | --- | --- | --- |
 | 承载元素 | 原生 `<dialog>` + `showModal()` | 焦点陷阱、Escape、背景 inert 和归还焦点都由浏览器给；Geist 那套 div 覆盖层要自己补齐这四样 |
 | 按钮高 | 32 px（`--control-h` 档） | 全站控件已统一在这一档，见 `vercel-geist-controls-measured.md` |

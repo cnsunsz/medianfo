@@ -13,7 +13,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
 
-from peach import auth, cli, settings_file
+from medianfo import auth, cli, settings_file
 
 
 class TokenFileTests(unittest.TestCase):
@@ -49,7 +49,7 @@ class TokenFileTests(unittest.TestCase):
         first = auth.write_token(self.secrets)
         self.assertNotEqual(auth.write_token(self.secrets), first)
 
-    @unittest.skipIf(os.name == "nt", "Windows 的 chmod 只动只读位，权限靠 Peach 数据目录本身")
+    @unittest.skipIf(os.name == "nt", "Windows 的 chmod 只动只读位，权限靠 MediaNfo 数据目录本身")
     def test_the_token_file_is_owner_only(self):
         auth.write_token(self.secrets)
         self.assertEqual(auth.token_path(self.secrets).stat().st_mode & 0o777, 0o600)
@@ -57,7 +57,7 @@ class TokenFileTests(unittest.TestCase):
     def test_resolution_order_is_flag_then_environment_then_file(self):
         auth.write_token(self.secrets)
         on_disk = auth.read_token(self.secrets)
-        with mock.patch.dict(os.environ, {"PEACH_TOKEN": "from-env"}):
+        with mock.patch.dict(os.environ, {"MEDIANFO_TOKEN": "from-env"}):
             self.assertEqual(auth.resolve_token("from-flag", self.secrets), "from-flag")
             self.assertEqual(auth.resolve_token("", self.secrets), "from-env")
         with mock.patch.dict(os.environ, {}, clear=True):
@@ -70,8 +70,8 @@ class ServeGateTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name).resolve() / "peach-data"
-        self.config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.root)})
+        self.root = Path(self.tmp.name).resolve() / "medianfo-data"
+        self.config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.root)})
         patcher = mock.patch.object(cli.settings_file, "active", return_value=self.config)
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -124,8 +124,8 @@ class TokenCommandTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name).resolve() / "peach-data"
-        self.config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.root)})
+        self.root = Path(self.tmp.name).resolve() / "medianfo-data"
+        self.config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.root)})
         patcher = mock.patch.object(cli.settings_file, "active", return_value=self.config)
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -165,7 +165,7 @@ class InitProvisionsTokenTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
-        self.root = Path(self.tmp.name).resolve() / "peach-data"
+        self.root = Path(self.tmp.name).resolve() / "medianfo-data"
         patcher = mock.patch.object(cli.onboarding.certs, "bootstrap_certificates")
         patcher.start()
         self.addCleanup(patcher.stop)

@@ -1,11 +1,11 @@
 import json
 import unittest
 
-from peach.follow import FollowSourceError
-from peach.follow_avatar import (
+from medianfo.follow import FollowSourceError
+from medianfo.follow_avatar import (
     profile_avatar_tiers, profile_identities, resolve_official_avatar, resolve_official_profile,
 )
-from peach.http import HttpResponse
+from medianfo.http import HttpResponse
 
 
 class _Transport:

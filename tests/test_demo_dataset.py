@@ -22,14 +22,14 @@ from contextlib import closing
 from pathlib import Path
 from unittest.mock import Mock
 
-from peach import catalog_rules
-from peach.ffmpeg import FFmpegResolver
-from peach.field_owners import review_owner
-from peach.library_nfo import local_art, read_nfo, sidecars
-from peach.library_processing import process_library
-from peach.review_csv import read_rows
-from peach.settings_file import PeachConfig
-from peach.metadata_auto_apply import _apply_metadata_candidate
+from medianfo import catalog_rules
+from medianfo.ffmpeg import FFmpegResolver
+from medianfo.field_owners import review_owner
+from medianfo.library_nfo import local_art, read_nfo, sidecars
+from medianfo.library_processing import process_library
+from medianfo.review_csv import read_rows
+from medianfo.settings_file import MediaNfoConfig
+from medianfo.metadata_auto_apply import _apply_metadata_candidate
 from support.conditions import windows_ledger_roots
 from support.ledger import fresh_ledger
 from support.demo import seed_metadata_cache
@@ -128,7 +128,7 @@ class DemoDatasetTests(unittest.TestCase):
     def test_scan_and_process_consume_the_tree_without_any_network_call(self):
         media, items = self._generate("media")
         db = fresh_ledger(self.root)
-        config = PeachConfig(self.root, self.root / "config.toml", present=True,
+        config = MediaNfoConfig(self.root, self.root / "config.toml", present=True,
                              locations={"local": (str(media),)})
         seed_metadata_cache(media, config.directory('sources'))
         factory = Mock()

@@ -10,7 +10,7 @@ r"""用经维护的中日姓名映射本地化番号体系女优名称，并把�
 把 `高山涼音` 写成 `高山凉音` 不涉及任何译名判断。映射只覆盖已收录的艺人，剩下的名字
 就一直卡在日本字形上，看着像中文名又不是中文名——这一道专治那个。
 
-映射 XML 是外部复核来源，不随 Peach 分发，可以不给：不给就只跑字形归一。默认只产出
+映射 XML 是外部复核来源，不随 MediaNfo 分发，可以不给：不给就只跑字形归一。默认只产出
 全库 CSV；`--apply` 写真实 ledger 时必须同时提供 `--backup`。旧规范名、日文名、假名与
 繁体名都保留为别名。
 """
@@ -33,13 +33,13 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach import javdb
-from peach.config import DATA_ROOT, GENERATED_DIR
-from peach.entities import merge_entity, normalize_entity_name
-from peach.entry_links import JAV_DIRECTORIES
-from peach.kanji import JP_KANJI_TO_SIMPLIFIED, simplify_kanji   # noqa: F401 - 供测试与脚本共用
-from peach.review_csv import read_rows, write_rows
-from peach.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
+from medianfo import javdb
+from medianfo.config import DATA_ROOT, GENERATED_DIR
+from medianfo.entities import merge_entity, normalize_entity_name
+from medianfo.entry_links import JAV_DIRECTORIES
+from medianfo.kanji import JP_KANJI_TO_SIMPLIFIED, simplify_kanji   # noqa: F401 - 供测试与脚本共用
+from medianfo.review_csv import read_rows, write_rows
+from medianfo.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
 
 
 RELEASE_SOURCES = frozenset({

@@ -10,7 +10,7 @@
 可变 Markdown。同一 revision 已由 `amane-content-routes` 条目登记，那条跟踪的是上游的
 `docs/dev/content-routes.md` 原文，与本文无关。
 
-只借设计，不引代码。GPL-3.0 的实现一行也不进 Peach。
+只借设计，不引代码。GPL-3.0 的实现一行也不进 MediaNfo。
 
 ## 一、作品海报裁剪（poster 从 thumb 裁）
 
@@ -90,9 +90,9 @@
 - 全仓 `crop` 命中的文件里没有任何一处与 actor 相关。
 
 也就是说，用户说的「跟 amane 一样」在**海报裁剪**上成立，在**头像从封面裁取**上没有上游先例；
-那部分是 Peach 自己的设计，本文不为它编造上游依据。
+那部分是 MediaNfo 自己的设计，本文不为它编造上游依据。
 
-## 三、Peach 可迁移的点与主动差异
+## 三、MediaNfo 可迁移的点与主动差异
 
 可迁移：
 
@@ -102,10 +102,10 @@
 - 底图取字节时绕开 HTTP 缓存，保证前端量的像素和后端裁的像素是同一份；
 - 无底图时按钮禁用并用 tooltip 说明原因，而不是点开后才报错。
 
-Peach 主动保留的差异：
+MediaNfo 主动保留的差异：
 
-- 不引 `react-image-crop`（GPL 仓库的选型不构成 Peach 的依赖理由，且 Peach 有依赖清单门槛），
+- 不引 `react-image-crop`（GPL 仓库的选型不构成 MediaNfo 的依赖理由，且 MediaNfo 有依赖清单门槛），
   框选用原生实现；
-- 入口放在标题旁的按钮行，不放封面下方——Peach 的详情页左栏没有那个位置；
-- 裁剪来源写成 `user:crop`，进 Peach 自己的封面证据链；上游没有来源分级这一说；
-- 头像那条按 Peach 自己的实体与 artifact 模型做。
+- 入口放在标题旁的按钮行，不放封面下方——MediaNfo 的详情页左栏没有那个位置；
+- 裁剪来源写成 `user:crop`，进 MediaNfo 自己的封面证据链；上游没有来源分级这一说；
+- 头像那条按 MediaNfo 自己的实体与 artifact 模型做。

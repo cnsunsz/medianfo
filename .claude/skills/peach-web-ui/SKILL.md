@@ -1,9 +1,9 @@
 ---
-name: peach-web-ui
-description: 在新增、修改或复核 Peach 页面、控件、提示、错误、数据面板、响应式布局或视觉样式时使用。
+name: medianfo-web-ui
+description: 在新增、修改或复核 MediaNfo 页面、控件、提示、错误、数据面板、响应式布局或视觉样式时使用。
 ---
 
-# Peach Web UI 复用门槛
+# MediaNfo Web UI 复用门槛
 
 最后复核：2026-10-18
 证据来源：现有 UI 契约、`docs/TESTING.md`、2026-09-19 本机会话工具记录、jakubkrehel/skills 与 emilkowalski/skills 摘录、`docs/reference-snapshots/open-claude-ui.md`。
@@ -94,7 +94,7 @@ description: 在新增、修改或复核 Peach 页面、控件、提示、错误
 
 1. 先确认失败模式与现有覆盖，再选择组件、API／数据层或浏览器测试。纯文案、等价重构不补源码文本断言；通用规范由 lint 或集中扫描检查，具体分工见 `docs/TESTING.md`。
 2. Windows 从隔离 worktree 根运行 `& .\scripts\test.ps1`，默认 `auto`；按影响域补测，规则见 `peach-worktree`。
-3. 桌面与 390×844 的通用不变量（无横向溢出、无越出视口的元素、等待态会结束、控制台无错误、无失败请求）由 `web` 域的 `tests/test_web_e2e.py` 执行，不再逐页手测；新路由加进 `frontend/e2e/smoke.test.ts` 的 `ROUTES`，分区 tab 由用例逐格切过去再测。用例靠 `aria-busy` 与 `data-skeleton` 判断页面稳定，React 子树也要写：BoardUI 组件不带加载态，由 Peach 包装件补上。浏览器里发现的可判定问题（几何、computed style、状态切换），先在 `frontend/e2e/` 写出失败用例再修。页面迁到 React 时，旧源码断言按 ADR-0031 分三类再删：设计决定进 `frontend/e2e/design-*.test.ts` 或 lint，行为进 vitest，布局与运行期进冒烟。
+3. 桌面与 390×844 的通用不变量（无横向溢出、无越出视口的元素、等待态会结束、控制台无错误、无失败请求）由 `web` 域的 `tests/test_web_e2e.py` 执行，不再逐页手测；新路由加进 `frontend/e2e/smoke.test.ts` 的 `ROUTES`，分区 tab 由用例逐格切过去再测。用例靠 `aria-busy` 与 `data-skeleton` 判断页面稳定，React 子树也要写：BoardUI 组件不带加载态，由 MediaNfo 包装件补上。浏览器里发现的可判定问题（几何、computed style、状态切换），先在 `frontend/e2e/` 写出失败用例再修。页面迁到 React 时，旧源码断言按 ADR-0031 分三类再删：设计决定进 `frontend/e2e/design-*.test.ts` 或 lint，行为进 vitest，布局与运行期进冒烟。
 4. 浏览器取证只留给用例表达不了的：新布局首次成形、对齐外部参考、hover／focus 与观感判断。默认用 `agent-browser`（全局 CLI，装法 `npm i -g agent-browser`；
    环境变量 `AGENT_BROWSER_EXECUTABLE_PATH` 指向本机 Chrome，`AGENT_BROWSER_SESSION=<任务名>` 隔离会话）：`open <url>` → `wait <选择器>` → `snapshot -i -c -s <选择器>`／`get styles <选择器>`／`eval <js>`／`screenshot <文件>`，验完 `close`。
    Bash 工具里每条命令加 `</dev/null` 或把输出重定向到文件：接管道时 CLI 会等 stdin 直到工具超时。残留守护进程核对任务归属后按 PID 清理，不按进程名批量结束。

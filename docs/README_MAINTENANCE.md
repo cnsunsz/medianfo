@@ -11,10 +11,10 @@ README 面向初次访问项目的人，依次讲它是什么、介绍视频与�
 
 | 内容 | 核验入口 |
 | --- | --- |
-| Python 与桌面命令 | `pyproject.toml`、`src/peach/cli.py`、`src/peach/tray.py` |
+| Python 与桌面命令 | `pyproject.toml`、`src/medianfo/cli.py`、`src/medianfo/tray.py` |
 | 前端工具与产物 | `frontend/package.json`、[docs/FRONTEND.md](FRONTEND.md) |
 | 桌面包与平台范围 | [docs/TESTING_DESKTOP.md](TESTING_DESKTOP.md)、`.github/workflows/release.yml` |
-| 当前行为与已部署范围 | 实现与测试、[运行与配置](OPERATIONS.md)、[公开路线图](https://github.com/orgs/peach-mitao/projects/7) |
+| 当前行为与已部署范围 | 实现与测试、[运行与配置](OPERATIONS.md)、[公开路线图](https://github.com/cnsunsz/projects/7) |
 | 来源、配置与数据边界 | [docs/SOURCING.md](SOURCING.md)、[docs/OPERATIONS.md](OPERATIONS.md)、[docs/CLOUDDRIVE.md](CLOUDDRIVE.md) |
 
 README 迭代绑定 Codex 与 Claude 共用的工作树交付流程。每次提交前核对暂存差异，
@@ -92,8 +92,8 @@ SHA-256 对不上是硬错误，不降级放行。
 
 三种形状对应三条产品路径：番号型（`<番号>/<番号>.mp4` 配 NFO 与 `-poster.jpg`，部分带
 `P/` 图集）走本地资料入库；创作者型（`<创作者>/<标题>.mp4` 配 PNG 与无番号 NFO）走
-`posters/<id>_4.jpg` 本地海报；裸文件演示没有番号也没有边车的条目，只登记、不报问题。让 Peach 看见它：`peach init`
-建演示 Peach 数据目录，在设置文件 `[media.locations]` 声明这个目录，`peach scan local`、
+`posters/<id>_4.jpg` 本地海报；裸文件演示没有番号也没有边车的条目，只登记、不报问题。让 MediaNfo 看见它：`peach init`
+建演示 MediaNfo 数据目录，在设置文件 `[media.locations]` 声明这个目录，`peach scan local`、
 `peach process local`，候选在复核页全选通过或用 `scripts/apply_metadata_tags.py --source local_nfo`
 按字段落地；要九宫格再跑 `scripts/probe.py` 与 `scripts/sheets.py`。生成器结束时会把这几步连同
 当前平台的设置行一起打印出来。
@@ -105,14 +105,14 @@ SHA-256 对不上是硬错误，不降级放行。
 
 - **README 结构（2026-09-06）**：取 Immich、Bruno、Hoppscotch 当时的 README 原文作参照，
   URL、日期与 SHA-256 见 `docs/reference-sources.json` 的 `readme-*` 条目。
-  采用短定位、小尺寸具象 Logo、集中下载导航和精简能力分组；仅沿用 Peach 自有图标，
+  采用短定位、小尺寸具象 Logo、集中下载导航和精简能力分组；仅沿用 MediaNfo 自有图标，
   不复制外部商标、截图、功能承诺或宣传内容。上游快照仅为取证，保留原文及上游许可入口。
 - **同类项目的 README（2026-09-26）**：映库、OpenAver、amane、Stash、MetaTube、MDCx，
   登记同在 `docs/reference-sources.json`。借的是信息顺序：页头链接行、
   视频与截图靠前、功能一行一条、下载三步走、常见问题、反馈要附什么。不借文案、截图和附加
-  使用条款，Peach 的边界以 AGPL 与 `SECURITY.md` 为准。
+  使用条款，MediaNfo 的边界以 AGPL 与 `SECURITY.md` 为准。
 - **演示素材**：README 里任何截图或视频都按上面「演示数据集」一节的边界取图，换素材时重新核对
   那几条边界。
-- **篇幅取舍（2026-10-17）**：复读已登记的 amane、Stash 与 OpenAver 原文，并核对线上 README。采用 amane 的短功能列表与安装入口，保留 Peach 的演示、全部五张截图、六条特色和必要安全说明；源码安装步骤集中在 [运行与配置](OPERATIONS.md#从源码运行windowsmacos)。路由、字段判据、缓存周期、更新包机制与开发流程由专题文档承载。
+- **篇幅取舍（2026-10-17）**：复读已登记的 amane、Stash 与 OpenAver 原文，并核对线上 README。采用 amane 的短功能列表与安装入口，保留 MediaNfo 的演示、全部五张截图、六条特色和必要安全说明；源码安装步骤集中在 [运行与配置](OPERATIONS.md#从源码运行windowsmacos)。路由、字段判据、缓存周期、更新包机制与开发流程由专题文档承载。
 - **截图与 Star 历史（2026-10-17）**：截图沿用 `a5f979d6^` 的双列表格，播放墙独占一行，五张 WebP 均链接 PNG 原图。Star History 依据官方 [`EmbedMarkdownSection.tsx`](https://github.com/star-history/star-history/blob/608d0e39be441665c01cd6ac1fd01ca5ec1eaf39/frontend/components/EmbedMarkdownSection.tsx) 使用 `/svg`，保留深浅主题并链接用户指定的交互页。实测 `/chart` 与 `/svg` 均返回 HTTP 200、SVG 类型及 `Cache-Control: public, s-maxage=86400, max-age=86400`；同版本 [`cache.ts`](https://github.com/star-history/star-history/blob/608d0e39be441665c01cd6ac1fd01ca5ec1eaf39/backend/cache.ts) 将数据与 SVG 缓存各设为 24 小时。交互页 URL 仅改变点击去向，不能保证嵌入图片即时刷新；README 不显示实时性承诺。
-- **交互图与嵌入图（2026-10-17）**：用户截图显示纵轴为 0、10、100；嵌入接口使用 `logscale` 得到相同刻度。官方同版本 [`StarChartViewer.tsx`](https://github.com/star-history/star-history/blob/608d0e39be441665c01cd6ac1fd01ca5ec1eaf39/frontend/components/StarChartViewer.tsx) 在浏览器调用 GitHub，并在页面内存中复用结果；24 小时服务端缓存针对嵌入图片接口，不能据此判断官网交互图的数据新鲜度。官网 `https://peach.video` 位于中英文 README 顶部导航。
+- **交互图与嵌入图（2026-10-17）**：用户截图显示纵轴为 0、10、100；嵌入接口使用 `logscale` 得到相同刻度。官方同版本 [`StarChartViewer.tsx`](https://github.com/star-history/star-history/blob/608d0e39be441665c01cd6ac1fd01ca5ec1eaf39/frontend/components/StarChartViewer.tsx) 在浏览器调用 GitHub，并在页面内存中复用结果；24 小时服务端缓存针对嵌入图片接口，不能据此判断官网交互图的数据新鲜度。官网 `https://github.com/cnsunsz/medianfo` 位于中英文 README 顶部导航。

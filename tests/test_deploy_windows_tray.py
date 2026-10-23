@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from peach import __version__
+from medianfo import __version__
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -41,10 +41,10 @@ class DeployWindowsTrayTests(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         # 部署入口先 resolve 检出根和目标，断言也得拿 resolve 过的路径比。
         self.root = Path(self.temp.name).resolve()
-        self.target = self.root / "dist" / "Peach" / "Peach.exe"
+        self.target = self.root / "dist" / "MediaNfo" / "MediaNfo.exe"
         self.target.parent.mkdir(parents=True)
         self.target.write_bytes(b"old")
-        self.staged = self.root / "staging" / "Peach.exe"
+        self.staged = self.root / "staging" / "MediaNfo.exe"
         self.staged.parent.mkdir()
         self.staged.write_bytes(b"new")
         self.installer = mock.Mock()
@@ -54,7 +54,7 @@ class DeployWindowsTrayTests(unittest.TestCase):
         self.restarted = mock.Mock(return_value=mock.Mock(
             ok=True, message="托盘已正常重启并重新拥有 HTTP/HTTPS 子服务",
             old_tray_pid=10, new_tray_pid=30, service_pids=(51, 52),
-            backup=str(self.target.with_name("Peach.pre-source-sync-20260906-120000.exe")),
+            backup=str(self.target.with_name("MediaNfo.pre-source-sync-20260906-120000.exe")),
         ))
 
     def tearDown(self):
@@ -70,7 +70,7 @@ class DeployWindowsTrayTests(unittest.TestCase):
         return deploy_windows_tray.deploy(self.root, **arguments)
 
     def test_a_dirty_checkout_stops_before_anything_is_built_or_swapped(self):
-        outcome = self.run_deploy(run=git_runner(porcelain=" M src/peach/tray.py\n"))
+        outcome = self.run_deploy(run=git_runner(porcelain=" M src/medianfo/tray.py\n"))
         self.assertFalse(outcome["ok"])
         self.assertEqual(outcome["step"], "checkout")
         self.installer.build_staged_tray.assert_not_called()
@@ -115,7 +115,7 @@ class DeployWindowsTrayTests(unittest.TestCase):
     def test_a_venv_owned_deployment_is_verified_by_the_binary_that_landed(self):
         """回话的是源码进程时，认落地那个文件的指纹。
 
-        托盘按 `_peach_executable()` 的设计把两个子服务交回项目 venv，那个进程没有第二个
+        托盘按 `_medianfo_executable()` 的设计把两个子服务交回项目 venv，那个进程没有第二个
         版本，`/healthz` 的 `build_commit` 结构上恒为 None。拿它当判据的话，二进制换得
         再对也必然判失败——这条链路上唯一动了生产入口的那一步，反而永远报不出成功。
         """

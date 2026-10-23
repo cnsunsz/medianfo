@@ -1,5 +1,5 @@
 ---
-name: peach-ledger-write
+name: medianfo-ledger-write
 description: 在用户说迁移、migrate、--apply、合并实体、merge_entity、改真相字段、批量删除、清空回收站，或任何要写真实 ledger 的动作之前使用。
 ---
 
@@ -8,12 +8,12 @@ description: 在用户说迁移、migrate、--apply、合并实体、merge_entit
 最后复核：2026-10-17
 证据来源：[开发约定](../../../AGENTS.md)、ADR-0005、ADR-0015、ADR-0017、ADR-0052、ADR-0091、ADR-0106。
 
-真实库：当前写入者本机 `PEACH_DATA_ROOT/database/ledger.db`（WAL）。绝不能把共享传输副本或
+真实库：当前写入者本机 `MEDIANFO_DATA_ROOT/database/ledger.db`（WAL）。绝不能把共享传输副本或
 另一台机器的副本当当前真实库；测试只用临时 SQLite 与临时媒体。
 
 ## 迁移
 
-1. SQLite 备份到当前本机 `PEACH_DATA_ROOT/database/ledger.pre-<用途>-<时间戳>.db`。
+1. SQLite 备份到当前本机 `MEDIANFO_DATA_ROOT/database/ledger.pre-<用途>-<时间戳>.db`。
 2. 记录迁移前 asset/tag 计数。
 3. `PRAGMA integrity_check`。
 4. `peach migrate status` 核对版本。

@@ -35,7 +35,7 @@ afterEach(() => {
    断言到的还是上一帧的 DOM。用例里改成当场派发。 */
 notifyManager.setScheduler((notify) => notify());
 
-const LOG = 'C:\\peach-data\\state\\library-processing-one.issues.jsonl';
+const LOG = 'C:\\medianfo-data\\state\\library-processing-one.issues.jsonl';
 
 type Reply = (method: string, body: unknown) => LibraryProcessingData;
 

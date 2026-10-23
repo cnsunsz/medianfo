@@ -21,9 +21,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach import company_profiles  # noqa: E402
-from peach.config import REVIEW_DIR  # noqa: E402
-from peach.scripting import (  # noqa: E402
+from medianfo import company_profiles  # noqa: E402
+from medianfo.config import REVIEW_DIR  # noqa: E402
+from medianfo.scripting import (  # noqa: E402
     add_ledger_write_args, counts_of, open_for_write, verify_after_write)
 
 SOURCE = "auto:company-profile"

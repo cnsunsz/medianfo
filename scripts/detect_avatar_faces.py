@@ -26,9 +26,9 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.avatar_face import face_record, sidecar_path, write_sidecar
-from peach.config import GENERATED_DIR
-from peach.face_detect import FaceDetector, FaceModelUnavailable
+from medianfo.avatar_face import face_record, sidecar_path, write_sidecar
+from medianfo.config import GENERATED_DIR
+from medianfo.face_detect import FaceDetector, FaceModelUnavailable
 
 
 def build_parser() -> argparse.ArgumentParser:

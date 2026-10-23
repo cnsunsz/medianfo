@@ -144,7 +144,7 @@
 - `zh-Ch29egLH.js` SHA-256：`0C6ECF33364BC5BDA9E245D48D2D14F6797A81EAFD3F70383E16186C2686CB2E`
 - `zh-TW-C-MO8iT5.js` SHA-256：`5262881FAE25372927B1702259A50E50538C348FCCC78DCE62A56DD4873C2478`
 
-Peach 自托管 Video.js 10 官方 ESM 模块及其导入闭包。控制器复用 @videojs/html，媒体复用 @videojs/hlsjs-video 与 @videojs/dash-video；原生 video 经 media 插槽承载 MP4、HLS、DASH 与字幕。
+MediaNfo 自托管 Video.js 10 官方 ESM 模块及其导入闭包。控制器复用 @videojs/html，媒体复用 @videojs/hlsjs-video 与 @videojs/dash-video；原生 video 经 media 插槽承载 MP4、HLS、DASH 与字幕。
 
 - hls.js 1.6.19（Apache-2.0）：`hls.js.LICENSE.txt` SHA-256：`CA8773CF798C7ED997D4DD7C8E23C348699F8D5B7462636694CC14DE6CDA12DB`
 - dash.js 5.2.0（BSD-3-Clause）：`media/dash.all.min.js.LICENSE.txt` SHA-256：`F7CC4BA24850CC564766C75923D07C3D22FA27F304285F4D25ECFFEAEC964E28`

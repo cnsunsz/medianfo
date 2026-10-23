@@ -11,8 +11,8 @@ import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach import link_status, web_links   # noqa: E402
-from peach.jobs import BackgroundJob   # noqa: E402
+from medianfo import link_status, web_links   # noqa: E402
+from medianfo.jobs import BackgroundJob   # noqa: E402
 
 from support.ledger import fresh_ledger   # noqa: E402
 
@@ -29,7 +29,7 @@ class FakeContract:
 
     def __init__(self, db: Path):
         self.db_path = db
-        self.link_check = BackgroundJob("PeachLinkCheckJob", id_key="check_id")
+        self.link_check = BackgroundJob("MediaNfoLinkCheckJob", id_key="check_id")
 
     @contextmanager
     def read_connection(self):

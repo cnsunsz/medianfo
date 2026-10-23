@@ -1,9 +1,9 @@
 ---
-name: peach-reuse-first
-description: 在新增、恢复或重写 Peach 功能，尤其涉及外部协议、解析器、抓取、媒体、锁、调度和跨平台基础设施时使用。
+name: medianfo-reuse-first
+description: 在新增、恢复或重写 MediaNfo 功能，尤其涉及外部协议、解析器、抓取、媒体、锁、调度和跨平台基础设施时使用。
 ---
 
-# 先找成熟实现，再写 Peach 差异
+# 先找成熟实现，再写 MediaNfo 差异
 
 最后复核：2026-09-16
 证据来源：ADR-0010、`docs/REUSE.md`、FANBOX 传输与正文解析事故、2026-08-28 全仓自研实现审计。
@@ -19,7 +19,7 @@ description: 在新增、恢复或重写 Peach 功能，尤其涉及外部协议
 3. **跑最小实证**：用本任务的真实输入做无写入 POC；比较输出完整性、失败模式、流量、耗时和
    打包可用性。登录 Cookie、token、URL 查询参数和真实内容不得出现在日志或文档。
 4. **只选一种正式路径**：
-   - 成熟依赖完整覆盖基础能力 → 直接复用，Peach 只保留领域 policy 和 DTO；
+   - 成熟依赖完整覆盖基础能力 → 直接复用，MediaNfo 只保留领域 policy 和 DTO；
    - 没有合适库但有成熟开源实现 → 固定 revision，复用其数据模型/算法边界并登记许可证；
    - 外部实现不满足可验证约束 → 保留自研，但把不采用的候选、实证和特殊约束写进 REUSE。
 5. **同批交齐**：依赖、首个真实消费者、隔离测试和 `docs/REUSE.md` 必须同批提交。候选依赖不得
@@ -27,7 +27,7 @@ description: 在新增、恢复或重写 Peach 功能，尤其涉及外部协议
 
 ## 判断边界
 
-Peach 应自研的是实体身份、跨来源绑定、凭据隔离、候选复核、成本/隐私、任务语义和产品交互。
+MediaNfo 应自研的是实体身份、跨来源绑定、凭据隔离、候选复核、成本/隐私、任务语义和产品交互。
 通用 HTTP 指纹、站点公开数据模型、浏览器数据库解析、文件锁、媒体提取、编解码、播放器、图标、
 轮播和调度默认不自研。
 
@@ -38,13 +38,13 @@ Peach 应自研的是实体身份、跨来源绑定、凭据隔离、候选复�
 
 - 坏例：FANBOX 详情连续补 User-Agent、Cookie 和错误文案，却没有先检查成熟客户端怎样处理传输指纹
   与 `image`、`file`、`article`、`video` 等正文类型。
-- 好例：传输复用固定版 `curl_cffi`；正文模型先对照 PixivUtil2 的成熟 FANBOX 分支，再只实现 Peach
+- 好例：传输复用固定版 `curl_cffi`；正文模型先对照 PixivUtil2 的成熟 FANBOX 分支，再只实现 MediaNfo
   所需的规范化 DTO、凭据边界和媒体队列。
 - 坏例：看到 Chromium 与 Firefox 的 SQLite 表不一样，就各写一套发现、快照和查询代码。
-- 好例：先用真实 Chrome、Firefox、Zen 数据库验证 `browserexport`，Peach 只保留隐私存储、Takeout
+- 好例：先用真实 Chrome、Firefox、Zen 数据库验证 `browserexport`，MediaNfo 只保留隐私存储、Takeout
   导入和口味分析。
 
 ## 收尾报告
 
-明确列出：采用的外部实现及固定版本、保留的 Peach 差异、拒绝的候选及原因、POC 证据、是否新增
+明确列出：采用的外部实现及固定版本、保留的 MediaNfo 差异、拒绝的候选及原因、POC 证据、是否新增
 依赖、是否改变生产和 ledger。没有合适轮子时也要给出检索与拒绝证据，不能只写「未找到」。

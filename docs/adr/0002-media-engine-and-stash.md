@@ -5,7 +5,7 @@
 
 ## 背景
 
-Stash 只覆盖 2,551 个本地 Scene，ledger 覆盖 24,980 个视频及本地、115、PikPak、online 多来源。Peach Web 已直接使用 ledger 和文件串流，但项目仍有 19 个脚本直连 Stash GraphQL、11 个脚本借用 Stash 私有目录中的 FFmpeg/FFprobe。
+Stash 只覆盖 2,551 个本地 Scene，ledger 覆盖 24,980 个视频及本地、115、PikPak、online 多来源。MediaNfo Web 已直接使用 ledger 和文件串流，但项目仍有 19 个脚本直连 Stash GraphQL、11 个脚本借用 Stash 私有目录中的 FFmpeg/FFprobe。
 
 ## 决策
 
@@ -17,13 +17,13 @@ Stash 只覆盖 2,551 个本地 Scene，ledger 覆盖 24,980 个视频及本地�
 
 ## 分类
 
-- Peach 必须适配：跨来源身份、成本与可用性策略、行为事件、在线追更、统一实体与 provenance。
+- MediaNfo 必须适配：跨来源身份、成本与可用性策略、行为事件、在线追更、统一实体与 provenance。
 - 应复用：FFmpeg/FFprobe、HTTP Range、HLS/DASH、SQLite FTS5、过渡期 Stash GraphQL。
 - 应替换：零散 GraphQL helper、Stash 私有 FFmpeg 路径、`rm-web.py` 手写不完整 Range、本地媒体重复 probe/preview 管线。
 
 ## 许可证边界
 
-Stash v0.31.1 是 AGPL-3.0。Peach 可把未修改 Stash 当独立进程经协议调用；不复制或移植其 Go 实现。若分发/修改 Stash 或捆绑 GPL FFmpeg build，必须单独满足对应源码、许可证与通知义务。工程结论不替代法律意见。
+Stash v0.31.1 是 AGPL-3.0。MediaNfo 可把未修改 Stash 当独立进程经协议调用；不复制或移植其 Go 实现。若分发/修改 Stash 或捆绑 GPL FFmpeg build，必须单独满足对应源码、许可证与通知义务。工程结论不替代法律意见。
 
 ## 完全去 Stash 的门槛
 

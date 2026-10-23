@@ -15,9 +15,9 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from peach import web_batch
-from peach import web_contract as rm_web
-from peach import web_resource_sync as rm_sync
+from medianfo import web_batch
+from medianfo import web_contract as rm_web
+from medianfo import web_resource_sync as rm_sync
 
 from support.ledger import fresh_ledger
 

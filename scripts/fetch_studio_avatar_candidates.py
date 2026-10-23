@@ -21,9 +21,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach.http import HttpRequest, HttpxTransport      # noqa: E402
-from peach.images import REJECT, bake_square, classify  # noqa: E402
-from peach.logo_provider import (  # noqa: E402
+from medianfo.http import HttpRequest, HttpxTransport      # noqa: E402
+from medianfo.images import REJECT, bake_square, classify  # noqa: E402
+from medianfo.logo_provider import (  # noqa: E402
     POLICY_VERSION,
     LogoCandidateCache,
     hash_distance,
@@ -31,11 +31,11 @@ from peach.logo_provider import (  # noqa: E402
     installed_logo_hashes,
     provenance_now,
 )
-from peach.config import GENERATED_DIR  # noqa: E402
-from peach.previews import logo_key  # noqa: E402
-from peach.social_links import twimg_tiers  # noqa: E402
-from peach.review_csv import read_rows, write_rows
-from peach.scripting import USER_AGENT, RateLimiter
+from medianfo.config import GENERATED_DIR  # noqa: E402
+from medianfo.previews import logo_key  # noqa: E402
+from medianfo.social_links import twimg_tiers  # noqa: E402
+from medianfo.review_csv import read_rows, write_rows
+from medianfo.scripting import USER_AGENT, RateLimiter
 
 RESOLVER = "https://unavatar.io/{platform}/{handle}?json"
 FIELDS = (

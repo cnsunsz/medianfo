@@ -17,7 +17,7 @@
 | `7991.17876548.js` | `14fc80d7da72d4552ec45175b3e6b03f34f0a7e1da1715d028299f31f8e879d0` | 363 个懒加载块里唯一含 `/v1/auth` 的一块，登录 SDK 8.1.4：刷新是 `POST /v1/auth/token`，请求体 `client_id`、`client_secret`（取配置，网页端为空）、`grant_type=refresh_token`、`refresh_token`；请求头 `x-client-id`、`x-sdk-version: 8.1.4`、`x-protocol-version: 301`，有设备号时带 `x-device-id`；凭据存在 `credentials_<clientId>`，多账号时是 `credentials_<clientId>@<sub>`；`expires_at` 存成 ISO 字符串，写入前已扣掉 120 秒或 30 秒余量 |
 | `2572.b2bb8d5f.js` | `38e5a864881f61b1b5c9750a6e02f00d29fef39990f6bf7fe4db685084f026b4` | 同次抓取的页面块，没有从中取用事实，只留哈希备查 |
 
-签名实现用网页脚本里同一段 `reduce` 写法在 Node 里算一遍，再和 Peach 的 Python 实现对照：输入设备号 `abc`、
+签名实现用网页脚本里同一段 `reduce` 写法在 Node 里算一遍，再和 MediaNfo 的 Python 实现对照：输入设备号 `abc`、
 网页常量时，两边都得到 `1.e07351bd60bb92ce14b49dcf7273008f`。盐表和时间戳由程序从脚本原文抽出比对，一致。
 
 ## 用户脚本 PikPak Assistant v2.4.3
@@ -29,15 +29,15 @@
   `captcha*` 取 `captcha_token`，`deviceid` 原样读，组成 `Authorization`、`x-device-id`、`x-captcha-token` 三个请求头。
 - 脚本从不自己刷新 token，刷新完全交给网页。
 
-## Peach 的取舍
+## MediaNfo 的取舍
 
-- 和用户脚本一样从 localStorage 的 `credentials_*` 取会话；不同在于用户脚本借网页续期，Peach 取走后由自己续期，
+- 和用户脚本一样从 localStorage 的 `credentials_*` 取会话；不同在于用户脚本借网页续期，MediaNfo 取走后由自己续期，
   所以取完删掉网页里的 `credentials_*` 并关窗，避免两边轮流刷新、互相作废 refresh token。
 - 设备号按网页 app 自己的取法归一化（取最后一段前 32 位），不照用户脚本原样读。
-- client_id 从键名后缀读，不写死；网页端没有 secret，Peach 也不带。
+- client_id 从键名后缀读，不写死；网页端没有 secret，MediaNfo 也不带。
 
 ## 未取得
 
-- 网页端 `/v1/shield/captcha/init` 的请求体形状：没有在打包块里定位到，Peach 沿用安卓端的形状，只换常量。
+- 网页端 `/v1/shield/captcha/init` 的请求体形状：没有在打包块里定位到，MediaNfo 沿用安卓端的形状，只换常量。
 - 网页登录 SDK 里 statInfo 的 `deviceId` 与 `deviceSign` 来源。
 - 服务端是否接受不带 `client_secret` 的网页 client 刷新：要用真实账号验证，列为上线验收项。

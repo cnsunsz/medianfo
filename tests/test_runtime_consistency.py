@@ -7,11 +7,11 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient
 
-from peach.redirect import create_redirect_app
-from peach.routes_media import _image_response
-from peach.web_state import WebContract
-from peach.config import PeachSettings
-from peach.health import database_status, readiness
+from medianfo.redirect import create_redirect_app
+from medianfo.routes_media import _image_response
+from medianfo.web_state import WebContract
+from medianfo.config import MediaNfoSettings
+from medianfo.health import database_status, readiness
 from support.ledger import fresh_ledger
 
 
@@ -20,7 +20,7 @@ class RuntimeConsistencyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             path = root / "ledger.db"
-            settings = PeachSettings(db_path=path, configured=True)
+            settings = MediaNfoSettings(db_path=path, configured=True)
             self.assertFalse(readiness(settings)["ready"])
             self.assertFalse(path.exists())
             self.assertEqual(database_status(path), "missing")

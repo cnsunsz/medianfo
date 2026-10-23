@@ -16,9 +16,9 @@ import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach import studio_icons as icons  # noqa: E402
-from peach.config import GENERATED_DIR, REVIEW_DIR, STATE_DIR  # noqa: E402
-from peach.review_csv import write_rows  # noqa: E402
+from medianfo import studio_icons as icons  # noqa: E402
+from medianfo.config import GENERATED_DIR, REVIEW_DIR, STATE_DIR  # noqa: E402
+from medianfo.review_csv import write_rows  # noqa: E402
 
 ORDER = {icons.OK: 0, icons.PADDED: 1, icons.TOOSMALL: 2, icons.SHARED: 3,
          icons.PORTRAIT: 4, icons.WORDMARK: 5, icons.MISSING: 6, icons.SKIP: 7}

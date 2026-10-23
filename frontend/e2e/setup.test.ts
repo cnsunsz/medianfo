@@ -1,8 +1,8 @@
 /* 首次运行页的整条流程：加载、填错、原位写回、改对、完成态。
  *
- * 跑在 `peach serve --setup` 上，不是路由冒烟那台已配置的服务：服务与临时 Peach 数据目录由
- * `tests/test_web_e2e.py` 的 `SetupE2ETests` 准备，经 PEACH_E2E_SETUP_ORIGIN、
- * PEACH_E2E_SETUP_DATA（临时 Peach 数据目录）和 PEACH_E2E_SETUP_MEDIA（一个已建好的空媒体目录）传进来。
+ * 跑在 `peach serve --setup` 上，不是路由冒烟那台已配置的服务：服务与临时 MediaNfo 数据目录由
+ * `tests/test_web_e2e.py` 的 `SetupE2ETests` 准备，经 MEDIANFO_E2E_SETUP_ORIGIN、
+ * MEDIANFO_E2E_SETUP_DATA（临时 MediaNfo 数据目录）和 MEDIANFO_E2E_SETUP_MEDIA（一个已建好的空媒体目录）传进来。
  * 本文件由首启专用入口执行；单独执行时缺少这些变量则整组跳过。 */
 import assert from 'node:assert/strict';
 import { readFile, unlink } from 'node:fs/promises';
@@ -13,9 +13,9 @@ import type { Browser, Page } from 'playwright-core';
 
 import { launch, layout, VIEWPORTS } from './harness.ts';
 
-const origin = process.env.PEACH_E2E_SETUP_ORIGIN ?? '';
-const media = process.env.PEACH_E2E_SETUP_MEDIA ?? '';
-const dataRoot = process.env.PEACH_E2E_SETUP_DATA ?? '';
+const origin = process.env.MEDIANFO_E2E_SETUP_ORIGIN ?? '';
+const media = process.env.MEDIANFO_E2E_SETUP_MEDIA ?? '';
+const dataRoot = process.env.MEDIANFO_E2E_SETUP_DATA ?? '';
 
 /** 填错那一轮的 400 是预期内的：Chrome 会把它同时记成一条控制台错误和一条 4xx 响应。 */
 const expectedRejection = (problem: string) =>
@@ -43,7 +43,7 @@ describe('首次运行页', { skip: origin && media && dataRoot ? false : '只�
       await page.goto(`${origin}/`, { waitUntil: 'load' });
 
       // 加载：题目到齐后表单出现，等待态结束，页面不横向溢出。
-      const heading = page.getByRole('heading', { name: '欢迎使用 Peach' });
+      const heading = page.getByRole('heading', { name: '欢迎使用 MediaNfo' });
       await heading.waitFor({ state: 'visible', timeout: 15_000 });
       const folder = page.getByRole('textbox', { name: '媒体库 1' });
       await folder.waitFor({ state: 'visible', timeout: 15_000 });
@@ -65,7 +65,7 @@ describe('首次运行页', { skip: origin && media && dataRoot ? false : '只�
       const port = page.locator('#f-port');
       await port.waitFor({ state: 'visible' });
       const defaultPort = await port.inputValue();
-      // 落盘位置跟着服务进程的 PEACH_DATA_ROOT 走；不是临时 Peach 数据目录就不往下提交。
+      // 落盘位置跟着服务进程的 MEDIANFO_DATA_ROOT 走；不是临时 MediaNfo 数据目录就不往下提交。
       assert.equal(await page.locator('#f-data_root').inputValue(), dataRoot);
       await port.fill('70000');
       // 折叠关上，验证出错时它自己展开。
@@ -101,12 +101,12 @@ describe('首次运行页', { skip: origin && media && dataRoot ? false : '只�
 
       // 完成态：入口链接拿到焦点，扫描没有排队，运行信息收起，口令不在页面上。
       await page.getByRole('heading', { name: '设置完成' }).waitFor({ state: 'visible' });
-      const entry = page.getByRole('link', { name: '进入 Peach' });
+      const entry = page.getByRole('link', { name: '进入 MediaNfo' });
       await entry.waitFor({ state: 'visible' });
       assert.ok(await entry.evaluate((element) => element === document.activeElement), '入口链接拿到焦点');
       assert.match((await entry.getAttribute('href')) ?? '', /^https?:\/\//);
       await page.getByText('稍后在配置页开始扫描媒体库。').waitFor({ state: 'visible' });
-      assert.equal(await page.title(), 'Peach · 设置完成');
+      assert.equal(await page.title(), 'MediaNfo · 设置完成');
       assert.deepEqual((await layout(page)).offenders, []);
       await page.getByText('运行信息', { exact: true }).click();
       await page.getByText(selectedData, { exact: true }).waitFor({ state: 'visible' });

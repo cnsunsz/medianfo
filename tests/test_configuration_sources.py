@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from peach import media_configuration as media_config, onboarding, settings_file
+from medianfo import media_configuration as media_config, onboarding, settings_file
 
 
 class MediaConfigurationTests(unittest.TestCase):
@@ -27,7 +27,7 @@ class MediaConfigurationTests(unittest.TestCase):
         self.assertTrue(all("root" not in row for row in sources), "解析不应修改调用方的表单")
 
     def test_existing_paths_keep_prefixes_and_names_when_rows_are_reordered(self):
-        config = replace(settings_file.PeachConfig(Path('/unused'), Path('/unused/config.toml')),
+        config = replace(settings_file.MediaNfoConfig(Path('/unused'), Path('/unused/config.toml')),
                          present=True, locations={"local": (r"D:\Videos",), "115": ("B:/",)},
                          mounts={"local": ("/media/local",), "115": ("/media/115",)},
                          library_names={r"D:\Videos": "收藏"})
@@ -42,7 +42,7 @@ class MediaConfigurationTests(unittest.TestCase):
     def test_readding_an_automatic_path_keeps_its_identity_and_other_paths_differ(self):
         first = [{"location": "local", "path": "/media/movies"}]
         root = media_config.validate(first, windows=False)[0]["local"][0]
-        empty = replace(settings_file.PeachConfig(Path('/unused'), Path('/unused/config.toml')),
+        empty = replace(settings_file.MediaNfoConfig(Path('/unused'), Path('/unused/config.toml')),
                         present=True, locations={}, mounts={})
         restored, _, errors = media_config.validate(first, windows=False, config=empty)
         self.assertEqual(errors, [])
@@ -62,7 +62,7 @@ class MediaConfigurationTests(unittest.TestCase):
         self.assertNotEqual(roots["local"], (automatic,))
 
     def test_fully_occupied_drive_prefixes_return_a_row_error(self):
-        config = replace(settings_file.PeachConfig(Path('/unused'), Path('/unused/config.toml')),
+        config = replace(settings_file.MediaNfoConfig(Path('/unused'), Path('/unused/config.toml')),
                          present=True, locations={"local": tuple(f"{chr(code)}:/" for code in range(65, 91))})
         roots, _, errors = media_config.validate(
             [{"location": "local", "path": "/media/movies"}], windows=False, config=config)
@@ -70,8 +70,8 @@ class MediaConfigurationTests(unittest.TestCase):
         self.assertIn("无法自动配置", errors[0])
 
     def test_configuration_uses_the_automatic_prefix_for_library_name_and_cost(self):
-        from peach import routes_configuration
-        config = settings_file.PeachConfig(Path('/unused'), Path('/unused/config.toml'))
+        from medianfo import routes_configuration
+        config = settings_file.MediaNfoConfig(Path('/unused'), Path('/unused/config.toml'))
         for path, name in (("/media/movies", "movies"), ("/media", "media"),
                            ("/vol02/nas-user/video/影视", "影视")):
             with self.subTest(path=path):
@@ -86,7 +86,7 @@ class MediaConfigurationTests(unittest.TestCase):
                 self.assertEqual(prepared["media_costs"][root], "free")
 
     def test_existing_prefix_is_kept_when_its_actual_directory_moves(self):
-        config = replace(settings_file.PeachConfig(Path('/unused'), Path('/unused/config.toml')),
+        config = replace(settings_file.MediaNfoConfig(Path('/unused'), Path('/unused/config.toml')),
                          present=True, locations={"local": (r"D:\Videos",)}, mounts={"local": ("/old",)})
         roots, mounts, errors = media_config.validate(
             [{"location": "local", "path": "/new", "root": r"D:\Videos"}], windows=False, config=config)
@@ -96,10 +96,10 @@ class MediaConfigurationTests(unittest.TestCase):
 
     def test_path_only_configuration_save_keeps_existing_prefixes_when_reordered(self):
         from starlette.requests import Request
-        from peach import routes_configuration
+        from medianfo import routes_configuration
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory).resolve()
-            config = replace(settings_file.load_config(environ={"PEACH_DATA_ROOT": str(base)}), present=True,
+            config = replace(settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(base)}), present=True,
                              locations={"local": (r"D:\Movies", r"E:\Films"), "115": ("B:/",)},
                              mounts={"local": ("/media/movies", "/media/films"), "115": ("/media/115",)})
             settings_file.write(config)
@@ -112,24 +112,24 @@ class MediaConfigurationTests(unittest.TestCase):
                     patch.object(routes_configuration, "_validate", return_value=({}, validated)), \
                     patch.object(routes_configuration, "os", SimpleNamespace(name="posix", replace=os.replace, environ=os.environ)):
                 receipt = routes_configuration.save_configuration(request, {"revision": routes_configuration.revision(config)})
-            loaded = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(base)})
+            loaded = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(base)})
         self.assertTrue(receipt["saved"])
         self.assertEqual(loaded.locations["local"], (r"E:\Films", r"D:\Movies"))
         self.assertEqual(loaded.mounts["local"], ("/media/films", "/media/movies"))
         self.assertEqual(loaded.mounts["115"], ("/media/115",))
 
     def test_setup_can_save_a_cloud_folder_without_an_internal_path(self):
-        from peach.routes_pages import _read_answers
+        from medianfo.routes_pages import _read_answers
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory).resolve()
-            config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(base)})
+            config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(base)})
             submitted = {"data_root": str(base), "media_dir": ["/media/115"],
                          "media_location": ["115"], "host": "1"}
             answers, errors = _read_answers(config, submitted, windows=False)
             self.assertEqual(errors, {})
             prepared = onboarding.configure(config, answers, windows=False)
             settings_file.write(prepared)
-            loaded = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(base)})
+            loaded = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(base)})
         root = loaded.locations["115"][0]
         self.assertTrue(PureWindowsPath(root).is_absolute())
         self.assertEqual(loaded.mounts, {"115": ("/media/115",)})
@@ -137,18 +137,18 @@ class MediaConfigurationTests(unittest.TestCase):
         self.assertFalse(loaded.replication.enabled)
 
     def test_setup_local_source_accepts_a_mapped_nas_drive(self):
-        from peach.routes_pages import _read_answers
+        from medianfo.routes_pages import _read_answers
 
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory).resolve()
-            config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(base)})
+            config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(base)})
             mapped = r"Z:\CloudDrive2\115open\云下载"
             submitted = {"data_root": str(base), "media_dir": [mapped],
                          "media_location": ["local"], "host": "1"}
             windows_abspath = ntpath.abspath
             with patch.object(Path, "is_dir", return_value=True), \
                     patch.object(Path, "resolve", return_value=Path(r"\\NAS\媒体库")), \
-                    patch("peach.onboarding.os.path.abspath", side_effect=windows_abspath):
+                    patch("medianfo.onboarding.os.path.abspath", side_effect=windows_abspath):
                 answers, errors = _read_answers(config, submitted, windows=True)
             self.assertEqual(errors, {})
             prepared = onboarding.configure(config, answers, windows=True)
@@ -156,24 +156,24 @@ class MediaConfigurationTests(unittest.TestCase):
             self.assertEqual(prepared.mounts, {})
 
     def test_runtime_facts_name_the_operating_system_and_settings_file(self):
-        from peach import web_entry
+        from medianfo import web_entry
         with tempfile.TemporaryDirectory() as directory:
-            config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(Path(directory).resolve())})
+            config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(Path(directory).resolve())})
             facts = dict(web_entry.runtime_facts(config))
             self.assertIn('操作系统', facts)
             self.assertIn('设置文件', facts)
 
     def test_runtime_fact_entries_list_dependencies_only_when_missing(self):
-        from peach import web_entry
+        from medianfo import web_entry
         with tempfile.TemporaryDirectory() as directory:
-            config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(Path(directory).resolve())})
-            with patch("peach.ffmpeg.FFmpegResolver.ffmpeg", return_value=Path("ffmpeg")), \
-                    patch("peach.ffmpeg.FFmpegResolver.ffprobe", return_value=Path("ffprobe")), \
-                    patch("peach.mp4recover.untrunc_path", return_value=Path("untrunc")):
+            config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(Path(directory).resolve())})
+            with patch("medianfo.ffmpeg.FFmpegResolver.ffmpeg", return_value=Path("ffmpeg")), \
+                    patch("medianfo.ffmpeg.FFmpegResolver.ffprobe", return_value=Path("ffprobe")), \
+                    patch("medianfo.mp4recover.untrunc_path", return_value=Path("untrunc")):
                 present = [row["term"] for row in web_entry.runtime_fact_entries(config)]
-            with patch("peach.ffmpeg.FFmpegResolver.ffmpeg", return_value=None), \
-                    patch("peach.ffmpeg.FFmpegResolver.ffprobe", return_value=None), \
-                    patch("peach.mp4recover.untrunc_path", return_value=None):
+            with patch("medianfo.ffmpeg.FFmpegResolver.ffmpeg", return_value=None), \
+                    patch("medianfo.ffmpeg.FFmpegResolver.ffprobe", return_value=None), \
+                    patch("medianfo.mp4recover.untrunc_path", return_value=None):
                 missing = {row["term"]: row for row in web_entry.runtime_fact_entries(config)}
         self.assertNotIn("FFmpeg", present)
         self.assertNotIn("untrunc", present)
@@ -224,26 +224,26 @@ class MediaConfigurationTests(unittest.TestCase):
     def test_cloud_only_setup_roundtrips_config_without_local_source(self):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory).resolve()
-            config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(base)})
+            config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(base)})
             answers = onboarding.Answers(base, (), "127.0.0.1", 8900, "peach", [
                 {"location": "115", "path": "/Volumes/115", "root": "B:/"}])
             prepared = onboarding.configure(config, answers, windows=False)
             settings_file.write(prepared)
-            loaded = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(base)})
+            loaded = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(base)})
             self.assertEqual(loaded.locations, {"115": ("B:\\",)})
             self.assertEqual(loaded.mounts, {"115": ("/Volumes/115",)})
             self.assertFalse((base / "database" / "ledger.db").exists())
 
     def test_unreadable_existing_mount_is_offline(self):
-        config = replace(settings_file.PeachConfig(Path('/unused'), Path('/unused/config.toml')), locations={"115": ("B:/",)}, mounts={"115": ("/Volumes/115",)})
-        with patch("peach.platform.os.scandir", side_effect=OSError("Device not configured")):
+        config = replace(settings_file.MediaNfoConfig(Path('/unused'), Path('/unused/config.toml')), locations={"115": ("B:/",)}, mounts={"115": ("/Volumes/115",)})
+        with patch("medianfo.platform.os.scandir", side_effect=OSError("Device not configured")):
             self.assertFalse(media_config.rows(config, windows=False, probe=True)[0]["online"])
 
     def test_setup_answers_keep_the_cloud_source_and_its_windows_root(self):
-        from peach.routes_pages import _read_answers
+        from medianfo.routes_pages import _read_answers
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory).resolve()
-            config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(base)})
+            config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(base)})
             submitted = {"data_root": str(base), "media_dir": ["/Volumes/115"],
                          "media_location": ["115"], "media_root": ["B:/"], "host": "1"}
             answers, errors = _read_answers(config, submitted, windows=False)
@@ -252,7 +252,7 @@ class MediaConfigurationTests(unittest.TestCase):
             self.assertEqual(answers.media_sources[0]["root"], "B:/")
 
     def test_setup_local_source_reports_native_directory_error_first(self):
-        from peach.routes_pages import _setup_media_source_errors
+        from medianfo.routes_pages import _setup_media_source_errors
 
         def missing_directory(_path):
             raise ValueError("目录不存在：/missing")
@@ -264,18 +264,18 @@ class MediaConfigurationTests(unittest.TestCase):
         self.assertEqual(errors, ["目录不存在：/missing"])
 
     def test_completion_facts_and_entry_leave_out_mounts_and_internals(self):
-        from peach.routes_pages import _setup_destination
-        from peach.web_entry import runtime_fact_entries
+        from medianfo.routes_pages import _setup_destination
+        from medianfo.web_entry import runtime_fact_entries
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory).resolve()
-            config = replace(settings_file.load_config(environ={"PEACH_DATA_ROOT": str(base)}),
+            config = replace(settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(base)}),
                              locations={"115": ("B:/",)}, mounts={"115": ("/Volumes/115",)})
             shown = " ".join(row["value"] for row in runtime_fact_entries(config))
             for internal in ('/Volumes/115', 'peach scan configured', '本机 CA', '已应用 0 个迁移'):
                 self.assertNotIn(internal, shown)
-            with patch('peach.distribution.standalone', return_value=False):
+            with patch('medianfo.distribution.standalone', return_value=False):
                 self.assertEqual(_setup_destination(config, history_guide=False),
                                  f'http://127.0.0.1:{config.server.port}/?onboarding=1')
-            with patch('peach.distribution.standalone', return_value=True):
+            with patch('medianfo.distribution.standalone', return_value=True):
                 self.assertEqual(_setup_destination(config, history_guide=True),
                                  f'http://127.0.0.1:{config.server.port}/taste?onboarding=1')

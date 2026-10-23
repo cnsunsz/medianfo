@@ -8,9 +8,9 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
-from peach import library_sharing as sharing
-from peach.repository import LedgerDatabase
-from peach.settings_file import PeachConfig
+from medianfo import library_sharing as sharing
+from medianfo.repository import LedgerDatabase
+from medianfo.settings_file import MediaNfoConfig
 from support.ledger import fresh_ledger
 
 DSN = 'https://public@o123.ingest.us.sentry.io/789'
@@ -18,17 +18,17 @@ DSN = 'https://public@o123.ingest.us.sentry.io/789'
 
 class LibrarySharingTests(unittest.TestCase):
     def setUp(self):
-        self.enterContext(mock.patch('peach.remote_reporting._disabled', False))
+        self.enterContext(mock.patch('medianfo.remote_reporting._disabled', False))
         holder = tempfile.TemporaryDirectory()
         self.addCleanup(holder.cleanup)
         self.root = Path(holder.name).resolve()
-        self.config = PeachConfig(self.root, self.root / 'config.toml')
+        self.config = MediaNfoConfig(self.root, self.root / 'config.toml')
         self.database = LedgerDatabase(fresh_ledger(self.root))
         self.contract = SimpleNamespace(read_connection=self.database.read_connection,
                                         taste_history_store=self.root / 'taste/history.sqlite')
         self.service = sharing.Service(self.config, self.contract)
         self.addCleanup(self.service.stop)
-        patcher = mock.patch.dict(os.environ, {'PEACH_SENTRY_DSN': '', 'PEACH_LIBRARY_SENTRY_DSN': DSN})
+        patcher = mock.patch.dict(os.environ, {'MEDIANFO_SENTRY_DSN': '', 'MEDIANFO_LIBRARY_SENTRY_DSN': DSN})
         patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -39,7 +39,7 @@ class LibrarySharingTests(unittest.TestCase):
 
     def test_disabled_and_missing_endpoint_do_not_read_library_or_construct_sdk(self):
         with mock.patch.object(sharing, 'collect') as collect, \
-                mock.patch('peach.remote_reporting._new_client') as client:
+                mock.patch('medianfo.remote_reporting._new_client') as client:
             self.service.attempt()
             collect.assert_not_called()
             client.assert_not_called()
@@ -103,7 +103,7 @@ class LibrarySharingTests(unittest.TestCase):
             self.assertNotIn(private, data.decode())
 
     def test_entity_distributions_include_uncoded_signals_and_explicit_favorites(self):
-        from peach.entities import upsert_asset_entity
+        from medianfo.entities import upsert_asset_entity
         with self.database.write_transaction() as connection:
             for code in ('EXM-001', 'EXM-001', None):
                 connection.execute("INSERT INTO asset(location,path,name,code,medium,rating,play_count,duration,release_date) "
@@ -146,7 +146,7 @@ class LibrarySharingTests(unittest.TestCase):
         self.assertEqual(wire[3:8], bytes(5), 'gzip 不含文件名或生成时间')
 
     def test_research_project_must_be_separate_from_diagnostics(self):
-        with mock.patch.dict(os.environ, {'PEACH_SENTRY_DSN': DSN}):
+        with mock.patch.dict(os.environ, {'MEDIANFO_SENTRY_DSN': DSN}):
             self.assertEqual(sharing.target(), '')
 
     def test_schema_three_consent_does_not_authorize_population_projection(self):
@@ -179,14 +179,14 @@ class LibrarySharingTests(unittest.TestCase):
     def test_installer_saves_explicit_selection_without_reading_or_sending(self):
         import runpy
         entry = runpy.run_path(str(Path(__file__).resolve().parents[1] / 'scripts/build_app_entry.py'))
-        with mock.patch('peach.settings_file.active', return_value=self.config), \
+        with mock.patch('medianfo.settings_file.active', return_value=self.config), \
                 mock.patch.object(sharing, 'collect') as collect, \
-                mock.patch('peach.remote_reporting._new_client') as client, \
-                mock.patch('peach.remote_reporting._disabled', False):
+                mock.patch('medianfo.remote_reporting._new_client') as client, \
+                mock.patch('medianfo.remote_reporting._disabled', False):
             for argument in ('1', '0'):
-                self.assertEqual(entry['main'](['Peach.exe', '--installer-library-sharing', argument]), 0)
+                self.assertEqual(entry['main'](['MediaNfo.exe', '--installer-library-sharing', argument]), 0)
                 self.assertEqual(bool(sharing.consent(self.config)), argument == '1')
-            self.assertEqual(entry['main'](['Peach.exe', '--installer-library-sharing', 'true']), 2)
+            self.assertEqual(entry['main'](['MediaNfo.exe', '--installer-library-sharing', 'true']), 2)
             collect.assert_not_called()
             client.assert_not_called()
 
@@ -219,7 +219,7 @@ class LibrarySharingTests(unittest.TestCase):
         previous = sharing.consent(self.config)['revision']
         envelope = Envelope()
         envelope.headers['trace'] = {'release': 'private-build', 'user_segment': 'private-user'}
-        envelope.add_event({'message': 'Peach research', 'tags': {'private': 'name'}})
+        envelope.add_event({'message': 'MediaNfo research', 'tags': {'private': 'name'}})
         envelope.add_item(Attachment(bytes=sharing.compressed(sharing.collect(self.contract)[1]), filename=sharing.FILENAME).to_envelope_item())
         self.assertTrue(self.service._gate(previous, envelope))
         self.assertNotIn('trace', envelope.headers)
@@ -259,7 +259,7 @@ class LibrarySharingTests(unittest.TestCase):
             self.service.preview()
         self.assertFalse(sharing.snapshot(self.config)['enabled'])
         self.enable()
-        with mock.patch.object(sharing, 'MAX_BYTES', 1), mock.patch('peach.remote_reporting._new_client') as client:
+        with mock.patch.object(sharing, 'MAX_BYTES', 1), mock.patch('medianfo.remote_reporting._new_client') as client:
             with self.assertRaises(ValueError):
                 self.service.attempt()
             client.assert_not_called()
@@ -268,7 +268,7 @@ class LibrarySharingTests(unittest.TestCase):
         import asyncio
         import httpx
         from fastapi import FastAPI
-        from peach.routes_configuration import router, require_auth
+        from medianfo.routes_configuration import router, require_auth
         app = FastAPI()
         app.include_router(router)
         app.state.library_sharing = self.service

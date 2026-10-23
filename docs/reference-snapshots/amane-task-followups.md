@@ -4,8 +4,8 @@
 - 固定 revision：`79ecfa763cc786318e1964a3d7f4e244a7d5c96d`
 - 取得日期：2026-09-22
 - 取证方式：仓库外独立克隆，
-  只读源码与其单元测试，不引入代码。GPL 与 Peach 的许可证不兼容，本文只记录设计判据，
-  Peach 侧按自己的表结构与并发模型重写。
+  只读源码与其单元测试，不引入代码。GPL 与 MediaNfo 的许可证不兼容，本文只记录设计判据，
+  MediaNfo 侧按自己的表结构与并发模型重写。
 - 本文不登记进 `docs/reference-sources.json`：与 `amane-crawlers-poc.md` 同理，这是对上游
   源码的一次性只读实证，没有对应的可变 Markdown 原文需要跟踪漂移。
 
@@ -75,21 +75,21 @@ API 侧（`api/models/tasks.py`）的 `TaskResponse` 因此带 `root_task_id`、
 **后继的数量上限与链深度上限**：固定 revision 的源码里搜不到任何 `depth`、`max_followups`
 一类的闸门。扇出规模由各 handler 自己的取数上限间接决定（`rescrape` 用 `payload.limit`、
 `refresh` 用本库文件数），链深度没有任何限制，只有「哪些 handler 会声明后继」这一条隐式约束。
-所以「防链式爆炸」这件事上游没有可借的实现，Peach 侧要自己定判据。
+所以「防链式爆炸」这件事上游没有可借的实现，MediaNfo 侧要自己定判据。
 
-## Peach 采用
+## MediaNfo 采用
 
 - 后继由任务结果声明，调度端统一取出；handler 不自己起线程。
 - 同父同 key 只留一条；跨父的同一件事按全局 key 复用已在排队或在跑的那一条。
 - 父完成与后继入队在同一个写事务里。
 - 写账本的后继串行，不写账本的可并行。
-- 父子关系落在 `task_run` 自己的列上（Peach 是单进程 SQLite 一张表，不另开边表）。
+- 父子关系落在 `task_run` 自己的列上（MediaNfo 是单进程 SQLite 一张表，不另开边表）。
 
 ## 有意差异
 
-- **上限是 Peach 自己加的**：单轮后继条数与链深度都有硬上限，超出的记一条摘要而不是静默丢弃。
+- **上限是 MediaNfo 自己加的**：单轮后继条数与链深度都有硬上限，超出的记一条摘要而不是静默丢弃。
   上游没有这道闸（见「未取得」）。
-- **串行的粒度不同**：amane 按库 id 上锁，Peach 按「写不写账本」分道——Peach 的账本是单文件
+- **串行的粒度不同**：amane 按库 id 上锁，MediaNfo 按「写不写账本」分道——MediaNfo 的账本是单文件
   SQLite，库级并行在这里没有对应物。
-- **重启后的处置相反**：amane 把 `RUNNING` 一律判失败，Peach 的后继要能续跑（`peach-batch-jobs`
+- **重启后的处置相反**：amane 把 `RUNNING` 一律判失败，MediaNfo 的后继要能续跑（`peach-batch-jobs`
   的判据是只把成功当作已完成），所以未跑完的后继重新排队，代价是后继必须幂等。

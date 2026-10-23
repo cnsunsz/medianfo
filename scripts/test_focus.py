@@ -46,7 +46,7 @@ def run(runner, args) -> int:
         print(error, file=sys.stderr)
         return 2
     print("定向调试：只运行指定用例，不签发正式记录；提交前仍需 auto。", flush=True)
-    flags = {"PEACH_TEST_FOCUS": "1", "PEACH_E2E_FILES": json.dumps(browsers)} if browsers else {}
+    flags = {"MEDIANFO_TEST_FOCUS": "1", "MEDIANFO_E2E_FILES": json.dumps(browsers)} if browsers else {}
     with mock.patch.dict(os.environ, flags):
         result = unittest.TextTestRunner(verbosity=2, resultclass=runner.TimedResult).run(suite)
     return 0 if result.wasSuccessful() and result.testsRun > 0 else 1

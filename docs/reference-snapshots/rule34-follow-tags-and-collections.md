@@ -61,8 +61,8 @@ URL：`https://rule34video.com/video/4533145/…/`
 | Copyright | `.tag-type-copyright` | `#A0A` |
 | Metadata | `.tag-type-metadata` | `#F80` |
 
-Peach 保留类型差异，但不复制白底站点的低亮度原色；在深色界面换成可读的同色相描边和浅底。
-General 沿用 Peach 蓝色。`2d`、`3d`、`animated`、`video`、`sound`、`tagme` 等载体标签仍留在
+MediaNfo 保留类型差异，但不复制白底站点的低亮度原色；在深色界面换成可读的同色相描边和浅底。
+General 沿用 MediaNfo 蓝色。`2d`、`3d`、`animated`、`video`、`sound`、`tagme` 等载体标签仍留在
 原始证据里，但不进入前 24 个内容筛选标签。
 
 ## Rule34.xxx 帖子页的标签排列顺序
@@ -80,5 +80,5 @@ General 沿用 Peach 蓝色。`2d`、`3d`、`animated`、`video`、`sound`、`ta
 `1girls, abs, bare_arms, bare_legs, bare_shoulders, bare_thighs, big_breasts, bikini,
 bikini_bottom, bikini_top, clothed, clothing`，与排序后完全一致。
 
-页面含动态内容，整页哈希只标识这一次响应。Peach 的关注详情按同一顺序分组排列；
+页面含动态内容，整页哈希只标识这一次响应。MediaNfo 的关注详情按同一顺序分组排列；
 来源没有记录类型的标签排在最后，保持中性色，不按词形猜类型。

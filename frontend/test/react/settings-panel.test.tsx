@@ -117,7 +117,7 @@ const settings = (): PanelSettings => ({
 /** 壳 `settingsHost()` 交进来的那一份。 */
 function panelHost() {
   const value = settings();
-  const store = createSettingsStore('peach.settings.v1', value);
+  const store = createSettingsStore('medianfo.settings.v1', value);
   const save = vi.spyOn(store, 'save') as unknown as Mock<() => void>;
   const changed = vi.fn<(effect: SettingsEffect) => void>();
   const setHighContrast = vi.fn<(on: boolean) => void>();
@@ -171,7 +171,7 @@ function watchReports() {
 }
 
 describe('设置面板与壳的接缝', () => {
-  it('五个分区按使用场景组织，Peach 配置入口遵守设备权限', async () => {
+  it('五个分区按使用场景组织，MediaNfo 配置入口遵守设备权限', async () => {
     const current = await setup();
     const openConfiguration = vi.fn();
     current.host.openConfiguration = openConfiguration;

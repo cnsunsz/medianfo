@@ -345,7 +345,7 @@ describe('设计决定：人物与厂牌资料页', () => {
         body: '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#888"/></svg>' };
       await page.route(/\/entity-image\?/, (route) => route.fulfill(square));
       await page.route(/\/logo\?/, (route) => route.fulfill(square));
-      await page.goto(new URL(`/assets/${requiredEnv('PEACH_E2E_ITEM')}`, page.url()).href, { waitUntil: 'load' });
+      await page.goto(new URL(`/assets/${requiredEnv('MEDIANFO_E2E_ITEM')}`, page.url()).href, { waitUntil: 'load' });
       await page.locator('[data-item-identity] [data-id-group="studio"] [data-id-name]').waitFor({ timeout: 15_000 });
       const edges = await page.evaluate(() => Object.fromEntries(
         ['performer', 'studio'].map((kind) => {
@@ -1083,7 +1083,7 @@ describe('设计决定：人物与厂牌资料页', () => {
         assert.deepEqual(opened.problems, []);
       } finally { await opened.close(); }
     });
-    it(`Peach 配置的来源凭据按要求分组并带描边（${viewport.name}）`, { timeout: 60_000 }, async () => {
+    it(`MediaNfo 配置的来源凭据按要求分组并带描边（${viewport.name}）`, { timeout: 60_000 }, async () => {
       const opened = await openFollowManage(browser, viewport);
       try {
         const page = opened.page;

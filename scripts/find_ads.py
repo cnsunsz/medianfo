@@ -19,7 +19,7 @@ B 是主力：它不依赖任何关键词，纯靠"广告是同一个文件复�
 用法:
     python scripts/find_ads.py [--min-group 3]
 输出:
-    R:\peach-data\generated\ad-candidates.csv
+    R:\medianfo-data\generated\ad-candidates.csv
 """
 from __future__ import annotations
 
@@ -34,9 +34,9 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.review_csv import write_rows
-from peach.scripting import open_readonly
-from peach.config import DATABASE_PATH, GENERATED_DIR
+from medianfo.review_csv import write_rows
+from medianfo.scripting import open_readonly
+from medianfo.config import DATABASE_PATH, GENERATED_DIR
 
 DEFAULT_OUTPUT = GENERATED_DIR / "ad-candidates.csv"
 

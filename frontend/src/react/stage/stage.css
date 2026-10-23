@@ -225,7 +225,7 @@ body[data-detail-open] [class~=glowlayer]::before{animation-play-state:paused,pa
 [data-miniplayer][hidden]{display:none}
 [data-miniplayer][data-corner="br"]{right:16px;bottom:16px}
 [data-miniplayer][data-corner="bl"]{left:16px;bottom:16px}
-/* 顶上两角让出顶栏：Peach 的顶栏是吸顶的，压在上面搜索和设置就点不到了。 */
+/* 顶上两角让出顶栏：MediaNfo 的顶栏是吸顶的，压在上面搜索和设置就点不到了。 */
 [data-miniplayer][data-corner="tr"]{right:16px;top:calc(var(--topH) + 16px)}
 [data-miniplayer][data-corner="tl"]{left:16px;top:calc(var(--topH) + 16px)}
 [data-miniplayer][data-miniplayer-drag]{cursor:grabbing}
@@ -268,7 +268,7 @@ body[data-detail-open] [class~=glowlayer]::before{animation-play-state:paused,pa
 [data-miniplayer-button="close"]{right:0}
 [data-miniplayer-play]{width:42px;height:42px}
 [data-miniplayer-play] svg{position:relative;z-index:1;width:36px;height:36px;fill:currentColor;stroke:none;filter:drop-shadow(0 0 1px rgba(0,0,0,.8))}
-/* 快退和快进分列播放键两侧。上游 YouTube 的小窗没有这两颗，Peach 自己要：小窗一开就
+/* 快退和快进分列播放键两侧。上游 YouTube 的小窗没有这两颗，MediaNfo 自己要：小窗一开就
    离开了详情，站内那条控制条一颗键都递不进来，只剩进度条能拖，想跳十秒得先回详情。
    36px 比中间那颗小一档，三颗并排读得出主次。 */
 [data-miniplayer-seek]{width:36px;height:36px}

@@ -1,8 +1,8 @@
 import unittest
 
-from peach import metadata_routes
-from peach.catalog_rules import is_uncensored_code
-from peach.metadata_policy import (
+from medianfo import metadata_routes
+from medianfo.catalog_rules import is_uncensored_code
+from medianfo.metadata_policy import (
     CHAIN_COMMUNITY,
     CHAIN_FALLBACK,
     CHAIN_OFFICIAL,
@@ -10,7 +10,7 @@ from peach.metadata_policy import (
     CHAIN_UNKNOWN,
     FIELD_SOURCE_ORDER,
     HISTORICAL_SOURCES,
-    PEACH_FIELDS,
+    MEDIANFO_FIELDS,
     POLICY_VERSION,
     SOURCE_SPECS,
     chain_rank,
@@ -66,7 +66,7 @@ class MetadataPolicyTests(unittest.TestCase):
         self.assertNotIn("prestige", FIELD_SOURCE_ORDER["release_date"])
 
     def test_field_order_covers_every_peach_field(self):
-        self.assertEqual(set(FIELD_SOURCE_ORDER), set(PEACH_FIELDS))
+        self.assertEqual(set(FIELD_SOURCE_ORDER), set(MEDIANFO_FIELDS))
         for field, order in FIELD_SOURCE_ORDER.items():
             self.assertEqual(len(order), len(set(order)), field)
             for source in order:
@@ -91,7 +91,7 @@ class MetadataPolicyTests(unittest.TestCase):
                 [row["field_rank"] for row in ordered],
                 sorted(row["field_rank"] for row in ordered),
             )
-        with self.assertRaisesRegex(ValueError, "未知 Peach 元数据字段"):
+        with self.assertRaisesRegex(ValueError, "未知 MediaNfo 元数据字段"):
             sort_candidates("runtime", candidates)
 
     def test_tags_prefer_mgstage_over_the_dmm_dvd_page(self):

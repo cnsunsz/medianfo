@@ -43,10 +43,10 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import DATABASE_PATH, GENERATED_DIR
-from peach.http import HttpRequest, HttpTransport, HttpxTransport
-from peach.review_csv import read_rows, write_rows
-from peach.scripting import USER_AGENT, open_readonly
+from medianfo.config import DATABASE_PATH, GENERATED_DIR
+from medianfo.http import HttpRequest, HttpTransport, HttpxTransport
+from medianfo.review_csv import read_rows, write_rows
+from medianfo.scripting import USER_AGENT, open_readonly
 
 BASE = "https://www.babepedia.com/babe/"
 

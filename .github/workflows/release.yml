@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  PEACH_SENTRY_DSN: ${{ vars.PEACH_SENTRY_DSN }}
-  PEACH_LIBRARY_SENTRY_DSN: ${{ vars.PEACH_LIBRARY_SENTRY_DSN }}
+  MEDIANFO_SENTRY_DSN: ${{ vars.MEDIANFO_SENTRY_DSN }}
+  MEDIANFO_LIBRARY_SENTRY_DSN: ${{ vars.MEDIANFO_LIBRARY_SENTRY_DSN }}
   PYTHONUTF8: "1"
   PYTHONIOENCODING: "utf-8"
 
@@ -104,7 +104,7 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          $ReleaseVersion = (Select-String -Path src/peach/__init__.py -Pattern '__version__ = "(.*)"').Matches.Groups[1].Value
+          $ReleaseVersion = (Select-String -Path src/medianfo/__init__.py -Pattern '__version__ = "(.*)"').Matches.Groups[1].Value
           if (-not $ReleaseVersion) { throw '无法读取版本' }
           if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne "v${ReleaseVersion}") { throw 'Tag 与版本不一致' }
           "version=${ReleaseVersion}" >> $env:GITHUB_OUTPUT
@@ -148,9 +148,9 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path release | Out-Null
-          & ./.venv/Scripts/python.exe scripts/package_windows_release.py --source dist/Peach --output release --version '${{ steps.version.outputs.version }}' --lite-installer
+          & ./.venv/Scripts/python.exe scripts/package_windows_release.py --source dist/MediaNfo --output release --version '${{ steps.version.outputs.version }}' --lite-installer
           if ($LASTEXITCODE -ne 0) { throw '发行包拆分失败' }
-          Copy-Item 'dist/Peach-${{ steps.version.outputs.version }}-windows-x64-setup.exe' release/
+          Copy-Item 'dist/MediaNfo-${{ steps.version.outputs.version }}-windows-x64-setup.exe' release/
           Copy-Item dist/ffmpeg-corresponding-source.zip release/
           Copy-Item dist/untrunc-corresponding-source.zip release/
           Copy-Item scripts/smoke_desktop.py release/smoke_desktop.py
@@ -181,27 +181,27 @@ jobs:
       - name: 在源码树外验证开箱配置与应用
         shell: pwsh
         run: |
-          Expand-Archive -Path 'Peach-${{ needs.windows.outputs.version }}-windows-x64.zip' -DestinationPath candidate
-          python smoke_desktop.py candidate/Peach/Peach.exe
+          Expand-Archive -Path 'MediaNfo-${{ needs.windows.outputs.version }}-windows-x64.zip' -DestinationPath candidate
+          python smoke_desktop.py candidate/MediaNfo/MediaNfo.exe
           if ($LASTEXITCODE -ne 0) { throw '制品验收失败' }
       - name: 从应用更新包与独立工具包重建并验证运行
         shell: pwsh
         run: |
           python smoke_split_update.py --version '${{ needs.windows.outputs.version }}' --destination split-candidate --prepare-with-app
           if ($LASTEXITCODE -ne 0) { throw '拆分制品与完整包不一致' }
-          python smoke_desktop.py split-candidate/Peach/Peach.exe
+          python smoke_desktop.py split-candidate/MediaNfo/MediaNfo.exe
           if ($LASTEXITCODE -ne 0) { throw '拆分制品运行验收失败' }
       - name: 静默安装、验收并卸载安装包
         shell: pwsh
         run: |
-          $Installed = Join-Path $env:RUNNER_TEMP 'Peach 安装验收\自定义目录'
-          $Setup = Start-Process -FilePath './Peach-${{ needs.windows.outputs.version }}-windows-x64-setup.exe' `
+          $Installed = Join-Path $env:RUNNER_TEMP 'MediaNfo 安装验收\自定义目录'
+          $Setup = Start-Process -FilePath './MediaNfo-${{ needs.windows.outputs.version }}-windows-x64-setup.exe' `
             -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=`"$Installed`"" -Wait -PassThru
           if ($Setup.ExitCode -ne 0) { throw "安装包退出码 $($Setup.ExitCode)" }
-          $Key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{02D9748A-78F6-4866-AC75-918177194DAB}_is1'
-          $Menu = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\Peach.lnk'
+          $Key = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{37D4A1C4-4570-4C06-8F12-CCB52DAC2828}_is1'
+          $Menu = Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs\MediaNfo.lnk'
           if (-not (Test-Path -LiteralPath $Key) -or -not (Test-Path -LiteralPath $Menu)) { throw '安装包没有登记卸载项或开始菜单项' }
-          python smoke_desktop.py (Join-Path $Installed 'Peach.exe')
+          python smoke_desktop.py (Join-Path $Installed 'MediaNfo.exe')
           if ($LASTEXITCODE -ne 0) { throw '安装包验收失败' }
           # 卸载程序会把自己复制到临时目录再运行，原进程立即返回，按目录消失判断完成。
           Start-Process -FilePath (Join-Path $Installed 'unins000.exe') -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait
@@ -212,11 +212,11 @@ jobs:
       - name: 安装并验收轻量安装包
         shell: pwsh
         run: |
-          $Installed = Join-Path $env:RUNNER_TEMP 'Peach 轻量安装验收\自定义目录'
-          $Setup = Start-Process -FilePath './Peach-${{ needs.windows.outputs.version }}-windows-x64-lite-setup.exe' `
+          $Installed = Join-Path $env:RUNNER_TEMP 'MediaNfo 轻量安装验收\自定义目录'
+          $Setup = Start-Process -FilePath './MediaNfo-${{ needs.windows.outputs.version }}-windows-x64-lite-setup.exe' `
             -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', "/DIR=`"$Installed`"" -WindowStyle Hidden -Wait -PassThru
           if ($Setup.ExitCode -ne 0) { throw "轻量安装包退出码 $($Setup.ExitCode)" }
-          python smoke_desktop.py (Join-Path $Installed 'Peach.exe')
+          python smoke_desktop.py (Join-Path $Installed 'MediaNfo.exe')
           if ($LASTEXITCODE -ne 0) { throw '轻量安装包运行验收失败' }
           Start-Process -FilePath (Join-Path $Installed 'unins000.exe') -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -WindowStyle Hidden -Wait
           $Deadline = (Get-Date).AddSeconds(120)
@@ -225,7 +225,7 @@ jobs:
       - name: 验证在途任务保护与覆盖安装后的恢复
         shell: pwsh
         run: |
-          python smoke_update_tasks.py candidate/Peach/Peach.exe --installer './Peach-${{ needs.windows.outputs.version }}-windows-x64-setup.exe' --apply
+          python smoke_update_tasks.py candidate/MediaNfo/MediaNfo.exe --installer './MediaNfo-${{ needs.windows.outputs.version }}-windows-x64-setup.exe' --apply
           if ($LASTEXITCODE -ne 0) { throw '任务保护与恢复验收失败' }
       - name: 保留制品验收失败日志
         if: failure()
@@ -310,16 +310,16 @@ jobs:
           set -euo pipefail
           image=(release/*-macos-${{ matrix.arch }}.dmg)
           test "${#image[@]}" -eq 1
-          mount="$RUNNER_TEMP/Peach-install"
+          mount="$RUNNER_TEMP/MediaNfo-install"
           mkdir -p "$mount"
           hdiutil verify "${image[0]}"
           hdiutil attach "${image[0]}" -readonly -nobrowse -mountpoint "$mount"
           trap 'hdiutil detach "$mount"' EXIT
           test "$(readlink "$mount/Applications")" = /Applications
-          test -s "$mount/Peach.app/Contents/Resources/LICENSE"
-          codesign --verify --deep --strict "$mount/Peach.app"
-          lipo -verify_arch '${{ matrix.arch }}' "$mount/Peach.app/Contents/MacOS/Peach"
-          python scripts/smoke_macos.py "$mount/Peach.app"
+          test -s "$mount/MediaNfo.app/Contents/Resources/LICENSE"
+          codesign --verify --deep --strict "$mount/MediaNfo.app"
+          lipo -verify_arch '${{ matrix.arch }}' "$mount/MediaNfo.app/Contents/MacOS/MediaNfo"
+          python scripts/smoke_macos.py "$mount/MediaNfo.app"
 
   release:
     name: GitHub 预发布
@@ -349,7 +349,7 @@ jobs:
           cp ../macos-candidates/release/*.dmg .
           tail -n +4 ../macos-candidates/scripts/MACOS_DOWNLOADS.md >> RELEASE_NOTES.md
           sha256sum ./*.zip ./*-setup.exe ./*.dmg > SHA256SUMS.txt
-          gh release create "$GITHUB_REF_NAME" ./*.zip ./*-setup.exe ./*.dmg SHA256SUMS.txt --verify-tag --prerelease --title "Peach $VERSION · Windows / macOS 测试版" --notes-file RELEASE_NOTES.md
+          gh release create "$GITHUB_REF_NAME" ./*.zip ./*-setup.exe ./*.dmg SHA256SUMS.txt --verify-tag --prerelease --title "MediaNfo $VERSION · Windows / macOS 测试版" --notes-file RELEASE_NOTES.md
 
   project-board:
     name: 同步已发布版本到看板

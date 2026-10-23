@@ -68,7 +68,7 @@ const follow = (over: Partial<FollowData> = {}): FollowData => ({
   ...over,
 } as FollowData);
 
-const credentials = (): CredentialData => ({ root: 'C:\\peach\\creds', providers: [] } as CredentialData);
+const credentials = (): CredentialData => ({ root: 'C:\\medianfo\\creds', providers: [] } as CredentialData);
 
 const IDLE: CheckJob = { status: 'idle' } as CheckJob;
 
@@ -647,10 +647,10 @@ it('读数、列表头与卡底的计数都带千分位，六位数起读数小�
 
 it('报错只露一行：traceback 取最后那行的异常，「查看详情」原地展开全文', async () => {
   const trace = 'Traceback (most recent call last):\n  File "kemono.py", line 412, in fetch_page\n'
-    + 'peach.follow_providers.ProviderError: HTTP 403';
+    + 'medianfo.follow_providers.ProviderError: HTTP 403';
   const { host } = await open({ data: follow({ sources: [source({ id: 9, last_status: 'error', last_error: trace })] }) });
   const line = host.querySelector('[data-error-line]')!;
-  expect(line.textContent).toBe('peach.follow_providers.ProviderError: HTTP 403');
+  expect(line.textContent).toBe('medianfo.follow_providers.ProviderError: HTTP 403');
   const toggle = host.querySelector('[data-error-line-toggle]')!;
   expect(toggle.textContent).toBe('查看详情');
   await click(toggle);
@@ -1441,12 +1441,12 @@ function credential(over: Partial<CredentialRow> & { provider: string }): Creden
 }
 
 const CREDENTIAL_CAST: CredentialData = {
-  root: 'C:\\peach\\creds',
+  root: 'C:\\medianfo\\creds',
   providers: [
     credential({
       provider: 'fanbox', provider_label: 'Fanbox', needs: ['FANBOXSESSID', 'cf_clearance'],
       missing: ['FANBOXSESSID', 'cf_clearance'], why: '会员内容要登录后才看得到。',
-      where: 'https://www.fanbox.cc/', howto: '从浏览器开发者工具里复制。', path: 'C:\\peach\\creds\\fanbox.json',
+      where: 'https://www.fanbox.cc/', howto: '从浏览器开发者工具里复制。', path: 'C:\\medianfo\\creds\\fanbox.json',
     }),
     credential({
       provider: 'patreon', provider_label: 'Patreon', requirement: 'optional', present: true,

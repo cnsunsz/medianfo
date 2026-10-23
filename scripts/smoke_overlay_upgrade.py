@@ -19,7 +19,7 @@ from smoke_desktop import (artifact_processes, assert_requires_login, complete_f
                            smoke_directory, smoke_environment, stop_tray, wait_for, wait_health)
 
 
-APP_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\{02D9748A-78F6-4866-AC75-918177194DAB}_is1"
+APP_KEY = r"Software\Microsoft\Windows\CurrentVersion\Uninstall\{37D4A1C4-4570-4C06-8F12-CCB52DAC2828}_is1"
 
 
 def installation() -> dict | None:
@@ -33,18 +33,18 @@ def installation() -> dict | None:
 
 
 def menu_path() -> Path:
-    return Path(os.environ["APPDATA"]) / "Microsoft/Windows/Start Menu/Programs/Peach.lnk"
+    return Path(os.environ["APPDATA"]) / "Microsoft/Windows/Start Menu/Programs/MediaNfo.lnk"
 
 
 def download(opener, root: Path, version: str, kind: str) -> Path:
     request = urllib.request.Request(
-        f"https://api.github.com/repos/peach-mitao/peach/releases/tags/v{version}")
+        f"https://api.github.com/repos/cnsunsz/medianfo/releases/tags/v{version}")
     if token := os.environ.get("GH_TOKEN"):
         request.add_header("Authorization", f"Bearer {token}")
     with opener.open(request, timeout=30) as response:
         release = json.load(response)
     suffix = ".zip" if kind == "zip" else "-setup.exe"
-    name = f"Peach-{version}-windows-x64{suffix}"
+    name = f"MediaNfo-{version}-windows-x64{suffix}"
     asset = next(asset for asset in release["assets"] if asset["name"] == name)
     target = root / name
     with opener.open(asset["browser_download_url"], timeout=60) as response, target.open("wb") as output:
@@ -117,15 +117,15 @@ def main() -> int:
     assert os.name == "nt", "覆盖升级验收需要 Windows"
     if args.kind == "installer":
         assert os.environ.get("GITHUB_ACTIONS") == "true", "安装包验收只允许在干净的 Actions runner 上运行"
-        assert installation() is None and not menu_path().exists(), "已有 Peach 安装登记或快捷方式，停止验收"
+        assert installation() is None and not menu_path().exists(), "已有 MediaNfo 安装登记或快捷方式，停止验收"
     cookies = http.cookiejar.CookieJar()
     opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), urllib.request.HTTPCookieProcessor(cookies))
     with smoke_directory(args.evidence_dir.resolve()) as root:
         old = download(opener, root, args.from_version, args.kind)
         new = download(opener, root, args.to_version, args.kind)
-        application = root / "中文 空格程序目录" / "Peach"
-        executable = application / "Peach.exe"
-        data = (root / "local-app-data/Peach/peach-data" if args.data_location == "default"
+        application = root / "中文 空格程序目录" / "MediaNfo"
+        executable = application / "MediaNfo.exe"
+        data = (root / "local-app-data/MediaNfo/medianfo-data" if args.data_location == "default"
                 else root / "selected-data")
         media = root / "media"
         media.mkdir()
@@ -134,7 +134,7 @@ def main() -> int:
         environment["LOCALAPPDATA"] = str(root / "local-app-data")
         installer_environment = dict(environment)
         if args.data_location == "default":
-            environment.pop("PEACH_DATA_ROOT")
+            environment.pop("MEDIANFO_DATA_ROOT")
         if args.kind == "zip":
             with zipfile.ZipFile(old) as archive:
                 archive.extractall(application.parent)

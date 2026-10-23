@@ -5,7 +5,7 @@
 - 固定 revision：`79ecfa763cc786318e1964a3d7f4e244a7d5c96d`
 - 取证方式：按固定 revision 读 `src/amane/scheduler/`、`src/amane/library/`、`src/amane/api/`
   与 `docs/dev/watcher.md`、`docs/user/libraries.md`；只读源码，**只借设计，不引代码**（GPL 与
-  Peach 的 AGPL 不混）
+  MediaNfo 的 AGPL 不混）
 
 **本文不登记进 `docs/reference-sources.json`**：它是对一个固定 revision 下十来个源码文件的一次性
 只读实证，不是需要跟踪漂移的单份可变 Markdown，也没有一份与之一一对应的
@@ -16,7 +16,7 @@
 
 amane 把「文件怎么被发现」拆成两条互斥通道：真实文件系统用 watchdog 事件，CloudDrive 挂载用
 CloudDrive2 推来的 HTTP 通知。它的价值在通道划分、云端路径纪律和事件风暴的处理；写完判定与
-来源限制这两件事它没做，Peach 要自己补。
+来源限制这两件事它没做，MediaNfo 要自己补。
 
 ## 两条通道按来源二选一
 
@@ -26,8 +26,8 @@ CloudDrive2 推来的 HTTP 通知。它的价值在通道划分、云端路径�
 `docs/dev/watcher.md` 给的理由是两条：FUSE 挂载上云端落盘不产生 `FileCreated`，只挂 Observer 会
 静默漏；两条都开又会让同一个文件入库两次。
 
-对 Peach 成立的是同一件事：`R:` 是真本地盘，`A:`／`B:` 是 CloudDrive 挂出来的网盘。遍历后两者就是
-走网络，把它们挂上递归监视等于让 CloudDrive 把整棵树替我们拉一遍。Peach 的两条通道按 `location`
+对 MediaNfo 成立的是同一件事：`R:` 是真本地盘，`A:`／`B:` 是 CloudDrive 挂出来的网盘。遍历后两者就是
+走网络，把它们挂上递归监视等于让 CloudDrive 把整棵树替我们拉一遍。MediaNfo 的两条通道按 `location`
 天然不重叠：本地通道只订阅 `local` 的数据库路径前缀，云端通道只接 `115` 与 `pikpak`。
 
 ## 本地通道
@@ -65,8 +65,8 @@ amane 没有做任何写入完成判定——没有大小稳定轮询，没有 `
 它对慢速网盘的处理不是等待而是换通道：`clouddrive` 的库完全不听文件系统，只信 CloudDrive2 的
 通知，因为发通知时落盘已经完成。
 
-**Peach 要自己补这一条。** Peach 的本地通道监视的是真实落盘目录，几十 GB 的文件在写入过程中每一秒
-都有事件；3 秒防抖加上没有大小检查，会把一个半截文件按当时的大小登记进账本。Peach 的判据是
+**MediaNfo 要自己补这一条。** MediaNfo 的本地通道监视的是真实落盘目录，几十 GB 的文件在写入过程中每一秒
+都有事件；3 秒防抖加上没有大小检查，会把一个半截文件按当时的大小登记进账本。MediaNfo 的判据是
 「最后一次事件之后静置 N 秒，再隔一个窗口复测大小，两次相同才算写完」。
 
 ## 云端通道的请求形态
@@ -96,7 +96,7 @@ CloudDrive2 那一侧要填的东西（出自上游 `docs/user/libraries.md`，�
 
 ## 云端路径不进 pathlib
 
-这一段对 Peach 最直接。
+这一段对 MediaNfo 最直接。
 
 - 配置项是 `Library.cloud_path`，`clouddrive` 时必填且不能是 `/`；本地那一侧仍有可扫描的
   `Library.path`。
@@ -134,7 +134,7 @@ amane 的 cron 只跑用户自己配的清理、重抓一类例程，不含库�
 跨设备文件变更需开启目录缓存本地持久化，且**可能存在遗漏**。另有 `cloud-fs/cloud-fs.github.io#554`
 报告 CloudDrive2 网页端的文件操作不触发 Windows 的 `FileSystemWatcher`，与官方功能页的说法相左。
 
-这两条正是 Peach 保留定期全量扫描的硬理由：推送只缩短发现延迟，不承担完整性。
+这两条正是 MediaNfo 保留定期全量扫描的硬理由：推送只缩短发现延迟，不承担完整性。
 
 ## CloudDrive2 官方 webhook 文档：未取得
 
@@ -146,9 +146,9 @@ amane 的 cron 只跑用户自己配的清理、重抓一类例程，不含库�
 **官方站点上关于 `webhook.toml`、`[file_system_watcher]` 或 HTTP 回调的地址：未取得。**
 现有可复现证据只有 amane 自己的文档与上面那个第三方项目的 README，两者给出的模板一致。
 
-## Peach 取哪几条
+## MediaNfo 取哪几条
 
-| 上游的做法 | Peach 怎么用 |
+| 上游的做法 | MediaNfo 怎么用 |
 | --- | --- |
 | 按来源二选一，云端库不挂 Observer | 本地通道只订阅 `local` 的数据库路径前缀，`A:`／`B:` 一律不监视 |
 | 云端路径全程字符串，最后一步才拼本机路径 | 前缀表加纯字符串切分，逐段拒空串、`.`、`..`、分隔符与控制字符 |

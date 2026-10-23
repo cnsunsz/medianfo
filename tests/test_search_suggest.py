@@ -11,9 +11,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from peach import web_contract as rm_web
-from peach.catalog_rules import normalise_code_key
-from peach.web_entity import SUGGEST_GROUPS, suggest_kinds
+from medianfo import web_contract as rm_web
+from medianfo.catalog_rules import normalise_code_key
+from medianfo.web_entity import SUGGEST_GROUPS, suggest_kinds
 
 from support.ledger import fresh_ledger
 

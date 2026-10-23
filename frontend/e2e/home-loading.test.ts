@@ -13,7 +13,7 @@ describe('首页加载结构',()=>{
    let release:()=>void=()=>{};
    try{
     await context.addInitScript(({hasFeed})=>{
-     localStorage.setItem('peach.settings.v1',JSON.stringify({detailAutoplay:false,homeLayout:hasFeed?'big':'small'}));
+     localStorage.setItem('medianfo.settings.v1',JSON.stringify({detailAutoplay:false,homeLayout:hasFeed?'big':'small'}));
      const seen=new WeakSet<Element>();
      (window as any).__catalogSkeletons=0;
      (window as any).__catalogRatios=[];
@@ -56,7 +56,7 @@ describe('首页加载结构',()=>{
      await held;
      await route.fulfill({json:{ok:true,items:hasFeed?[{id:1,code:'EXM-001',title:'示例新作',has_cover:false}]:[]}});
     });
-    await page.goto(requiredEnv('PEACH_E2E_ORIGIN')+'/',{waitUntil:'load'});
+    await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN')+'/',{waitUntil:'load'});
     const card=page.locator('#grid [data-media-card]').first();
     await expectBody(page,'首页目录',[card],problems);
     await page.waitForTimeout(1100);

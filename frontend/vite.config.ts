@@ -1,4 +1,4 @@
-/* 主界面构建：Application、路由、常驻组件与共享状态打进 peach-app.js。
+/* 主界面构建：Application、路由、常驻组件与共享状态打进 medianfo-app.js。
  * 固定文件名由 index.html 引用；服务端以 ETag 校验内容并要求每次重新验证缓存。
  * 模块别名直接指向唯一源码，浏览器仅在启用开发取证时请求独立的 agentation 模块。 */
 import { fileURLToPath } from 'node:url';
@@ -34,14 +34,14 @@ export default defineConfig({
     lib: {
       entry: 'src/react/bootstrap.tsx',
       formats: ['es'],
-      fileName: () => 'peach-app.js',
+      fileName: () => 'medianfo-app.js',
     },
     rollupOptions: {
       external: ['/dev/agentation.js'],
       output: {
         // island 之间不做代码分割：入口是浏览器直接 import 的单一模块。
         codeSplitting: false,
-        assetFileNames: 'peach-app.[ext]',
+        assetFileNames: 'medianfo-app.[ext]',
       },
     },
   },

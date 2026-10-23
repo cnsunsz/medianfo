@@ -12,8 +12,8 @@ from ctypes import wintypes
 from pathlib import Path
 from unittest import mock
 
-from peach import tray_detached, windows_restart
-from peach.process_job import assign_to_job, close_job, create_kill_on_close_job
+from medianfo import tray_detached, windows_restart
+from medianfo.process_job import assign_to_job, close_job, create_kill_on_close_job
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -32,42 +32,42 @@ class _JobLimits(ctypes.Structure):
 
 class DetachedLaunchTests(unittest.TestCase):
     def setUp(self):
-        events = mock.patch("peach.error_reporting.event")
+        events = mock.patch("medianfo.error_reporting.event")
         self.events = events.start()
         self.addCleanup(events.stop)
 
     def test_source_sync_restarts_for_detachment_and_lifecycle_changes(self):
-        from peach.tray import tray_restart_required
-        for path in ("src/peach/tray_detached.py", "src/peach/tray_lifecycle.py"):
+        from medianfo.tray import tray_restart_required
+        for path in ("src/medianfo/tray_detached.py", "src/medianfo/tray_lifecycle.py"):
             with self.subTest(path=path):
                 self.assertTrue(tray_restart_required((path,)))
 
     def test_tray_handoff_leaves_the_single_instance_lock_for_the_child(self):
-        from peach.tray import main
-        with mock.patch("peach.tray.handoff_tray", return_value=True) as handoff, \
-                mock.patch("peach.tray.SingleInstance") as instance, \
-                mock.patch("peach.tray.settings_file.load_config"), \
-                mock.patch("peach.tray.error_reporting.install"), \
-                mock.patch("peach.tray.needs_setup", return_value=False):
+        from medianfo.tray import main
+        with mock.patch("medianfo.tray.handoff_tray", return_value=True) as handoff, \
+                mock.patch("medianfo.tray.SingleInstance") as instance, \
+                mock.patch("medianfo.tray.settings_file.load_config"), \
+                mock.patch("medianfo.tray.error_reporting.install"), \
+                mock.patch("medianfo.tray.needs_setup", return_value=False):
             instance.return_value.is_running.return_value = False
             self.assertEqual(main(["--silent"]), 0)
         self.assertEqual(handoff.call_args.args[0], ["--silent"])
         instance.return_value.acquire.assert_not_called()
 
     def test_existing_tray_opens_its_page_without_attempting_handoff(self):
-        from peach.tray import main
+        from medianfo.tray import main
         for waiting, silent in ((False, False), (True, False), (False, True)):
             with self.subTest(waiting=waiting, silent=silent), \
-                    mock.patch("peach.tray.handoff_tray", side_effect=OSError("desktop denied")) as handoff, \
-                    mock.patch("peach.tray.SingleInstance") as instance, \
-                    mock.patch("peach.tray.settings_file.load_config") as config, \
-                    mock.patch("peach.tray.error_reporting.install"), \
-                    mock.patch("peach.tray.error_reporting.failure_details", return_value="desktop denied"), \
-                    mock.patch("peach.tray.show_message"), \
-                    mock.patch("peach.tray.needs_setup", return_value=waiting), \
-                    mock.patch("peach.tray.normal_url", return_value="https://peach.invalid") as normal, \
-                    mock.patch("peach.tray.setup_url", return_value="http://peach.invalid/setup") as setup, \
-                    mock.patch("peach.tray.webbrowser.open") as browser:
+                    mock.patch("medianfo.tray.handoff_tray", side_effect=OSError("desktop denied")) as handoff, \
+                    mock.patch("medianfo.tray.SingleInstance") as instance, \
+                    mock.patch("medianfo.tray.settings_file.load_config") as config, \
+                    mock.patch("medianfo.tray.error_reporting.install"), \
+                    mock.patch("medianfo.tray.error_reporting.failure_details", return_value="desktop denied"), \
+                    mock.patch("medianfo.tray.show_message"), \
+                    mock.patch("medianfo.tray.needs_setup", return_value=waiting), \
+                    mock.patch("medianfo.tray.normal_url", return_value="https://medianfo.invalid") as normal, \
+                    mock.patch("medianfo.tray.setup_url", return_value="http://medianfo.invalid/setup") as setup, \
+                    mock.patch("medianfo.tray.desktop_window.open_url") as browser:
                 instance.return_value.is_running.return_value = True
                 self.assertEqual(main(["--silent"] if silent else ["--show"]), 0)
             handoff.assert_not_called()
@@ -75,35 +75,35 @@ class DetachedLaunchTests(unittest.TestCase):
             if silent:
                 browser.assert_not_called()
             else:
-                browser.assert_called_once_with("http://peach.invalid/setup" if waiting else "https://peach.invalid")
+                browser.assert_called_once_with("http://medianfo.invalid/setup" if waiting else "https://medianfo.invalid")
                 (setup if waiting else normal).assert_called_once_with(config.return_value)
 
     def test_failed_handoff_stops_before_services_or_state_are_created(self):
-        from peach.tray import main
-        with mock.patch("peach.tray.handoff_tray", side_effect=OSError("desktop unavailable")), \
-                mock.patch("peach.tray.error_reporting.failure_details", return_value="desktop unavailable"), \
-                mock.patch("peach.tray.show_message") as message, \
-                mock.patch("peach.tray.SingleInstance") as instance, \
-                mock.patch("peach.tray.settings_file.load_config"), \
-                mock.patch("peach.tray.error_reporting.install"), \
-                mock.patch("peach.tray.needs_setup", return_value=False):
+        from medianfo.tray import main
+        with mock.patch("medianfo.tray.handoff_tray", side_effect=OSError("desktop unavailable")), \
+                mock.patch("medianfo.tray.error_reporting.failure_details", return_value="desktop unavailable"), \
+                mock.patch("medianfo.tray.show_message") as message, \
+                mock.patch("medianfo.tray.SingleInstance") as instance, \
+                mock.patch("medianfo.tray.settings_file.load_config"), \
+                mock.patch("medianfo.tray.error_reporting.install"), \
+                mock.patch("medianfo.tray.needs_setup", return_value=False):
             instance.return_value.is_running.return_value = False
             self.assertEqual(main(["--silent"]), 1)
         self.assertIn("desktop unavailable", message.call_args.args[1])
         instance.return_value.acquire.assert_not_called()
 
     def test_handoff_marker_is_consumed_once_even_in_a_system_job(self):
-        with mock.patch.dict(os.environ, {"PEACH_TRAY_DESKTOP_HANDOFF": "1"}), \
+        with mock.patch.dict(os.environ, {"MEDIANFO_TRAY_DESKTOP_HANDOFF": "1"}), \
                 mock.patch.object(tray_detached, "in_job", return_value=True), \
                 mock.patch.object(tray_detached, "launch_detached") as launch:
             self.assertFalse(tray_detached.handoff_tray([], ROOT))
-            self.assertNotIn("PEACH_TRAY_DESKTOP_HANDOFF", os.environ)
+            self.assertNotIn("MEDIANFO_TRAY_DESKTOP_HANDOFF", os.environ)
             launch.assert_not_called()
             self.assertTrue(tray_detached.handoff_tray([], ROOT))
             launch.assert_called_once()
 
     def test_instance_probe_is_read_only_and_does_not_hold_the_lock(self):
-        from peach.tray import SingleInstance
+        from medianfo.tray import SingleInstance
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory).resolve() / "state" / "tray.lock"
             first, second = SingleInstance(path), SingleInstance(path)
@@ -168,11 +168,11 @@ class DetachedLaunchTests(unittest.TestCase):
         child = mock.Mock()
         with mock.patch.object(tray_detached, "in_job", return_value=True), \
                 mock.patch.object(tray_detached, "launch_detached", return_value=child) as launch, \
-                mock.patch.dict(os.environ, {"PEACH_DATA_ROOT": "C:/测试/peach-data"}), \
+                mock.patch.dict(os.environ, {"MEDIANFO_DATA_ROOT": "C:/测试/medianfo-data"}), \
                 mock.patch.object(sys, "frozen", False, create=True):
             self.assertTrue(tray_detached.handoff_tray(["--silent"], ROOT))
-        self.assertEqual(launch.call_args.args[0], [sys.executable, "-m", "peach.tray", "--silent"])
-        self.assertEqual(launch.call_args.kwargs["env"]["PEACH_DATA_ROOT"], "C:/测试/peach-data")
+        self.assertEqual(launch.call_args.args[0], [sys.executable, "-m", "medianfo.tray", "--silent"])
+        self.assertEqual(launch.call_args.kwargs["env"]["MEDIANFO_DATA_ROOT"], "C:/测试/medianfo-data")
         self.assertEqual(launch.call_args.kwargs["env"]["PYTHONPATH"], str(ROOT / "src"))
         child.close.assert_called_once()
 
@@ -192,8 +192,8 @@ class DetachedLaunchTests(unittest.TestCase):
 
     def test_packaged_restart_uses_the_desktop_launcher(self):
         with mock.patch.object(windows_restart, "launch_detached") as launch:
-            windows_restart.start_tray(ROOT / "Peach.exe")
-        self.assertEqual(launch.call_args.args[0], [str(ROOT / "Peach.exe")])
+            windows_restart.start_tray(ROOT / "MediaNfo.exe")
+        self.assertEqual(launch.call_args.args[0], [str(ROOT / "MediaNfo.exe")])
         self.assertEqual(launch.call_args.kwargs["env"]["PYINSTALLER_RESET_ENVIRONMENT"], "1")
 
     @unittest.skipUnless(os.name == "nt", "Windows Job 与桌面进程")
@@ -202,7 +202,7 @@ class DetachedLaunchTests(unittest.TestCase):
         worker_code = """
 import json, os, subprocess, sys, time
 from pathlib import Path
-from peach.tray_detached import in_job, launch_detached
+from medianfo.tray_detached import in_job, launch_detached
 root = Path(sys.argv[1])
 deadline = time.monotonic() + 15
 while not (root / 'go').exists():
@@ -212,8 +212,8 @@ while not (root / 'go').exists():
 assert in_job()
 control = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'],
                            creationflags=subprocess.DETACHED_PROCESS)
-env = {**os.environ, 'PEACH_DETACHED_TEST': '测试 env'}
-code = 'import json, os, sys, time; from pathlib import Path; from peach.tray_detached import in_job; Path("child.json").write_text(json.dumps([os.getcwd(), os.environ["PEACH_DETACHED_TEST"], sys.argv[1], sys.executable, sys.prefix, in_job()]), encoding="utf-8"); time.sleep(60)'
+env = {**os.environ, 'MEDIANFO_DETACHED_TEST': '测试 env'}
+code = 'import json, os, sys, time; from pathlib import Path; from medianfo.tray_detached import in_job; Path("child.json").write_text(json.dumps([os.getcwd(), os.environ["MEDIANFO_DETACHED_TEST"], sys.argv[1], sys.executable, sys.prefix, in_job()]), encoding="utf-8"); time.sleep(60)'
 child = launch_detached([sys.argv[3], '-c', code, sys.argv[2]], cwd=root, env=env)
 (root / 'pids.json').write_text(json.dumps([control.pid, child.pid]))
 time.sleep(60)
@@ -227,7 +227,7 @@ time.sleep(60)
             try:
                 worker = subprocess.Popen([sys._base_executable, "-c", worker_code, str(root),
                                            '引号 " 和 \\ 路径', sys.executable],
-                    env={**os.environ, "PYTHONPATH": str(ROOT / "src"), "PEACH_DATA_ROOT": str(root)},
+                    env={**os.environ, "PYTHONPATH": str(ROOT / "src"), "MEDIANFO_DATA_ROOT": str(root)},
                     creationflags=subprocess.CREATE_NO_WINDOW)
                 assign_to_job(job, worker)
                 (root / "go").touch()
@@ -351,9 +351,9 @@ import ctypes, json, os, subprocess, sys, time
 from ctypes import wintypes
 from pathlib import Path
 from unittest.mock import Mock, patch
-from peach.tray_detached import launch_detached
+from medianfo.tray_detached import launch_detached
 root = Path(sys.argv[1])
-os.environ.pop('PEACH_TRAY_DESKTOP_HANDOFF', None)
+os.environ.pop('MEDIANFO_TRAY_DESKTOP_HANDOFF', None)
 deadline = time.monotonic() + 20
 while not (root / 'go').exists():
     if time.monotonic() > deadline:
@@ -381,12 +381,12 @@ NESTED_CHILD = """
 import json, os, sys, time
 from pathlib import Path
 from unittest.mock import patch
-from peach.tray_detached import handoff_tray, in_job
+from medianfo.tray_detached import handoff_tray, in_job
 root = Path(sys.argv[1])
-with patch('peach.tray_detached.launch_detached', side_effect=RuntimeError('repeated handoff')):
+with patch('medianfo.tray_detached.launch_detached', side_effect=RuntimeError('repeated handoff')):
     handed_off = handoff_tray([], root)
 (root / 'child.json').write_text(json.dumps(dict(in_job=in_job(), handed_off=handed_off,
-    marker_consumed='PEACH_TRAY_DESKTOP_HANDOFF' not in os.environ)))
+    marker_consumed='MEDIANFO_TRAY_DESKTOP_HANDOFF' not in os.environ)))
 time.sleep(60)
 """
 
@@ -409,7 +409,7 @@ class NestedJobTests(unittest.TestCase):
                     assign_to_job(job, desktop)
                 worker = tray_detached.launch_detached(
                     [sys._base_executable, '-c', NESTED_WORKER, str(root), str(desktop.pid), NESTED_CHILD],
-                    cwd=root, env={**os.environ, "PYTHONPATH": str(ROOT / "src"), "PEACH_DATA_ROOT": str(root)})
+                    cwd=root, env={**os.environ, "PYTHONPATH": str(ROOT / "src"), "MEDIANFO_DATA_ROOT": str(root)})
                 processes.append(worker)
                 for job in (jobs[0], jobs[1], jobs[3]):
                     assign_to_job(job, worker)

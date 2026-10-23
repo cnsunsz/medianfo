@@ -6,7 +6,7 @@
 2. 新增 React 页面：按 [迁移下一个页面](#迁移下一个页面) 接入路由树。
 3. 查询模块职责：看 [目录与产物](#目录与产物) 和 [挂载契约](#挂载契约)。
 
-Peach 按 [ADR-0031](adr/0031-frontend-react-boardui-tailwind.md) 接入 React + Tailwind + BoardUI。主界面由 `frontend/src/react/bootstrap.tsx` 启动 `Application`，应用域控制器负责骨架、容器和页面助手，React 路由树负责客户端导航、页面与详情内容。主界面只有 `peach-app.js` 与 `peach-app.css` 两份产物，控制器与组件引用同一源码图。
+MediaNfo 按 [ADR-0031](adr/0031-frontend-react-boardui-tailwind.md) 接入 React + Tailwind + BoardUI。主界面由 `frontend/src/react/bootstrap.tsx` 启动 `Application`，应用域控制器负责骨架、容器和页面助手，React 路由树负责客户端导航、页面与详情内容。主界面只有 `medianfo-app.js` 与 `medianfo-app.css` 两份产物，控制器与组件引用同一源码图。
 
 只有一条不可变的约束：**运行时没有 Node**。Python 服务、PyInstaller 包和 macOS 上的
 检出都直接读 `web/`，所以构建产物提交进 Git，不用任何 CDN。
@@ -31,10 +31,10 @@ Peach 按 [ADR-0031](adr/0031-frontend-react-boardui-tailwind.md) 接入 React +
 | `frontend/src/shell/` | 目录口径、选择集、详情来处与一次性请求的共享单例。控制器与组件直接引用活绑定；整体换值用 `writeShell`，原地修改后用 `notifyShell` 通知订阅者 |
 | `frontend/src/react/router/` | 客户端导航：`<Router>` 接管那一份历史，后退前进由它自己处理；每条路径的页面（管理区、播放列表页、关注页、目录网格、索引页、资料页与沉浸）、覆盖组的详情与队列，以及首页筛选条、新作行、处理横幅与搜索下拉这四个页面内组件由它画（`managed-routes.tsx`）；页面组按条目记的背景匹配，覆盖组按真实地址匹配详情与队列 |
 | `frontend/src/catalog-bars.ts` | 首页筛选栏与侧栏的两份聚合：`['facets', 口径]` 与 `['tops', 参数, 口径]`，续页 `['tops', 参数]`，30 秒复用，状态页名单为空时退回全库口径；壳的 `getBarsData` 只算参数串 |
-| `frontend/src/react/components/` | Peach 自己的组合件（说明条、进度、空态、等待点），BoardUI 注册表里没有对应条目的那些 |
+| `frontend/src/react/components/` | MediaNfo 自己的组合件（说明条、进度、空态、等待点），BoardUI 注册表里没有对应条目的那些 |
 | `frontend/src/react/taste/` | 口味页：`taste.ts` 是契约与几何算法，`charts.tsx` 是雷达／名次条／热力／桑基，`taste-page.tsx` 是整页 |
 | `frontend/test/` | vitest 用例与遗留模块的桩；`test/react/` 直接挂组件，`*-routes.test.tsx` 走路由树的开收契约 |
-| `web/dist/peach-app.js`、`peach-app.css` | 主界面构建产物，**进 Git**，固定文件名，由 `web/index.html` 引用；服务端通过 `/dist/{name}` 提供 |
+| `web/dist/medianfo-app.js`、`medianfo-app.css` | 主界面构建产物，**进 Git**，固定文件名，由 `web/index.html` 引用；服务端通过 `/dist/{name}` 提供 |
 | `web/dist/peach-pages.js`、`peach-pages.css` | 首启、登录与错误页的独立构建产物，**进 Git**，固定文件名。主包构建后追加构建（`emptyOutDir: false`）；只有这两份产物允许免登录读取 |
 
 首次运行页（未配置时的 `GET /`）、登录页（`GET /login`）与浏览器导航撞上的错误页是 SPA
@@ -46,7 +46,7 @@ Peach 按 [ADR-0031](adr/0031-frontend-react-boardui-tailwind.md) 接入 React +
 
 - 首启页的题目取自 `GET /api/setup/questions`，提交走 `POST /api/setup`，形态见
   `docs/OPERATIONS.md`「首次设置的内部流程」。
-  首启与配置页共用媒体目录行，只展示运行 Peach 的设备能读取的目录；Docker 填容器内目录。页面不展示内部路径输入。请求可省略 `root`，服务端补齐数据库路径；已有行仍携带原 `root`，修改媒体目录时保留对应关系。
+  首启与配置页共用媒体目录行，只展示运行 MediaNfo 的设备能读取的目录；Docker 填容器内目录。页面不展示内部路径输入。请求可省略 `root`，服务端补齐数据库路径；已有行仍携带原 `root`，修改媒体目录时保留对应关系。
 - 登录页是原生 `<form method="post" action="/login">`，字段 `token`、`next`、勾选时
   `days=30`。`POST /login` 拒收时（口令错、429、400），HTML 请求回登录页并原位报错，状态码
   照旧，其余回 JSON。
@@ -54,7 +54,7 @@ Peach 按 [ADR-0031](adr/0031-frontend-react-boardui-tailwind.md) 接入 React +
   「返回首页」。
 - 三页用原生滚动条，不挂覆盖式滚动条。
 
-页面包自成一份，不加载主包 `peach-app.js`，也不建 Query 客户端，
+页面包自成一份，不加载主包 `medianfo-app.js`，也不建 Query 客户端，
 请求用裸 `fetch`。原因有三条：未配置的机器还没有数据库，主界面那一套一上来就打 `/api/items`；
 首启只开一次，不为它改动每天加载的主包或拆出共享块；登录页在没有会话时就要画出来，免登录面只多这两份产物，不连带主界面的包。和配置页共用的控件（媒体目录行、密码与确认两格、忙态属性）在
 `frontend/src/react/settings/`，两边各自打进自己的包。`@peach/legacy/ui` 在页面包里由别名落到
@@ -72,7 +72,7 @@ Peach 按 [ADR-0031](adr/0031-frontend-react-boardui-tailwind.md) 接入 React +
 配置好之后改文件夹与端口的那张页整个是 React（`frontend/src/react/settings/`，入口 `configuration-page.tsx`）。`/configuration` 是唯一的编辑页，进管理菜单；媒体库选单、统计页与首次配置引导都指向它。
 
 - 结构：一条窄列里排「通用 / 媒体 / 下载 / 网络与访问 / 维护」五组，每组一个 `h2.ui-configgroup` 小标题，没有内容的组连标题一起省略。页面自己画顶上那排页签（`.ui-board-local-nav`，`role="tablist"`，方向键与 Home／End 在整排里走），一组一格，一次只显示选中的那一组；页签条和整页同一次提交画出，第一帧就在。
-- 数据契约是 `/api/configuration`（`src/peach/routes_configuration.py`）。端点字符串只在 `frontend/src/configuration-endpoints.ts` 声明一次，整页和设置弹层的摘要卡读同一个 `queryKey`。
+- 数据契约是 `/api/configuration`（`src/medianfo/routes_configuration.py`）。端点字符串只在 `frontend/src/configuration-endpoints.ts` 声明一次，整页和设置弹层的摘要卡读同一个 `queryKey`。
 - 第一帧必须同步：壳挂完这一页紧接着按地址里的 `#peachProxy` 滚到那一块，所以路由树用 `flushSync` 画第一帧，往后的更新照常异步。`.ui-configpage` 的第一层依次是页签条、各组的小标题与面板；每组的根节点就是那一格 `role="tabpanel"`，选中的那一组带 `ui-board-group-active`。
 - 跳到某一组：别处（统计页「添加媒体目录」、空库提示、媒体库选单「管理媒体库」、诊断页）把组名记进壳单例 `configurationRequestedSection`（路由树里的页面经 `actions.requestConfigurationSection`），壳打开这一页时作为 `open.section` 交进去、页面画上之后清空；页面只拿它定第一帧选中哪一格。
 - 设置弹层「这台电脑」一格只挂 `configuration-summary`（`configuration-summary.tsx`）：媒体库数、端口、更新状态和「打开配置页」，不放可编辑的控件（ADR-0050）。媒体库数取 `/api/configuration` 的 `library_count`，由服务端按 `media_libraries.libraries` 分组数好，页面不自己归并。
@@ -163,7 +163,7 @@ React Router 以 Declarative 模式接管历史（`frontend/src/react/router/`�
 - 页面的宿主跟地址：元素挂上经 `surfaceChanged` 让壳收起别的面，再由元素铺这一页的骨架，然后 `openManagedRoute(path, open, {container, isCurrent, place})`。覆盖元素离开时，去处不是覆盖地址才收舞台。它领一个代次、先取首屏，取齐后在同一个任务里清掉骨架、放进 `.peach-react` 宿主（给了 `place` 就由它把壳排的框架换进容器、交出宿主），宿主用 `flushSync` 当场画完，骨架与正文之间没有空白帧；同一路径再打开就是新代次，页面重挂重取。三个容器各记一条、互不相收，`releaseManagedRoute` 逐个点名容器：`claimSurface` 收 `#stats` 与 `#index`，`showHomeSurfaces` 只收 `#index` 那一条，`#grid` 只由 `clearCatalogGrid` 收，资料页压在管理页上时管理页藏着照常活；详情舞台推 `/item/:id` 不经过它们，页面留在舞台下面。打开之后壳的开关（选择键、资料页换筛选与版式）经 `updateManagedRoute(container, patch)` 合进画着的那一页：代次不变，不重挂、不重取，照常排进下一次渲染。
 - `open` 只带那一次才算得出的值（地址上的分类与页签、只读状态、引导标记、配置页页签），由元素自算；回执与换到还归壳的那几屏走壳交给 `configureRouter(actions)` 的 `ShellActions`，经 Context 下发。站内跳转交 `navigate`（壳那边是 `actions.navigate`，同样不认领），派发后由对应元素按页面打开序号打开。壳要重开画着的索引页或资料页（批量操作后重取、筛选回退、点开的正是画着的那一位）时把 `@peach/shell` 的 `pageOpens` 计数加一，元素整页重开；同一微任务里的换页与重开合成一次。元素从 effect 里写地址一律排进微任务并带存活守卫：路由根同步提交，提交阶段里同步写地址会出 flushSync 告警。配置页页签先交给壳再换地址，不进地址栏。判据钉在 `test/react/managed-routes.test.tsx`。
 - 每次历史变化领一个 `seq`。页面元素经 `useOpenEpoch()` 读页面打开序号、按它挂 key：壳的 `shellNavigate` 写地址时当场认领，页面不重开；后退前进、React 子树里的 `navigate` 与壳的 `actions.navigate` 领新代次，页面重挂重取。覆盖元素按 `seq` 挂 key，接手该次详情请求；详情内改写地址时认领序号，不重复打开。队列打开意图经 `queueOpens` 交给元素，取齐数据后才写入实际队列地址。`actions.navigate` 照 `route()` 写好标题，使用 `shellNavigate(path, {claim: false})`。地址不变的 `popstate` 也领新序号与新代次。
-- 路由根同步提交：`PeachRouter` 在历史变化的同一调用里 `flushSync` 换上新地址，`shellNavigate` 与后退前进返回时两组 `<Routes>` 已经换好匹配、上一页的元素已经卸掉。派发不在这次提交里，仍排在其后的微任务。判据钉在 `test/react/router-sync.test.tsx`。
+- 路由根同步提交：`MediaNfoRouter` 在历史变化的同一调用里 `flushSync` 换上新地址，`shellNavigate` 与后退前进返回时两组 `<Routes>` 已经换好匹配、上一页的元素已经卸掉。派发不在这次提交里，仍排在其后的微任务。判据钉在 `test/react/router-sync.test.tsx`。
 - 管理区十一条路径的标题、侧栏身份（`section`）与顶栏「换一批」的行为（`refresh`）登记在 `@peach/history` 的 `ROUTE_META`：Application 启动与路由元素都直接读这份源码。壳的读者经 `routeMeta(path)` 读它；同一身份按登记顺序取第一条，数据管理排在重复文件与来源和凭证前面。
 - 启动：壳完成来源、页面结构与运行态准备后推进 `pageOpens`，路由树按当前地址匹配首屏；启动条目不读取历史背景。Router 挂载前发生的后退前进，在挂载时按当前地址匹配一次。判据钉在 `test/react/router.test.tsx`。
 
@@ -176,7 +176,7 @@ React Router 以 Declarative 模式接管历史（`frontend/src/react/router/`�
 ## 样式表分区
 
 样式表按界面分区拆在 `web/css/` 下，`/app.css` 把它们按文件名顺序拼成一份交付
-（`src/peach/routes_pages.py` 的 `stylesheet_response()`）。拆分只为让两处改动落在不同
+（`src/medianfo/routes_pages.py` 的 `stylesheet_response()`）。拆分只为让两处改动落在不同
 文件上：一整份两千七百行的样式表，两个分支各改一处几乎必然撞在一起。页面仍然只取
 一份 `/app.css`：不给首屏加二十来个阻塞请求，层叠顺序也不必写进 `index.html`。
 
@@ -219,7 +219,7 @@ npm --prefix frontend run dev   # vite build --watch，改完存盘就重建 web
 npm --prefix frontend run build # 出一次正式产物，提交前必须跑
 ```
 
-没有 dev server：`index.html` 归 Python 服务，页面照常从 Peach 自己的端口打开，
+没有 dev server：`index.html` 归 Python 服务，页面照常从 MediaNfo 自己的端口打开，
 watch 模式只负责把产物写回 `web/dist/`。刷新页面就能看到改动。
 
 测试与类型仍然只有一个入口：
@@ -235,13 +235,13 @@ CI（`GITHUB_ACTIONS=true`）里缺这些就判失败，由工作流负责装齐
 它的门槛在 CI 的 `web-bundle` job：`npm run build` 之后 `git diff --exit-code -- web/dist`。
 **改了 `frontend/src` 就必须重新构建并把 `web/dist/` 一起提交**，否则 CI 会红。
 
-同一个域里还有真浏览器冒烟 `tests/test_web_e2e.py`：它在临时 Peach 数据目录上生成 12 条合成演示库、
+同一个域里还有真浏览器冒烟 `tests/test_web_e2e.py`：它在临时 MediaNfo 数据目录上生成 12 条合成演示库、
 起回环 `peach serve --no-auth`，再按批调起 `node --test` 跑 `frontend/e2e` 下全部用例（调度见 [docs/TESTING.md](TESTING.md)）。冒烟用例在
 `frontend/e2e/smoke.test.ts`，每条主路由在桌面与 390×844 下先等到目标页面主体出现（路由自己的标题，
 加上内容区、索引条目或明确的空态），再断言：无页面异常与 `console.error`、无同源 4xx/5xx 与失败请求、
 `aria-busy` 与 `data-skeleton` 会消失、无横向溢出、无越出视口的元素。主体一项不能省：页面完全没渲染时，
 其余几条照样全部成立。新增路由要在 `ROUTES` 里写明它的主体。
-浏览器取本机 Google Chrome（`PEACH_E2E_CHROME` 可指定），短片由 ffmpeg 编码；缺 npm、
+浏览器取本机 Google Chrome（`MEDIANFO_E2E_CHROME` 可指定），短片由 ffmpeg 编码；缺 npm、
 `playwright-core`、ffmpeg 或 Chrome 时本机显式跳过，CI 里判失败。浏览器 CI 由 `web-e2e` 矩阵分片，
 分片与平台范围以 [测试与依赖](TESTING.md) 和工作流为准。界面验收里发现的同类问题，
 先在这里补一条用例再修。
@@ -273,13 +273,13 @@ npm --prefix frontend run build:agentation   # 在要用它的那份检出里构
 `localStorage` 里，之后每次开页都会带上右下角的工具栏。
 
 - 产物写到 `build/agentation/peach-agentation.js`，由 `/dev/agentation.js` 提供，口令同 `/dist/`。
-  它不进 Git、不进独立包：Agentation 是 PolyForm Shield 许可，只许自用，不随 Peach 分发，
+  它不进 Git、不进独立包：Agentation 是 PolyForm Shield 许可，只许自用，不随 MediaNfo 分发，
   所以不放在会被打包整个带走的 `web/` 下。没构建过的检出里这条路由是 404，`Application` 静默跳过。
 - 产物是本机构建的：换检出、升级依赖之后重跑一次，刷新页面即生效。
 - 标注里拿不到源文件路径：它靠 React 的 `_debugSource`，React 19 已移除这个字段；组件名也被
-  `peach-app.js` 的压缩改掉了。要在 Tailwind 类名之外给智能体更稳的抓手，给区块加
+  `medianfo-app.js` 的压缩改掉了。要在 Tailwind 类名之外给智能体更稳的抓手，给区块加
   `data-component`（Agentation 默认采集的属性之一）。
-- Agentation 自己的全局快捷键已关闭，避免与 Peach 的 Esc、方向键冲突，只用工具栏按钮操作。
+- Agentation 自己的全局快捷键已关闭，避免与 MediaNfo 的 Esc、方向键冲突，只用工具栏按钮操作。
 - 标注工具挂在自己的容器里；适配入口为它的 Shadow DOM 表单字段补齐名称。
 - 标注同步到本机 `agentation-mcp`（`http://localhost:4747`），智能体用它的 MCP 工具直接读、
   回复和标记已处理，不必复制粘贴。服务由注册了它的 Claude Code 会话拉起：
@@ -444,7 +444,7 @@ BoardUI 的 `chart-*` 档。点一个内容标签是「回目录并按它筛选�
    `openManagedRoute` 打开（见 [挂载契约](#挂载契约)）。
 4. 外观按 BoardUI：注册表里有的条目逐字复制进 `src/react/boardui/`，哈希记进
    `ORIGIN.md` 与 `UPSTREAM.sha256`；注册表里没有的（分区标题、空态、进度、说明条）
-   用 `src/react/components/` 下 Peach 自己的组合件，第二个页面要用就搬进那里，不复制一份。
+   用 `src/react/components/` 下 MediaNfo 自己的组合件，第二个页面要用就搬进那里，不复制一份。
    `auto-fill` 网格、固定像素的封面这类工具类里没有的档位，在 `styles.css` 里加
    `@theme` 或 `@utility`，类名照常由 Tailwind 生成；lint 不收任意值。
    卡面取 `components/card.tsx` 的 `cardClass()`，不自己拼描边卡：Board 的卡一律是
@@ -461,9 +461,9 @@ BoardUI 的 `chart-*` 档。点一个内容标签是「回目录并按它筛选�
 8. 跑 `& .\scripts\test.ps1 -Scope web`（含 tsc、lint、vitest 与真浏览器冒烟），
    再 `npm --prefix frontend run build` 并把 `web/dist/` 一起提交。
 
-应用骨架与全局外壳沿用 `web/css/` 下仍被读取的分区。主界面组件与共享控件样式由 `react/styles.css` 汇入 `peach-app.css`。
-只由 `frontend/src` 产出标记的规则（含 `ui-kit` 模板与骨架拼的 HTML）住在组件旁的 css，类名带 `ui-` 前缀，经 `react/styles.css` 引入、随 `peach-app.css` 加载；壳也拼的类和尚未搬的类仍在 `web/css/` 与 `web/board.css`。原地换态的动效类在 `ui-kit/motion.css`。播放器皮肤与字幕外观由 `player/player.css`、`player/subtitles.css` 随主界面样式加载；Video.js 10 的控件模块由 `player/videojs.ts` 按需加载。
-React 子树的样式是 Tailwind v4 加 BoardUI 主题，产物 `peach-app.css`；它与旧样式表同处一页的
+应用骨架与全局外壳沿用 `web/css/` 下仍被读取的分区。主界面组件与共享控件样式由 `react/styles.css` 汇入 `medianfo-app.css`。
+只由 `frontend/src` 产出标记的规则（含 `ui-kit` 模板与骨架拼的 HTML）住在组件旁的 css，类名带 `ui-` 前缀，经 `react/styles.css` 引入、随 `medianfo-app.css` 加载；壳也拼的类和尚未搬的类仍在 `web/css/` 与 `web/board.css`。原地换态的动效类在 `ui-kit/motion.css`。播放器皮肤与字幕外观由 `player/player.css`、`player/subtitles.css` 随主界面样式加载；Video.js 10 的控件模块由 `player/videojs.ts` 按需加载。
+React 子树的样式是 Tailwind v4 加 BoardUI 主题，产物 `medianfo-app.css`；它与旧样式表同处一页的
 三条约束（工具类不分层、只扫描 `src/react/`、Preflight 限定在 `.peach-react` 里）写在
 `frontend/src/react/styles.css` 开头，逐字复制与没有复制的上游文件见 `frontend/src/react/boardui/ORIGIN.md`。
 Preflight 给每张 img `max-width:100%`；`card-art` 拼的人脸头像由 `avatarFrame` 在图上内联撤掉这条，
@@ -506,11 +506,11 @@ vendor 到 `web/vendor/` 的四个包（video.js、swiper、lucide-static、heal
 | `@tanstack/react-table` | v9 的 `useTable`、`tableFeatures` 与列 helper 驱动关注列表、JAV 订阅源和创作者别名表格，只注册各表需要的分页、行选择与排序状态。行身份是业务 ID（`getRowId`）；关注列表跨页跨视图共用勾选集合，排序作用在**全集**上，分页只切最后一步；别名表按平台别名和规范创作者键标识行 |
 | `tailwind-merge` | BoardUI 的 `cx()` 合并类名时去掉互相冲突的工具类 |
 | `@remixicon/react` | BoardUI 组件内置的图标 |
-| `tailwindcss`、`@tailwindcss/vite` | 按 `src/react/` 里实际用到的类名生成 `peach-app.css` |
+| `tailwindcss`、`@tailwindcss/vite` | 按 `src/react/` 里实际用到的类名生成 `medianfo-app.css` |
 | `@types/react`、`@types/react-dom` | React 子树的类型检查 |
 | `agentation` | 本机开发用的界面标注工具栏，单独构建、不进产物与独立包（见「界面标注」） |
 
-主界面由 `vite.config.ts` 从 `src/react/bootstrap.tsx` 构建为 `peach-app.js` 与 `peach-app.css`。Application、路由树、常驻组件与共享状态同属一份源码图，`@peach/*` 直接解析到源码，不外置 React、Query、历史、shell 或 UI 模块。主界面不做代码分割；开发取证工具 `/dev/agentation.js` 是独立的按需外部模块。
+主界面由 `vite.config.ts` 从 `src/react/bootstrap.tsx` 构建为 `medianfo-app.js` 与 `medianfo-app.css`。Application、路由树、常驻组件与共享状态同属一份源码图，`@peach/*` 直接解析到源码，不外置 React、Query、历史、shell 或 UI 模块。主界面不做代码分割；开发取证工具 `/dev/agentation.js` 是独立的按需外部模块。
 
 `npm run build` 先构建主界面并清空 `web/dist/`，再用 `vite.pages.config.ts` 追加独立页面包。浏览器基线是 Chrome 111、Firefox 128、Safari 16.4，oklch 原样输出；随主题变化的值用 `.dark` 与自定义属性，不写 `light-dark()`，由 `react-color-scheme.test.ts` 检查产物。
 

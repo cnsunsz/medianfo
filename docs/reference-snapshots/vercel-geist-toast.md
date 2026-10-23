@@ -21,7 +21,7 @@
 - **Preservation**：默认自动消失；只有用户必须读到/必须操作时才常驻（preserve）。
 - **Accessibility**：异步更新（toast、校验）需要 `aria-live="polite"`
   （与 vercel-web-interface-guidelines 一致）；toast 不自动抢焦点。
-- **Undo**：可逆操作使用过去时结果 + 单一 `Undo` 动作，保留 5–10 秒；Peach
+- **Undo**：可逆操作使用过去时结果 + 单一 `Undo` 动作，保留 5–10 秒；MediaNfo
   使用 8 秒和本地化的“撤销”。撤销本身必须等待真实写入成功，失败另报短 toast。
 - **Async flow**：一次用户动作只在终态发一条 toast，不用“开始／处理中／完成”
   连续三条 toast 复述同一个流程；等待只留在原触发器的 Spinner。
@@ -29,7 +29,7 @@
   Dialog 尚未产生写入，不发伪成功回执。
 - **Related**：需要用户立即处理时用 Banner / Note，而不是 toast。
 
-## Peach 复用了什么
+## MediaNfo 复用了什么
 
 检查更新的反馈拆成两条通道（`web/app.js` 的 `followCheckToast` /
 `followCheckFailNote`，样式在 `web/css/17-overlay.css`）：

@@ -6,11 +6,11 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from peach import media_configuration, onboarding, organize, resource_identification, settings_file
-from peach import web_batch, web_organize, web_resource_sync
-from peach.media_sources import SCANNABLE_LOCATIONS, cost_for
-from peach.web_contract import WebContract
-from peach.web_settings import organize_templates, w_settings
+from medianfo import media_configuration, onboarding, organize, resource_identification, settings_file
+from medianfo import web_batch, web_organize, web_resource_sync
+from medianfo.media_sources import SCANNABLE_LOCATIONS, cost_for
+from medianfo.web_contract import WebContract
+from medianfo.web_settings import organize_templates, w_settings
 from support.ledger import fresh_ledger
 
 
@@ -26,12 +26,12 @@ class GuangyaSourceTests(unittest.TestCase):
     def test_cloud_only_setup_roundtrips_windows_and_macos_mounts(self):
         for windows, path in ((True, "G:/Movies"), (False, "/Volumes/Guangya/Movies")):
             with self.subTest(windows=windows):
-                config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.root)})
+                config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.root)})
                 answers = onboarding.Answers(self.root, (), "127.0.0.1", 8900, "peach", [
                     {"location": "guangya", "path": path, "root": "G:/Movies"}])
                 prepared = onboarding.configure(config, answers, windows=windows)
                 settings_file.write(prepared, force=True)
-                loaded = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.root)})
+                loaded = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.root)})
                 self.assertEqual(loaded.locations, {"guangya": ("G:\\Movies",)})
                 self.assertEqual(loaded.mounts, {} if windows else {"guangya": (path,)})
                 self.assertEqual(media_configuration.rows(loaded, windows=windows)[0]["path"],
@@ -39,8 +39,8 @@ class GuangyaSourceTests(unittest.TestCase):
         self.assertFalse((self.root / "database" / "ledger.db").exists())
 
     def test_setup_answers_accept_the_guangya_source(self):
-        from peach.routes_pages import _read_answers
-        config = settings_file.load_config(environ={"PEACH_DATA_ROOT": str(self.root)})
+        from medianfo.routes_pages import _read_answers
+        config = settings_file.load_config(environ={"MEDIANFO_DATA_ROOT": str(self.root)})
         answers, errors = _read_answers(config, {
             "data_root": str(self.root), "media_dir": ["/Volumes/Guangya"],
             "media_location": ["guangya"], "media_root": ["G:/"], "host": "1",

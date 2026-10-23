@@ -3,12 +3,12 @@ import json
 import unittest
 from unittest.mock import Mock, patch
 
-from peach.http import HttpResponse
-from peach.jav_cover_fetch import Unavailable
-from peach.library_processing import LibraryMetadataProvider
-from peach.scraping_access import SourcePaused
-from peach.sources import DMM, DmmSource, FailureReason, Page, Session, SourceFailure
-from peach.sources.dmm import (DETAIL_ATTEMPTS, DETAIL_QUERY, SEARCH_LIMIT, SEARCH_QUERY, code_parts,
+from medianfo.http import HttpResponse
+from medianfo.jav_cover_fetch import Unavailable
+from medianfo.library_processing import LibraryMetadataProvider
+from medianfo.scraping_access import SourcePaused
+from medianfo.sources import DMM, DmmSource, FailureReason, Page, Session, SourceFailure
+from medianfo.sources.dmm import (DETAIL_ATTEMPTS, DETAIL_QUERY, SEARCH_LIMIT, SEARCH_QUERY, code_parts,
                                guessed_cid, matching_cids, release_date)
 
 ENDPOINT = "https://api.video.dmm.co.jp/graphql"
@@ -185,7 +185,7 @@ class DmmSourceTests(unittest.TestCase):
 
         provider = LibraryMetadataProvider.__new__(LibraryMetadataProvider)
         provider.transport = Mock()
-        with patch("peach.jav_cover_fetch._fetch", side_effect=pages) as fetch:
+        with patch("medianfo.jav_cover_fetch._fetch", side_effect=pages) as fetch:
             payload = provider.query("SSIS-057", "dmm")
         self.assertEqual(payload, EXPECTED)
         self.assertEqual(fetch.call_args.args[1], ENDPOINT)

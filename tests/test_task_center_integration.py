@@ -14,11 +14,11 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-from peach import web_contract, web_tasks
-from peach.jobs import BackgroundJob, TaskRunConflict
-from peach.routes_api import api_get, api_post, task_run_detail
-from peach.repository import LedgerDatabase
-from peach.task_runs import TaskRunStore
+from medianfo import web_contract, web_tasks
+from medianfo.jobs import BackgroundJob, TaskRunConflict
+from medianfo.routes_api import api_get, api_post, task_run_detail
+from medianfo.repository import LedgerDatabase
+from medianfo.task_runs import TaskRunStore
 from support.ledger import fresh_ledger
 
 
@@ -32,7 +32,7 @@ class BackgroundJobTaskRunTests(unittest.TestCase):
         self.store = TaskRunStore(LedgerDatabase(self.db), host="test-host")
 
     def job(self, task_key="demo", **kwargs):
-        return BackgroundJob("PeachDemoJob", task_key=task_key, runs=self.store,
+        return BackgroundJob("MediaNfoDemoJob", task_key=task_key, runs=self.store,
                              **kwargs)
 
     def test_a_finished_round_leaves_one_succeeded_row_with_its_counts(self):
@@ -96,8 +96,8 @@ class BackgroundJobTaskRunTests(unittest.TestCase):
             reached.append(job_id)
             job.update(job_id, status="complete", checked=2)
 
-        with unittest.mock.patch("peach.task_runs.PROGRESS_LOCK_TIMEOUT", 0.05), \
-                self.assertLogs("peach.task_runs", "WARNING"):
+        with unittest.mock.patch("medianfo.task_runs.PROGRESS_LOCK_TIMEOUT", 0.05), \
+                self.assertLogs("medianfo.task_runs", "WARNING"):
             started = job.start(work)
             job.thread.join(5)
         self.assertEqual(reached, [started["job_id"]])
@@ -196,7 +196,7 @@ class BackgroundJobTaskRunTests(unittest.TestCase):
 
     def test_a_job_without_a_store_still_runs(self):
         """裸 `BackgroundJob`（测试与老调用点）不带 store，一切照旧。"""
-        job = BackgroundJob("PeachBareJob")
+        job = BackgroundJob("MediaNfoBareJob")
         job.start(lambda job_id: job.update(job_id, status="complete"))
         job.thread.join(5)
         self.assertEqual(job.snapshot()["status"], "complete")

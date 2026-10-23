@@ -12,7 +12,7 @@ import tempfile
 import zipfile
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from peach.update_packages import MANIFEST, TOOL_PATHS, digest, read_manifest
+from medianfo.update_packages import MANIFEST, TOOL_PATHS, digest, read_manifest
 
 
 def archive(destination: Path, root: Path, files: list[Path], manifest: dict | None = None) -> None:
@@ -20,14 +20,14 @@ def archive(destination: Path, root: Path, files: list[Path], manifest: dict | N
         for path in files:
             if path.is_symlink() or not path.resolve().is_relative_to(root.resolve()):
                 raise ValueError("发行目录包含链接或越界文件")
-            package.write(path, "Peach/" + path.relative_to(root).as_posix())
+            package.write(path, "MediaNfo/" + path.relative_to(root).as_posix())
         if manifest is not None:
-            package.writestr("Peach/" + MANIFEST, json.dumps(manifest, ensure_ascii=False, sort_keys=True))
+            package.writestr("MediaNfo/" + MANIFEST, json.dumps(manifest, ensure_ascii=False, sort_keys=True))
 
 
 def download_notes(version: str, *, lite_installer: bool = False) -> str:
     """发布页的下载入口与包类型说明。"""
-    base = f"https://github.com/peach-mitao/peach/releases/download/v{version}/Peach-{version}-windows-x64"
+    base = f"https://github.com/cnsunsz/medianfo/releases/download/v{version}/MediaNfo-{version}-windows-x64"
     lite = (f"| [轻量安装包（lite-setup.exe）]({base}-lite-setup.exe) | 不含工具，安装时复用已有工具或按需联网下载 |\n"
             if lite_installer else "")
     return (
@@ -35,35 +35,35 @@ def download_notes(version: str, *, lite_installer: bool = False) -> str:
         "| 下载 | 用途 |\n| --- | --- |\n"
         f"| [安装包（setup.exe）]({base}-setup.exe) | 包含全部工具，首次安装推荐 |\n"
         + lite +
-        f"| [完整免安装包（ZIP）]({base}.zip) | 包含全部工具，解压后运行 `Peach.exe` |\n"
-        f"| [应用更新包（update.zip）]({base}-update.zip) | 不含工具，由 Peach 更新器安装，不能单独用于首次安装 |\n"
+        f"| [完整免安装包（ZIP）]({base}.zip) | 包含全部工具，解压后运行 `MediaNfo.exe` |\n"
+        f"| [应用更新包（update.zip）]({base}-update.zip) | 不含工具，由 MediaNfo 更新器安装，不能单独用于首次安装 |\n"
         f"| 工具包（tools-*.zip）：[FFmpeg]({base}-tools-ffmpeg.zip) / "
         f"[untrunc]({base}-tools-untrunc.zip) / [cloudflared]({base}-tools-cloudflared.zip) "
         "| 更新器按需下载，普通使用无需手动选择 |\n"
         "| `*-corresponding-source.zip` | 第三方工具源码，普通使用无需下载 |\n\n"
-        "已有 Peach：在「配置 → 应用与维护」检查更新，下载完成后确认重启安装。"
+        "已有 MediaNfo：在「配置 → 应用与维护」检查更新，下载完成后确认重启安装。"
         "手动更新可运行安装包，或使用完整免安装包。\n"
     )
 
 
 def build_lite_installer(output: Path, version: str, compiler: Path | None = None) -> Path:
     """将应用更新包及其工具清单编入按需下载工具的安装器。"""
-    from peach.standalone_update import extract
+    from medianfo.standalone_update import extract
     output = output.resolve()
     if compiler is None:
-        candidates = [os.environ.get('PEACH_ISCC'), shutil.which('ISCC.exe'),
+        candidates = [os.environ.get('MEDIANFO_ISCC'), shutil.which('ISCC.exe'),
                       str(Path(os.environ.get('ProgramFiles(x86)', 'C:/Program Files (x86)')) / 'Inno Setup 6/ISCC.exe'),
                       str(Path(os.environ.get('LOCALAPPDATA', '')) / 'Programs/Inno Setup 6/ISCC.exe')]
         compiler = next((Path(item) for item in candidates if item and Path(item).is_file()), None)
     if compiler is None:
-        raise ValueError('未取得 Inno Setup 编译器，请设置 PEACH_ISCC。')
+        raise ValueError('未取得 Inno Setup 编译器，请设置 MEDIANFO_ISCC。')
     with tempfile.TemporaryDirectory(prefix='peach-lite-installer-') as folder:
-        source = extract(output / f'Peach-{version}-windows-x64-update.zip', Path(folder).resolve(), lambda *_: None)
+        source = extract(output / f'MediaNfo-{version}-windows-x64-update.zip', Path(folder).resolve(), lambda *_: None)
         read_manifest(source, version)
         subprocess.run([str(compiler), '/Q', f'/DAppVersion={version}',
                         f'/DSourceDir={source}', f'/DOutputDir={output}', '/DLiteInstaller=1',
-                        str(Path(__file__).resolve().parent / 'installer/peach.iss')], check=True)
-    target = output / f'Peach-{version}-windows-x64-lite-setup.exe'
+                        str(Path(__file__).resolve().parent / 'installer/medianfo.iss')], check=True)
+    target = output / f'MediaNfo-{version}-windows-x64-lite-setup.exe'
     if not target.is_file():
         raise ValueError('轻量安装包未生成。')
     return target
@@ -76,7 +76,7 @@ def package(root: Path, output: Path, version: str) -> dict:
     root, output = root.resolve(), output.resolve()
     if output.is_relative_to(root):
         raise ValueError("发行输出目录须位于程序目录外")
-    if not (root / "Peach.exe").is_file() or not (root / "_internal/standalone.txt").is_file():
+    if not (root / "MediaNfo.exe").is_file() or not (root / "_internal/standalone.txt").is_file():
         raise ValueError("发行目录不是独立 Windows 包")
     output.mkdir(parents=True, exist_ok=True)
     files = sorted(path for path in root.rglob("*") if path.is_file())
@@ -91,7 +91,7 @@ def package(root: Path, output: Path, version: str) -> dict:
         expected = {f"{prefix}/{name}" if prefix else name for name in required}
         if not expected.issubset(names):
             raise ValueError(f"发行目录缺少 {tool} 工具与分发材料")
-        name = f"Peach-{version}-windows-x64-tools-{tool}.zip"
+        name = f"MediaNfo-{version}-windows-x64-tools-{tool}.zip"
         archive(output / name, root, selected)
         tools[tool] = {"files": names, "asset": {"name": name, "size": (output / name).stat().st_size,
                                               "sha256": digest(output / name)}}
@@ -102,8 +102,8 @@ def package(root: Path, output: Path, version: str) -> dict:
         check = Path(temp).resolve()
         (check / MANIFEST).write_text(json.dumps(manifest), encoding="utf-8")
         read_manifest(check, version)
-    archive(output / f"Peach-{version}-windows-x64.zip", root, files)
-    archive(output / f"Peach-{version}-windows-x64-update.zip", root,
+    archive(output / f"MediaNfo-{version}-windows-x64.zip", root, files)
+    archive(output / f"MediaNfo-{version}-windows-x64-update.zip", root,
             [path for path in files if path not in tool_files], manifest)
     (output / "DOWNLOADS.md").write_text(
         download_notes(version), encoding="utf-8")

@@ -12,12 +12,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT/'src'))
-from peach import entity_identity_research as research  # noqa: E402
-from peach.config import DATABASE_PATH, GENERATED_DIR, SECRETS_DIR  # noqa: E402
-from peach.fsutil import atomic_write_text  # noqa: E402
-from peach.performer_alias_followup import WikiSitePages  # noqa: E402
-from peach.scripting import open_readonly  # noqa: E402
-from peach.sources.seesaa import AV_NEME, SEESAA  # noqa: E402
+from medianfo import entity_identity_research as research  # noqa: E402
+from medianfo.config import DATABASE_PATH, GENERATED_DIR, SECRETS_DIR  # noqa: E402
+from medianfo.fsutil import atomic_write_text  # noqa: E402
+from medianfo.performer_alias_followup import WikiSitePages  # noqa: E402
+from medianfo.scripting import open_readonly  # noqa: E402
+from medianfo.sources.seesaa import AV_NEME, SEESAA  # noqa: E402
 
 
 def targets(connection, entity_ids):

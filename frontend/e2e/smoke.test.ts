@@ -134,7 +134,7 @@ const ROUTES: readonly Route[] = [
     body: (page: Page) => [page.getByRole('dialog', { name: /外观与导航|浏览与播放|JAV 与新作|搜索与推荐|内容显示/ })] })),
   ...['subscriptions', 'downloads', 'network', 'maintenance'].map(section => ({ path: `/settings/${section}`, body: configurationBody })),
   {
-    path: `/assets/${requiredEnv('PEACH_E2E_ITEM')}`,
+    path: `/assets/${requiredEnv('MEDIANFO_E2E_ITEM')}`,
     body: (page) => {
       const stage = page.getByRole('dialog', { name: '作品详情' });
       return [stage, stage.locator('video.vjs-tech')];
@@ -178,7 +178,7 @@ describe('路由冒烟', () => {
         try {
           if (route.path.startsWith('/works/')) {
             await mockJavDetail(opened.page);
-            await opened.page.goto(requiredEnv('PEACH_E2E_ORIGIN') + route.path);
+            await opened.page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + route.path);
           }
           await expectBody(opened.page, route.path, route.body(opened.page));
           await settle(opened.page);

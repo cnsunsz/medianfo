@@ -14,13 +14,13 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from peach import feed_followup, feeds, web_feeds, web_settings  # noqa: E402
-from peach.http import HttpResponse  # noqa: E402
-from peach.web_contract import WebContract  # noqa: E402
-from peach.web_router import dispatch_api_get, dispatch_api_post  # noqa: E402
+from medianfo import feed_followup, feeds, web_feeds, web_settings  # noqa: E402
+from medianfo.http import HttpResponse  # noqa: E402
+from medianfo.web_contract import WebContract  # noqa: E402
+from medianfo.web_router import dispatch_api_get, dispatch_api_post  # noqa: E402
 from support.ledger import fresh_ledger  # noqa: E402
 
-#: 端到端那一趟读的是临时 Peach 数据目录里的这份文件：拉取只吃已下载的字节，
+#: 端到端那一趟读的是临时 MediaNfo 数据目录里的这份文件：拉取只吃已下载的字节，
 #: 字节从网络来还是从盘上来与解析、去重、建壳那几步无关。
 SAMPLE = """
 <a href="/v/Ab2" class="box" title="x"><div class="video-title"><strong>SSIS-950</strong>
@@ -95,7 +95,7 @@ class FeedWebFixture(unittest.TestCase):
         if code in self.cover_misses:
             raise RuntimeError("官方渠道没有这个番号的封面")
         if code in self.cover_unreachable:
-            from peach.jav_cover_fetch import HOSTS_UNREACHABLE, CoverConnectError
+            from medianfo.jav_cover_fetch import HOSTS_UNREACHABLE, CoverConnectError
             raise CoverConnectError(HOSTS_UNREACHABLE)
         from PIL import Image
         image = Image.new("RGB", (800, 538), (40, 40, 40))
@@ -111,7 +111,7 @@ class FeedWebFixture(unittest.TestCase):
             headers["If-None-Match"] = etag
         if last_modified:
             headers["If-Modified-Since"] = last_modified
-        from peach.http import HttpRequest
+        from medianfo.http import HttpRequest
         return transport(HttpRequest("GET", url, headers), 30.0, 1 << 21)
 
     def _add(self, entity_id=None):
@@ -130,7 +130,7 @@ class FeedWebFixture(unittest.TestCase):
 
 class FeedWebTest(FeedWebFixture):
     def test_recovery_keeps_source_selection_progress_and_discovered_codes(self):
-        from peach import job_recovery
+        from medianfo import job_recovery
         first = self._add()
         self.url = 'https://javdb.com/actors/Smp2'
         second = self._add()
@@ -179,7 +179,7 @@ class FeedWebTest(FeedWebFixture):
             self.assertTrue(all(row[0] is None for row in connection.execute('SELECT cover_url FROM feed_discovery')))
 
     def test_newwork_cast_reads_cached_source_faces_and_local_aliases_without_fetching(self):
-        from peach.jav_discovery_metadata import discovery_metadata
+        from medianfo.jav_discovery_metadata import discovery_metadata
         self._add()
         self._check()
         self._drain(1)
@@ -197,7 +197,7 @@ class FeedWebTest(FeedWebFixture):
                 {'id': 'A', 'name': '深田えいみ', 'gender': 0, 'avatar_url': 'https://tp.spfcas.com/A.jpg'},
                 {'id': 'B', 'name': '来源乙', 'gender': 0, 'avatar_url': 'https://tp.spfcas.com/B.jpg'},
                 {'id': 'C', 'name': '来源男优', 'gender': 1}]})
-        with patch('peach.javdb_public.PUBLIC_API.movie') as fetch:
+        with patch('medianfo.javdb_public.PUBLIC_API.movie') as fetch:
             items = dispatch_api_get(self.contract, '/api/feeds/discoveries', {})['items']
         fetch.assert_not_called()
         self.assertTrue(items)
@@ -612,14 +612,14 @@ class FeedWebTest(FeedWebFixture):
         self.assertIn('error_type', attempt)
 
     def test_official_miss_does_not_install_a_bound_javdb_image(self):
-        from peach.jav_cover_fetch import Unavailable
+        from medianfo.jav_cover_fetch import Unavailable
         self._add()
         self._check()
         with self.contract.database.write_transaction() as connection:
             connection.execute("UPDATE feed_discovery SET link='https://javdb.com/v/Source01' WHERE code='SSIS-950'")
-        with patch('peach.jav_cover_fetch.best_cover', side_effect=Unavailable('官方封面未取得')), \
-                patch('peach.javdb_public.PUBLIC_API.image') as source_image, \
-                patch('peach.javdb_public.PUBLIC_API.remember_movie_identity') as identity:
+        with patch('medianfo.jav_cover_fetch.best_cover', side_effect=Unavailable('官方封面未取得')), \
+                patch('medianfo.javdb_public.PUBLIC_API.image') as source_image, \
+                patch('medianfo.javdb_public.PUBLIC_API.remember_movie_identity') as identity:
             with self.assertRaisesRegex(Unavailable, '官方封面未取得'):
                 self._fetch_cover(self.contract, 'SSIS-950')
         identity.assert_not_called()
@@ -697,8 +697,8 @@ class FeedWebTest(FeedWebFixture):
 
     def test_every_check_carries_performers_still_missing_an_avatar(self):
         """资料处理不跑的日子，缺头像的存量女优跟着定时拉取补（ADR-0097）。试过的不再带。"""
-        from peach import avatar_followup
-        from peach.followups import Attempts, attempts_root
+        from medianfo import avatar_followup
+        from medianfo.followups import Attempts, attempts_root
 
         with self.contract.database.write_transaction() as connection:
             entity_id = connection.execute(
@@ -1067,8 +1067,8 @@ class JavDiscoveryTest(FeedWebFixture):
             self.assertFalse(any('示例男优' in reason for reason in item['reasons']))
 
     def test_persistent_metadata_supplies_canonical_filters_and_sort_values_without_detail(self):
-        from peach import web_jav_discovery
-        from peach.jav_discovery_metadata import discovery_metadata
+        from medianfo import web_jav_discovery
+        from medianfo.jav_discovery_metadata import discovery_metadata
         self._add()
         self._check()
         metadata = discovery_metadata(self.contract)
@@ -1078,7 +1078,7 @@ class JavDiscoveryTest(FeedWebFixture):
             metadata.remember(code, {"number": code, "tags": [{"name": "中出"}], "score": score, "duration": 180})
         with patch.object(web_jav_discovery, "preference_profile", return_value=self._preference_fixture(
                 {"browser_tags": [{"name": "中出内射", "score": 4}]})), \
-                patch("peach.javdb_public.PUBLIC_API.movie") as movie:
+                patch("medianfo.javdb_public.PUBLIC_API.movie") as movie:
             result = web_jav_discovery.q_jav_discoveries(self.contract, {"sort": "source_score"})
             metadata.job.thread.join(5)
         movie.assert_not_called()
@@ -1090,15 +1090,15 @@ class JavDiscoveryTest(FeedWebFixture):
         self.assertTrue(all(row["taste_score"] == row["score"] for row in result["items"]))
 
     def _discover(self, scope="external", rankings=None, metadata=None, args=None):
-        from peach import web_jav_discovery
+        from medianfo import web_jav_discovery
         with patch.object(web_jav_discovery, "preference_profile", return_value=self._preference_fixture(rankings or {})), \
                 patch.object(web_jav_discovery, "_cached_movie", return_value=metadata or {}), \
-                patch("peach.jav_discovery_metadata.DiscoveryMetadata.ensure", return_value=None):
+                patch("medianfo.jav_discovery_metadata.DiscoveryMetadata.ensure", return_value=None):
             return web_jav_discovery.q_jav_discoveries(self.contract, {"scope": scope, **(args or {})})
 
     def _preference_fixture(self, rankings):
-        from peach import web_jav_discovery
-        from peach.taste_preferences import WEIGHTS
+        from medianfo import web_jav_discovery
+        from medianfo.taste_preferences import WEIGHTS
         strengths, names, evidence = ({kind: {} for kind in WEIGHTS} for _ in range(3))
         with self.contract.database.read_connection() as connection:
             for key, kind in (("peach_studios", "studio"), ("peach_tags", "tag"),

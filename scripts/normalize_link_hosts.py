@@ -26,7 +26,7 @@ from urllib.parse import urlsplit
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 # 别名表和改写规则与采集器共用（采集到 twitter.com 也要收成 x.com），定义在 peach.social_links。
-from peach.social_links import HOST_ALIASES, canonical_url   # noqa: E402
+from medianfo.social_links import HOST_ALIASES, canonical_url   # noqa: E402
 
 
 def target_url(url: str) -> str:

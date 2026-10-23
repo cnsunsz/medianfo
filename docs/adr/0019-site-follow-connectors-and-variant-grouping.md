@@ -33,7 +33,7 @@ rule34.xxx 上。不区分这三种关系，界面就只是一堆重复条目。
   普通 HTTPX 与地址栏会返回 403 或 `general_error`，而同一公开请求携带用户自己的可选
   Cookie 并保留 Firefox TLS/HTTP2 特征可得到原始 JSON。它不执行浏览器脚本、不解质询、
   不登录，也仍只收 `feeRequired=0`、`isRestricted=false` 的免费帖子。
-- 凭据从 `peach-data/secrets/follow/<provider>.json` 读，只进请求头或查询参数，
+- 凭据从 `medianfo-data/secrets/follow/<provider>.json` 读，只进请求头或查询参数，
   **绝不进快照、日志、`request_url` 或 ledger**。dapi 只接受查询参数，因此记录下来的是
   脱敏副本。
 - 官方免费渠道是一等来源：FANBOX 走公开 `post.listCreator` 且只收 `feeRequired=0`、
@@ -156,7 +156,7 @@ Bearer 头，不进 URL、候选或快照。
 
 七个来源里五个可用、一个需要用户的 API key、一个被机器人验证挡住并如实标记。追更从
 「有 adapter 但没有源」变成可以逐日使用的界面。代价是每个站点的 HTML/JSON 结构成了
-Peach 的维护面：连接器解析不出任何条目时一律报错而不是报「本次没有更新」，站点改版
+MediaNfo 的维护面：连接器解析不出任何条目时一律报错而不是报「本次没有更新」，站点改版
 因此会立刻暴露，而不是静默变成一个永远没有新内容的追更页。
 
 ## 修订：命令行入口退役（2026-09-08）

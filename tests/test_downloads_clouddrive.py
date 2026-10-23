@@ -1,6 +1,6 @@
 """115 云下载经 CloudDrive2 gRPC：起一个进程内的假服务端，走真实的序列化与元数据。
 
-假服务端只实现那八个方法，状态放在内存里。断言落在「Peach 发出去的是什么」上：令牌只在
+假服务端只实现那八个方法，状态放在内存里。断言落在「MediaNfo 发出去的是什么」上：令牌只在
 `authorization` 元数据里，提交前先查目录与配额，已有同一 infohash 的任务就不再提交，
 地址留空时只用不带令牌的 `GetSystemInfo` 探测，目标目录留空时按 CloudDrive2 报的云盘类型
 从推送前缀里推，只有用户点了才建目录。
@@ -13,10 +13,10 @@ from concurrent import futures
 
 import grpc
 
-from peach import downloads as dl
-from peach import downloads_clouddrive as cd
-from peach import downloads_clouddrive_pb2 as pb
-from peach.push_discovery import CloudPrefix
+from medianfo import downloads as dl
+from medianfo import downloads_clouddrive as cd
+from medianfo import downloads_clouddrive_pb2 as pb
+from medianfo.push_discovery import CloudPrefix
 
 HASH = "c9e15763f722f23e98a29decdfae341b98d53056"
 MAGNET = dl.parse_magnet(f"magnet:?xt=urn:btih:{HASH}&dn=ABC-123")

@@ -29,14 +29,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach.entities import (   # noqa: E402
+from medianfo.entities import (   # noqa: E402
     AGENCY_REJECTED, agency_key, normalize_entity_name, rejected_agencies, split_name,
 )
-from peach.review_csv import read_rows   # noqa: E402
-from peach.scripting import (   # noqa: E402
+from medianfo.review_csv import read_rows   # noqa: E402
+from medianfo.scripting import (   # noqa: E402
     add_ledger_write_args, counts_of, open_for_write, verify_after_write,
 )
-from peach.social_links import classify, host_owners   # noqa: E402
+from medianfo.social_links import classify, host_owners   # noqa: E402
 
 #: 驳回是人的判断，写入者按 `field_owners` 的归属串署名。
 SOURCE = "user:manual"

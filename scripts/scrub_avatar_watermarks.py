@@ -36,8 +36,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach import avatar_face, avatar_watermark, face_detect  # noqa: E402
-from peach.config import GENERATED_DIR  # noqa: E402
+from medianfo import avatar_face, avatar_watermark, face_detect  # noqa: E402
+from medianfo.config import GENERATED_DIR  # noqa: E402
 
 #: 处理记录写在 provenance 的这个键下。有这个键就是已经处理过，不再重复处理。
 STAMP = "watermark_scrubbed"

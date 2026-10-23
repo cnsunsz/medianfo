@@ -1,6 +1,6 @@
 # Vercel Geist Table 与首页布局证据（2026-09-04 复测）
 
-> 本文是 Peach 的人工取证笔记，不在 `reference-sources.json` 里登记；同 id 来源的上游 Markdown 原文锁定在 `upstream/vercel-geist-table.md`，`accept` 只覆盖那个文件。
+> 本文是 MediaNfo 的人工取证笔记，不在 `reference-sources.json` 里登记；同 id 来源的上游 Markdown 原文锁定在 `upstream/vercel-geist-table.md`，`accept` 只覆盖那个文件。
 
 ## 请求与取得通道
 
@@ -57,11 +57,11 @@
   区间里用 en-dash。
 - 长列表用虚拟化表格，底部一枚 `Show More` 按钮；定长的短表格没有这枚按钮。
 
-## Peach 采用与差异
+## MediaNfo 采用与差异
 
 - 使用空间的四个位置属于同形可比较数据，使用原生 `table`（`.insightdatatable`），列为位置、
   已用、可用与使用率；数字列 tabular numerals。容量拿不到时单元格写 `未取得`／`离线` 而不是
-  `—`：Peach 的取证规则要求区分「不适用」与「取证失败」，这一处主动偏离 Geist。
+  `—`：MediaNfo 的取证规则要求区分「不适用」与「取证失败」，这一处主动偏离 Geist。
 - 三张表（`.insightdatatable`、`.insighttable`、`.linktable`）都采用分隔线变体，
   不叠加隔栏异色：Geist 的这两个变体互斥，叠起来等于同时用两套分行手段。
 - 配置页的 CloudDrive 起步配置按缓存所在硬盘分三档，每档一项列表，项内用 `dl` 列出缓存上限、
@@ -72,10 +72,10 @@
 - 内容标签是固定 Top 30 排行并可直接筛选，不提供虚假的列排序；桌面以两栏有序列表提高扫描
   密度，DOM 顺序保持排名顺序，390px 手机回到单栏。
 - 最近看过固定 12 行、由服务端一次给全，没有下一页可取，因此不配 `Show More`。
-- 排序控件不在表头上，而是横排互斥的排序条（`.count .sorts`）：Peach 的主列表是卡片网格，
+- 排序控件不在表头上，而是横排互斥的排序条（`.count .sorts`）：MediaNfo 的主列表是卡片网格，
   没有表头可挂。方向的分工照 Geist 执行——箭头装饰、`aria-pressed` 表达当前项、
   无障碍名称播报下一步动作。
-- 表格与排行都复用 Peach 既有 `--line-soft`、字号和 1100px 阅读列，不复制 Geist 的
+- 表格与排行都复用 MediaNfo 既有 `--line-soft`、字号和 1100px 阅读列，不复制 Geist 的
   36px／40px 行高与 8px 内边距。
 
 ## 复核入口

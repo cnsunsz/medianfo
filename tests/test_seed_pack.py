@@ -13,9 +13,9 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from peach import seed_pack
-from peach.entities import normalize_entity_name
-from peach.performer_profiles import read_profile, write_profile
+from medianfo import seed_pack
+from medianfo.entities import normalize_entity_name
+from medianfo.performer_profiles import read_profile, write_profile
 from support.ledger import fresh_ledger
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -25,14 +25,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach.config import REVIEW_DIR, SECRETS_DIR, STATE_DIR   # noqa: E402
-from peach.entities import agency_key, name_chain, rejected_agencies   # noqa: E402
-from peach.http import HttpRequest   # noqa: E402
-from peach.jobs import job_main   # noqa: E402
-from peach.minnano_av import actress_id, profile_text, search_url   # noqa: E402
-from peach.review_csv import write_rows   # noqa: E402
-from peach.scraping_access import SourcePaused, SourceTransport   # noqa: E402
-from peach.scripting import (   # noqa: E402
+from medianfo.config import REVIEW_DIR, SECRETS_DIR, STATE_DIR   # noqa: E402
+from medianfo.entities import agency_key, name_chain, rejected_agencies   # noqa: E402
+from medianfo.http import HttpRequest   # noqa: E402
+from medianfo.jobs import job_main   # noqa: E402
+from medianfo.minnano_av import actress_id, profile_text, search_url   # noqa: E402
+from medianfo.review_csv import write_rows   # noqa: E402
+from medianfo.scraping_access import SourcePaused, SourceTransport   # noqa: E402
+from medianfo.scripting import (   # noqa: E402
     USER_AGENT, add_ledger_write_args, counts_of, open_for_write, verify_after_write,
 )
 

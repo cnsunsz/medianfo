@@ -1,5 +1,5 @@
 /* 馆藏卡片网格的对外契约：props、卡片版式、壳递进来的助手与动作。
- * 条目与分页的形状以 `/api/items`（`src/peach/web_router.py`）为准。 */
+ * 条目与分页的形状以 `/api/items`（`src/medianfo/web_router.py`）为准。 */
 
 import type { FaceRef } from '@peach/card-art';
 /** 卡片署名行上一个实体的引用：头像取图与取景都从这里来。 */

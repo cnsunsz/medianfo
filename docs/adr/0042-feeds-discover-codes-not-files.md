@@ -5,13 +5,13 @@
 
 ## 背景
 
-「关注的女优出新片了」这件事，Peach 现在只能靠人自己去外面看。刮削链是被动的：先有文件，
+「关注的女优出新片了」这件事，MediaNfo 现在只能靠人自己去外面看。刮削链是被动的：先有文件，
 才有番号，才有资料。关注（`follow_*`）那一套盯的是创作者的图文与视频帖，不认番号。
 结果是同一个人在两个地方各被关注一次，而番号那一侧根本没有「新作」这个概念。
 
 参考实现 amane 把这件事做成了 Feed：订阅若干 RSS/Atom，按源的间隔拉取，只从条目里解出番号，
 产出一条 by-number 的刮削任务，**不下载 enclosure、不写入媒体库**（设计判据见
-[docs/reference-snapshots/amane-feed.md](../reference-snapshots/amane-feed.md)）。这个形状正合适：Peach 要的也只是番号。
+[docs/reference-snapshots/amane-feed.md](../reference-snapshots/amane-feed.md)）。这个形状正合适：MediaNfo 要的也只是番号。
 
 来源这一侧先做了取证（[docs/SOURCING.md](../SOURCING.md)「番号发现源（Feed）」）。结论是原生 RSS 在这个领域
 基本绝迹：FANZA、MGStage、一本道、カリビアンコム、Tokyo-Hot、AVBase、javtrailers 全部没有，
@@ -20,7 +20,7 @@ sukebei.nyaa.si 的原生 RSS（75 条里 50 条带番号），和 JavDB 演员�
 DUGA 那份看起来最正规的 RSS 反而不能用：它的条目只带站内商品号，解出来是
 `PARADISETV-5258` 这种任何来源上都不存在的假番号。
 
-所以这件事的难点不在 RSS 解析，在「新发现的番号该以什么身份存在于 Peach 里」。
+所以这件事的难点不在 RSS 解析，在「新发现的番号该以什么身份存在于 MediaNfo 里」。
 
 ## 决策
 
@@ -97,7 +97,7 @@ sukebei 两个响应头一个都不给（2026-09-22 实测）。304 只是省一
 当成「盘上没有」而清掉，清掉之后下一轮 Feed 再建一遍，形成一个谁都没察觉的循环。
 
 **做成完整的 RSS 阅读器**（正文渲染、分组伪路径、OPML 导入、键盘导航）。上游有这一套，
-Peach 不要：这里的目标是「看见新作」，不是「读订阅」。正文一旦存下来就会有人想渲染它，
+MediaNfo 不要：这里的目标是「看见新作」，不是「读订阅」。正文一旦存下来就会有人想渲染它，
 而正文里带的是站外图片和跟踪链接。
 
 **复用 `process_library` 给壳刮削。** 它以 `asset` 行为单位，要写候选 CSV、要按字段优先级链

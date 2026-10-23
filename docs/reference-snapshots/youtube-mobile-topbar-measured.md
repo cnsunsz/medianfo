@@ -22,7 +22,7 @@
   这把锁未取得。
 - 主脚本里没有 `visualViewport`，也没有 `preventScroll`。
 
-## Peach 录屏测量
+## MediaNfo 录屏测量
 
 用户录屏 `ScreenRecording_09-14-2026 16-16-23_1.mp4`（220×480，7.1 秒）按每秒 5 帧抽帧：按下搜索键
 后 0.4–0.8 秒内整页平滑上滚，卡片标题在帧内下移约 115px，折合 CSS 约 200px；顶栏始终贴在状态栏
@@ -44,9 +44,9 @@ Safari 本身。
 居中公式按录屏几何估算的上滚量与实测约 200px 同一量级，但哪一条路径在用户机型上生效、fixed 顶栏为何
 不被带动，未取得真机日志，只能以上线后真机复测为准。
 
-## Peach 采用与差异
+## MediaNfo 采用与差异
 
-- 采用：窄屏 `.top` 改 `position:fixed;top:0;left:0;right:0`，`body` 让出 `var(--topH)`（Peach 为 64px）。
+- 采用：窄屏 `.top` 改 `position:fixed;top:0;left:0;right:0`，`body` 让出 `var(--topH)`（MediaNfo 为 64px）。
 - 保留：搜索键与返回键的 `focus({preventScroll:true})`、搜索框就地展开与返回箭头。
 - 不采用：`user-scalable=no`（保留缩放）；模态层锁滚动（没有证据表明 YouTube 搜索态使用）。
 

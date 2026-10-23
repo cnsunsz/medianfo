@@ -6,7 +6,7 @@
 
 ## 背景
 
-Peach 要做成一站式馆藏，下载是必要能力。下载分两条：交给网盘离线（不占本机流量与磁盘），和交给
+MediaNfo 要做成一站式馆藏，下载是必要能力。下载分两条：交给网盘离线（不占本机流量与磁盘），和交给
 用户本机的 BT 客户端。网盘这条的成本不在本机，而在 115 的离线配额与失败率：每个任务扣一条，年费
 会员每月 1500 条、月费 200 条，「重新下载」再扣一条，违规内容离线时被拦截（`50038`）。用户
 2026-10-01 接受这两项成本，并同意把 CloudDrive2 令牌与 PikPak 的 token 存在本机。
@@ -20,8 +20,8 @@ PikPak 只有非官方 API。
 用 `GetApiTokenInfo`、`FindFileByPath`、`GetOfflineQuotaInfo`、`AddOfflineFiles`、
 `ListOfflineFilesByPath`、`RemoveOfflineFiles`；依赖 `grpcio`、`protobuf` 精确钉版本，proto 只取用到的
 子集。PikPak 客户端自写：PyPI `PikPakAPI` 为 GPL-3.0-only，只参照协议。人机验证交给用户在浏览器里完成，
-Peach 不自动过验证；接口失效时报错并退回「复制磁力」。PikPak 的主登录方式是用浏览器登录，取网页端会话交给
-Peach 续期，见 ADR-0093；账号密码登录保留为第二选择。
+MediaNfo 不自动过验证；接口失效时报错并退回「复制磁力」。PikPak 的主登录方式是用浏览器登录，取网页端会话交给
+MediaNfo 续期，见 ADR-0093；账号密码登录保留为第二选择。
 
 **二、凭据存本机 `CredentialStore`。** CloudDrive2 令牌与 PikPak refresh token 不列为可同步字段，不进
 URL、日志与 ledger；PikPak 密码是否一并保存由用户选。CloudDrive2 地址留空时，「检查」依次探测本机

@@ -50,7 +50,7 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.avatar_provider import (
+from medianfo.avatar_provider import (
     POLICY_VERSION,
     AvatarCandidateCache,
     acceptable_avatar,
@@ -59,10 +59,10 @@ from peach.avatar_provider import (
     mark_duplicate_candidates,
     provenance_now,
 )
-from peach.catalog_rules import is_jav_code
-from peach.config import DATABASE_PATH, GENERATED_DIR
-from peach.fsutil import atomic_write_bytes
-from peach.gfriends import (
+from medianfo.catalog_rules import is_jav_code
+from medianfo.config import DATABASE_PATH, GENERATED_DIR
+from medianfo.fsutil import atomic_write_bytes
+from medianfo.gfriends import (
     GFRIENDS_RAW,
     INDEX_MAX_AGE_SECONDS,
     INDEX_NAME,
@@ -71,9 +71,9 @@ from peach.gfriends import (
     normalized,
     parse_filetree as parse_gfriends,
 )
-from peach.http import HttpRequest, HttpTransport, HttpxTransport
-from peach.review_csv import read_rows, write_rows
-from peach.scripting import HostLimiter, USER_AGENT, open_readonly
+from medianfo.http import HttpRequest, HttpTransport, HttpxTransport
+from medianfo.review_csv import read_rows, write_rows
+from medianfo.scripting import HostLimiter, USER_AGENT, open_readonly
 
 AVATAR_FILE_RE = re.compile(r"^performer-(\d+)\.img$")
 _LIMITER: "HostLimiter | None" = None

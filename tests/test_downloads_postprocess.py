@@ -5,9 +5,9 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from peach import download_postprocess as post
-from peach.downloads import DownloadStore, DownloadTask, INGESTED, POSTPROCESS_PENDING
-from peach.repository import LedgerDatabase
+from medianfo import download_postprocess as post
+from medianfo.downloads import DownloadStore, DownloadTask, INGESTED, POSTPROCESS_PENDING
+from medianfo.repository import LedgerDatabase
 from support.ledger import fresh_ledger
 
 

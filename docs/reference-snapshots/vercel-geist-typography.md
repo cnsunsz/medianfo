@@ -1,6 +1,6 @@
 # Vercel Geist Typography 实测
 
-> 本文是 Peach 的人工取证笔记，不在 `reference-sources.json` 里登记：
+> 本文是 MediaNfo 的人工取证笔记，不在 `reference-sources.json` 里登记：
 > 该页由 React 渲染，数值只能从计算样式读出，给不出可哈希的上游快照。
 
 - 取证日期：2026-09-04
@@ -39,15 +39,15 @@ Geist 把排版发成 Tailwind 类，分四组：`text-heading-*`（引导页面
 明显更松（`text-copy-18` 是 18/28，`text-label-18` 是 18/20）。数字用 `text-label-13`
 并开 tabular。
 
-## Peach 的采用与差异
+## MediaNfo 的采用与差异
 
 - 页面标题（`.pagetitle`/`.listtitle`/`.managetitle`/`.index .ihead h2`/`.playlistpage h2`）
   取 Heading 32：32px、600、行高 1.25（= 40px）。
 - 窄屏两级往下收：`max-width:760px` 走 Heading 24 那一档（`--fs-2xl`），
   `max-width:640px` 才到 Heading 20（`--fs-xl`）。
 - **字距不照抄**：Geist 的 -0.04em 是给拉丁字母调的，压在中文标题上会把字挤成一团，
-  Peach 保留 -0.01em。这是本仓库对该规范唯一的显式偏离。
-- 标题外边距 Geist 没有规定，Peach 自己定为下 20px（索引页与关注页记在
+  MediaNfo 保留 -0.01em。这是本仓库对该规范唯一的显式偏离。
+- 标题外边距 Geist 没有规定，MediaNfo 自己定为下 20px（索引页与关注页记在
   `.ihead`/`.followhead` 上，三处同值）。
 
 最后复核：2026-09-04

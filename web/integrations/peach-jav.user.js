@@ -1,12 +1,12 @@
 // ==UserScript==
-// @name         Peach · JAV 入库
-// @namespace    https://github.com/peach-mitao/peach-userscript
-// @source       https://github.com/peach-mitao/peach-userscript
-// @supportURL   https://github.com/peach-mitao/peach-userscript/issues
-// @homepageURL  https://github.com/peach-mitao/peach-userscript
+// @name         MediaNfo · JAV 入库
+// @namespace    https://github.com/cnsunsz/medianfo-userscript
+// @source       https://github.com/cnsunsz/medianfo-userscript
+// @supportURL   https://github.com/cnsunsz/medianfo-userscript/issues
+// @homepageURL  https://github.com/cnsunsz/medianfo-userscript
 // @license      AGPL-3.0-or-later
 // @version      0.3.0
-// @description  在 JAV 作品详情页识别或选中番号，交给 Peach 下载入库。
+// @description  在 JAV 作品详情页识别或选中番号，交给 MediaNfo 下载入库。
 // @match        https://missav.ws/*
 // @match        https://*.missav.ws/*
 // @match        https://missav.ai/*
@@ -229,8 +229,8 @@
   'use strict';
 
   const SITE_RULES = {"version":1,"sites":[{"id":"missav","label":"MissAV","kind":"在线播放","domains":["missav.ws","missav.ai","missav.com","missav123.com","missav.live","missav.fans","missav.media"],"mode":"automatic","detail_pattern":"^/(?:dm[0-9]+/)?(?:(?:en|ja|zh|cn|tw)/)?([^/]+)/?$","selectors":["h1","[data-video-code]","dt",".video-info p",".video-detail p"]},{"id":"jable","label":"Jable","kind":"在线播放","domains":["jable.tv"],"mode":"automatic","detail_pattern":"^/videos/([^/]+)/?$","selectors":["h1",".video-info h4","[data-video-code]","dt",".video-info p"]},{"id":"supjav","label":"SupJAV","kind":"在线播放","domains":["supjav.com"],"mode":"selection"},{"id":"jav-guru","label":"JAV.guru","kind":"在线播放","domains":["jav.guru"],"mode":"automatic","detail_pattern":"^/[0-9]+/([^/]+)/?$","selectors":["h1.entry-title","h1"]},{"id":"njav","label":"NJAV / 123AV","kind":"在线播放","domains":["njav.tv","njavtv.com","123av.com","javgo.to"],"mode":"automatic","detail_pattern":"^/(?:en|ja|zh|cn|tw)/v/([^/]+)/?$","selectors":["h1","dt"]},{"id":"javtiful","label":"JAVtiful","kind":"在线播放","domains":["javtiful.com"],"mode":"automatic","detail_pattern":"^/(?:[a-z]{2}/)?video/[0-9]+/([^/]+)/?$","selectors":["h1","[data-video-code]"]},{"id":"javmost","label":"JAVMost","kind":"在线播放","domains":["javmost.com","javmost.ws","javmost.cx"],"mode":"selection"},{"id":"javgg","label":"JAVGG","kind":"在线播放","domains":["javgg.net"],"mode":"selection"},{"id":"7mmtv","label":"7mmtv","kind":"在线播放","domains":["7mmtv.sx"],"mode":"automatic","detail_pattern":"^/(?:ja|en|zh|cn|tw)/(?:censored|uncensored)_content/[0-9]+/([^/]+)\\.html$","selectors":["h1"]},{"id":"hpjav","label":"HPJAV","kind":"在线播放","domains":["hpjav.tv"],"mode":"selection"},{"id":"thisav","label":"ThisAV","kind":"在线播放","domains":["thisav.com"],"mode":"selection"},{"id":"javhd","label":"JAVHD","kind":"在线播放","domains":["javhd.com"],"mode":"selection"},{"id":"javdb","label":"JavDB","kind":"数据库","domains":["javdb.com"],"mode":"automatic","detail_pattern":"^/v/[A-Za-z0-9]+/?$","selectors":["h2.title",".panel-block strong"]},{"id":"javbus","label":"JavBus","kind":"数据库","domains":["javbus.com","dmmsee.casa","busfan.casa","busdmm.casa"],"mode":"automatic","detail_pattern":"^/(?:[a-z]{2}/)?([^/]+)/?$","selectors":["h3",".info p .header"]},{"id":"javlibrary","label":"JavLibrary","kind":"数据库","domains":["javlibrary.com","javlib.com","r86m.com","f101w.com","c99i.com","e100k.com"],"mode":"automatic","detail_pattern":"^/(?:cn|tw|en|ja)/?$","selectors":["#video_id .text","#video_title"],"query_keys":["v"]},{"id":"jav321","label":"Jav321","kind":"数据库","domains":["jav321.com"],"mode":"automatic","detail_pattern":"^/video/[A-Za-z0-9]+/?$","selectors":["h3",".panel-body b"]},{"id":"avbase","label":"AVBase","kind":"数据库","domains":["avbase.net"],"mode":"automatic","detail_pattern":"^/works/(?:[^/:]+:)?([^/:]+)/?$","selectors":["h1","#__NEXT_DATA__"]},{"id":"javdatabase","label":"JAVDatabase","kind":"数据库","domains":["javdatabase.com"],"mode":"automatic","detail_pattern":"^/movies/([^/]+)/?$","selectors":["h1",".movie-code"]},{"id":"jav-land","label":"JAV.land","kind":"数据库","domains":["jav.land"],"mode":"selection"},{"id":"avmoo","label":"AVMOO","kind":"数据库","domains":["avmoo.com"],"mode":"selection"},{"id":"avsox","label":"AVSOX","kind":"数据库","domains":["avsox.com","avsox.click"],"mode":"selection"},{"id":"av-wiki","label":"AV-Wiki","kind":"数据库","domains":["av-wiki.net"],"mode":"selection"},{"id":"fc2ppvdb","label":"FC2PPVDB","kind":"数据库","domains":["fc2ppv-db.com"],"mode":"selection"},{"id":"fc2cmadb","label":"FC2CmaDB","kind":"数据库","domains":["fc2cmadb.com"],"mode":"selection"},{"id":"javtrailers","label":"JAVTrailers","kind":"数据库","domains":["javtrailers.com"],"mode":"selection"},{"id":"javarchive","label":"JavArchive","kind":"数据库","domains":["javarchive.com"],"mode":"selection"},{"id":"javten","label":"JAVten","kind":"数据库","domains":["javten.com"],"mode":"selection"},{"id":"r18dev","label":"r18.dev","kind":"数据库","domains":["r18.dev"],"mode":"selection"},{"id":"dmm","label":"FANZA / DMM","kind":"发行平台","domains":["dmm.co.jp"],"mode":"selection","query_keys":["id"]},{"id":"mgs","label":"MGS","kind":"发行平台","domains":["mgstage.com"],"mode":"selection"},{"id":"duga","label":"DUGA","kind":"发行平台","domains":["duga.jp"],"mode":"selection"},{"id":"prestige","label":"Prestige","kind":"发行平台","domains":["prestige-av.com"],"mode":"selection"},{"id":"sod","label":"SOD / SODprime","kind":"发行平台","domains":["sod.co.jp"],"mode":"selection"},{"id":"faleno","label":"FALENO","kind":"发行平台","domains":["faleno.jp"],"mode":"selection"},{"id":"fc2-market","label":"FC2 内容市场","kind":"发行平台","domains":["adult.contents.fc2.com"],"mode":"selection"},{"id":"s1","label":"S1","kind":"片商","domains":["s1s1s1.com"],"mode":"selection"},{"id":"moodyz","label":"MOODYZ","kind":"片商","domains":["moodyz.com"],"mode":"selection"},{"id":"ideapocket","label":"IdeaPocket","kind":"片商","domains":["ideapocket.com"],"mode":"selection"},{"id":"madonna","label":"Madonna","kind":"片商","domains":["madonna-av.com"],"mode":"selection"},{"id":"attackers","label":"Attackers","kind":"片商","domains":["attackers.net"],"mode":"selection"},{"id":"premium","label":"Premium","kind":"片商","domains":["premium-beauty.com"],"mode":"selection"},{"id":"kawaii","label":"Kawaii","kind":"片商","domains":["kawaiikawaii.jp"],"mode":"selection"},{"id":"max-a","label":"MAX-A","kind":"片商","domains":["max-a.co.jp"],"mode":"selection"},{"id":"maxing","label":"MAXING","kind":"片商","domains":["maxing.jp"],"mode":"selection"},{"id":"1pondo","label":"一本道","kind":"无码","domains":["1pondo.tv"],"mode":"selection"},{"id":"caribbeancom","label":"加勒比","kind":"无码","domains":["caribbeancom.com"],"mode":"selection"},{"id":"10musume","label":"天然むすめ","kind":"无码","domains":["10musume.com"],"mode":"selection"},{"id":"pacopacomama","label":"Pacopacomama","kind":"无码","domains":["pacopacomama.com"],"mode":"selection"},{"id":"heyzo","label":"HEYZO","kind":"无码","domains":["heyzo.com"],"mode":"selection"},{"id":"tokyo-hot","label":"Tokyo-Hot","kind":"无码","domains":["tokyo-hot.com"],"mode":"selection"},{"id":"manko","label":"manko.fun","kind":"资源","domains":["manko.fun"],"mode":"selection"},{"id":"sukebei","label":"Sukebei","kind":"资源","domains":["sukebei.nyaa.si"],"mode":"selection"},{"id":"onejav","label":"OneJAV","kind":"资源","domains":["onejav.com"],"mode":"selection"},{"id":"freejavtorrent","label":"Free JAV Torrent","kind":"资源","domains":["freejavtorrent.com"],"mode":"selection"},{"id":"16mag","label":"16mag","kind":"资源","domains":["16mag.com"],"mode":"selection"},{"id":"netflav","label":"NETFLAV","kind":"在线播放","domains":["netflav5.com","netflav.com"],"mode":"selection"},{"id":"bestjavporn","label":"BestJavPorn","kind":"在线播放","domains":["bestjavporn.com"],"mode":"selection"},{"id":"javmenu","label":"JAVMenu","kind":"数据库","domains":["javmenu.com"],"mode":"selection"},{"id":"avjoy","label":"AVJOY","kind":"在线播放","domains":["avjoy.me"],"mode":"selection"},{"id":"ggjav","label":"GGJAV","kind":"在线播放","domains":["ggjav.com"],"mode":"selection"},{"id":"av01","label":"AV01","kind":"在线播放","domains":["av01.tv","av01.media"],"mode":"selection"},{"id":"highporn","label":"HighPorn","kind":"在线播放","domains":["highporn.net"],"mode":"selection"},{"id":"evojav","label":"EvoJAV","kind":"在线播放","domains":["evojav.pro"],"mode":"selection"},{"id":"hayav","label":"HayAV","kind":"在线播放","domains":["hayav.com"],"mode":"selection"},{"id":"javhub","label":"JAVHub","kind":"在线播放","domains":["javhub.net"],"mode":"selection"},{"id":"141jav","label":"141JAV","kind":"资源","domains":["141jav.com"],"mode":"selection"},{"id":"141ppv","label":"141PPV","kind":"资源","domains":["141ppv.com"],"mode":"selection"},{"id":"freejavbt","label":"FreeJavBT","kind":"资源","domains":["freejavbt.com","freejavbt.xyz"],"mode":"selection"},{"id":"javrate","label":"JAVRate","kind":"在线播放","domains":["javrate.com"],"mode":"selection"},{"id":"sehuatang","label":"色花堂","kind":"资源","domains":["sehuatang.net","sehuatang.org"],"mode":"selection","query_keys":["tid"]},{"id":"169bbs","label":"SEX169","kind":"资源","domains":["169bbs.com"],"mode":"selection"},{"id":"hjd2048","label":"2048论坛","kind":"资源","domains":["hjd2048.com"],"mode":"selection"},{"id":"airav","label":"AirAV","kind":"数据库","domains":["airav.wiki","airav.fun","airav.io"],"mode":"selection"},{"id":"javbooks","label":"JavBooks","kind":"资源","domains":["javbooks.com"],"mode":"selection"},{"id":"javfree","label":"JavFree","kind":"资源","domains":["javfree.me"],"mode":"selection"},{"id":"javcv","label":"JavCV","kind":"数据库","domains":["javcv.com"],"mode":"selection"},{"id":"projectjav","label":"ProjectJav","kind":"资源","domains":["projectjav.com"],"mode":"selection"},{"id":"paipancon","label":"Paipancon","kind":"在线播放","domains":["paipancon.com"],"mode":"selection"}]};
-  const STORAGE_BASE = 'peach.jav.base';
-  const STORAGE_TOKEN = 'peach.jav.token';
+  const STORAGE_BASE = 'medianfo.jav.base';
+  const STORAGE_TOKEN = 'medianfo.jav.token';
   const ROOT_ID = 'peach-jav-action';
   if (globalThis.__peachJavUserscriptActive) return;
   globalThis.__peachJavUserscriptActive = true;
@@ -238,7 +238,7 @@
   const STATES = new Set([...ACTIVE, 'ingested', 'owned', 'failed', 'no_match', 'idle']);
   const LABELS = {
     queued: '已排队', searching: '正在搜磁力', submitted: '云下载中',
-    ingested: '已入库', owned: '馆藏已有', failed: '任务失败', no_match: '未找到资源', idle: '可以加入 Peach',
+    ingested: '已入库', owned: '馆藏已有', failed: '任务失败', no_match: '未找到资源', idle: '可以加入 MediaNfo',
   };
   const attempts = new Set();
   let generation = 0;
@@ -247,7 +247,7 @@
   let refreshTimer;
   let selected = null;
 
-  // 只做粗提取；合法番号由 Peach 校验。
+  // 只做粗提取；合法番号由 MediaNfo 校验。
   function candidates(value) {
     const found = new Set();
     const bounded = String(value || '').slice(0, 800).toUpperCase();
@@ -396,9 +396,9 @@
   }
 
   function configure() {
-    const base = prompt('Peach 地址（含 http:// 或 https://）', String(GM_getValue(STORAGE_BASE, '') || ''));
+    const base = prompt('MediaNfo 地址（含 http:// 或 https://）', String(GM_getValue(STORAGE_BASE, '') || ''));
     if (base === null) return;
-    const token = prompt('Peach 专用令牌', '');
+    const token = prompt('MediaNfo 专用令牌', '');
     if (token === null) return;
     try {
       const config = settings(base, token);
@@ -411,8 +411,8 @@
     }
   }
 
-  GM_registerMenuCommand('配置 Peach 地址与令牌', configure);
-  GM_registerMenuCommand('选中番号加入 Peach', selectCode);
+  GM_registerMenuCommand('配置 MediaNfo 地址与令牌', configure);
+  GM_registerMenuCommand('选中番号加入 MediaNfo', selectCode);
 
   function request(config, code, source, method) {
     return new Promise((resolve, reject) => {
@@ -428,7 +428,7 @@
           timeout: 15_000,
           onload(response) {
             if (response.status < 200 || response.status >= 300) {
-              reject(new Error(response.status === 401 || response.status === 403 ? '令牌无效或无权限，请重新配置。' : 'Peach 请求失败，请查询状态。'));
+              reject(new Error(response.status === 401 || response.status === 403 ? '令牌无效或无权限，请重新配置。' : 'MediaNfo 请求失败，请查询状态。'));
               return;
             }
             try {
@@ -437,13 +437,13 @@
                 || candidates(body.code).size !== 1
                 || ![...candidates(body.code)].some(candidate => comparisonKey(candidate) === comparisonKey(code))) throw new Error();
               resolve(body);
-            } catch { reject(new Error('Peach 返回的状态无效，请查询状态。')); }
+            } catch { reject(new Error('MediaNfo 返回的状态无效，请查询状态。')); }
           },
-          onerror: () => reject(new Error('无法连接 Peach，请查询状态。')),
-          ontimeout: () => reject(new Error('Peach 请求超时，请查询状态。')),
-          onabort: () => reject(new Error('Peach 请求已中止，请查询状态。')),
+          onerror: () => reject(new Error('无法连接 MediaNfo，请查询状态。')),
+          ontimeout: () => reject(new Error('MediaNfo 请求超时，请查询状态。')),
+          onabort: () => reject(new Error('MediaNfo 请求已中止，请查询状态。')),
         });
-      } catch { reject(new Error('无法连接 Peach，请查询状态。')); }
+      } catch { reject(new Error('无法连接 MediaNfo，请查询状态。')); }
     });
   }
 
@@ -456,11 +456,11 @@
     view.button.setAttribute('aria-busy', String(view.busy));
     view.button.setAttribute('aria-disabled', String(view.busy || view.button.disabled));
     view.button.textContent = view.identity.conflict ? '番号存在冲突'
-      : !configuration() ? '配置 Peach'
+      : !configuration() ? '配置 MediaNfo'
       : terminalSuccess ? LABELS[view.state]
-      : view.busy ? '正在查询 Peach'
-      : view.queryOnly || ACTIVE.has(view.state) ? '查询 Peach 状态'
-      : ['failed', 'no_match'].includes(view.state) ? '重试加入 Peach' : '加入 Peach';
+      : view.busy ? '正在查询 MediaNfo'
+      : view.queryOnly || ACTIVE.has(view.state) ? '查询 MediaNfo 状态'
+      : ['failed', 'no_match'].includes(view.state) ? '重试加入 MediaNfo' : '加入 MediaNfo';
   }
 
   function applyState(view, body) {
@@ -479,7 +479,7 @@
     if (method === 'POST') {
       attempts.add(comparisonKey(view.identity.code));
       view.queryOnly = true;
-      view.note.textContent = `${view.identity.code} · 正在交给 Peach`;
+      view.note.textContent = `${view.identity.code} · 正在交给 MediaNfo`;
     }
     render(view);
     const deadline = Date.now() + 120_000;
@@ -518,7 +518,7 @@
     document.getElementById(ROOT_ID)?.remove();
     const root = document.createElement('aside');
     root.id = ROOT_ID;
-    root.setAttribute('aria-label', 'Peach 入库');
+    root.setAttribute('aria-label', 'MediaNfo 入库');
     const shadow = root.attachShadow({ mode: 'open' });
     const style = document.createElement('style');
     style.textContent = `:host{all:initial;position:fixed;right:16px;bottom:16px;z-index:2147483647;max-width:calc(100vw - 32px);font:400 14px/1.5 system-ui;color:#171717}section{background:#fff;border:1px solid #ccc;border-radius:8px;padding:12px;max-width:300px;box-shadow:0 2px 12px #0002}button{font:500 14px/1.5 system-ui;color:#fff;background:#171717;border:1px solid #171717;border-radius:6px;padding:8px 12px;cursor:pointer}button:hover{background:#333}button:focus-visible{outline:2px solid #2563eb;outline-offset:3px}button:disabled,button[aria-disabled=true]{color:#666;background:#eee;border-color:#ccc;cursor:default}p{margin:8px 0 0;overflow-wrap:anywhere}`;
@@ -533,7 +533,7 @@
     document.body.append(root);
     const view = { root, button, note, identity: item, url: location.href, generation, state: 'idle', busy: false, queryOnly: attempts.has(comparisonKey(item.code)) };
     current = view;
-    note.textContent = item.conflict ? '页面身份不一致，请核对番号。' : `${item.code} · ${configuration() ? '正在查询 Peach' : '请先配置 Peach 地址与令牌。'}`;
+    note.textContent = item.conflict ? '页面身份不一致，请核对番号。' : `${item.code} · ${configuration() ? '正在查询 MediaNfo' : '请先配置 MediaNfo 地址与令牌。'}`;
     button.addEventListener('click', () => {
       if (!alive(view) || view.busy || view.button.disabled) return;
       if (!configuration()) { configure(); return; }

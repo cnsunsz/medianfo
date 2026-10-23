@@ -71,7 +71,7 @@ SakuraMedia 的原则是「记录比文件重要」：时刻对媒体 `SET NULL`
 ## 后果
 
 - `idx_asset_disposal_id` 是 `WHERE disposal IS NOT NULL` 的部分索引，`vanished` 行会进索引。
-  `src/peach` 里 19 个模块引用 `disposal`，用 `disposal IS NULL OR disposal<>'trash'` 判在库的查询都要
+  `src/medianfo` 里 19 个模块引用 `disposal`，用 `disposal IS NULL OR disposal<>'trash'` 判在库的查询都要
   排除 `vanished`；实现时逐个核对，并补测试守住「`vanished` 行不出现在列表、搜索与统计里」。
 - 资源同步执行对带个人记录的行变得可撤销，对其余行仍不可撤销。
 - `vanished` 行不能移入或移出回收站，接口回 400；播放列表照旧列出它们，标「已消失」且不可播放。

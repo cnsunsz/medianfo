@@ -9,8 +9,8 @@ from scripts.version_bump import (
     write_version,
 )
 
-#: 版本号的唯一来源，`src/peach/__init__.py` 在测试仓库里的最小复刻。
-VERSION_SEED = '"""Peach application package."""\n\n__version__ = "0.7.14"\n'
+#: 版本号的唯一来源，`src/medianfo/__init__.py` 在测试仓库里的最小复刻。
+VERSION_SEED = '"""MediaNfo application package."""\n\n__version__ = "0.7.14"\n'
 
 
 class BumpPartTests(unittest.TestCase):
@@ -26,24 +26,24 @@ class BumpPartTests(unittest.TestCase):
         self.assertEqual(bump_part_for(["refactor(config)!: 删掉盘符键"], []), "minor")
         self.assertEqual(bump_part_for(["fix: 补迁移"], ["migrations/0027_thing.sql"]), "minor")
         self.assertEqual(bump_part_for(["fix: 补迁移"], [r"migrations\0027_thing.sql"]), "minor")
-        self.assertEqual(bump_part_for(["fix: 改了迁移的注释"], ["src/peach/tray.py"]), "patch")
+        self.assertEqual(bump_part_for(["fix: 改了迁移的注释"], ["src/medianfo/tray.py"]), "patch")
         self.assertEqual(
             bump_part_for(["Merge branch 'master' into agent/claude/x", "feature: 新东西"], []),
             "minor")
         self.assertEqual(bump_part_for([], []), "patch")
 
     def test_runtime_inputs_are_told_apart_from_development_only_paths(self):
-        self.assertTrue(runtime_inputs_changed(["src/peach/tray.py"]))
+        self.assertTrue(runtime_inputs_changed(["src/medianfo/tray.py"]))
         self.assertTrue(runtime_inputs_changed(["web/app.js"]))
         self.assertTrue(runtime_inputs_changed(["frontend/src/main.ts"]))
         self.assertTrue(runtime_inputs_changed(["migrations/0042_thing.sql"]))
-        self.assertTrue(runtime_inputs_changed(["resources/peach.ico"]))
+        self.assertTrue(runtime_inputs_changed(["resources/medianfo.ico"]))
         self.assertTrue(runtime_inputs_changed(["scripts/build_windows.ps1"]))
         self.assertTrue(runtime_inputs_changed(["scripts/build_app_entry.py"]))
         self.assertTrue(runtime_inputs_changed(["pyproject.toml"]))
         self.assertTrue(runtime_inputs_changed(["uv.lock"]))
         self.assertTrue(runtime_inputs_changed([".github/workflows/release.yml"]))
-        self.assertTrue(runtime_inputs_changed([r"src\peach\tray.py"]))
+        self.assertTrue(runtime_inputs_changed([r"src\medianfo\tray.py"]))
 
         self.assertFalse(runtime_inputs_changed([]))
         self.assertFalse(runtime_inputs_changed(["docs/STATUS.md", "AGENTS.md"]))
@@ -55,7 +55,7 @@ class BumpPartTests(unittest.TestCase):
         updated, version = bump_version(VERSION_SEED, "patch")
         self.assertEqual(version, "0.7.15")
         self.assertEqual(updated,
-                         '"""Peach application package."""\n\n__version__ = "0.7.15"\n')
+                         '"""MediaNfo application package."""\n\n__version__ = "0.7.15"\n')
 
         self.assertEqual(bump_version('__version__ = "0.7.14"', "minor")[1], "0.8.0")
         self.assertEqual(bump_version('__version__ = "0.7.14"', "major")[1], "1.0.0")
@@ -76,8 +76,8 @@ class ReleasePlanTests(unittest.TestCase):
         subprocess.run(["git", "init", "-b", "master", str(self.root)], check=True,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.git("config", "user.email", "test@example.invalid")
-        self.git("config", "user.name", "Peach Test")
-        self.commit("chore: 起点", self.write("src/peach/__init__.py", VERSION_SEED))
+        self.git("config", "user.name", "MediaNfo Test")
+        self.commit("chore: 起点", self.write("src/medianfo/__init__.py", VERSION_SEED))
 
     def git(self, *args: str) -> str:
         done = subprocess.run(["git", "-C", str(self.root), *args], check=True,
@@ -96,27 +96,27 @@ class ReleasePlanTests(unittest.TestCase):
         self.git("commit", "-m", subject)
 
     def tag(self, name: str = "v0.7.14") -> None:
-        self.git("tag", "-a", name, "-m", f"Peach {name}")
+        self.git("tag", "-a", name, "-m", f"MediaNfo {name}")
 
     def test_the_range_starts_at_the_last_version_tag(self):
         self.tag()
-        self.commit("fix: 托盘图标补回来", self.write("src/peach/tray.py"))
+        self.commit("fix: 托盘图标补回来", self.write("src/medianfo/tray.py"))
         self.assertEqual(version_bump.last_tag(self.root), "v0.7.14")
         self.assertEqual(version_bump.release_range(self.root), "v0.7.14..HEAD")
         self.assertEqual(version_bump.subjects_in(self.root, "v0.7.14..HEAD"),
                          ["fix: 托盘图标补回来"])
         self.assertEqual(version_bump.changed_in(self.root, "v0.7.14..HEAD"),
-                         ["src/peach/tray.py"])
+                         ["src/medianfo/tray.py"])
 
     def test_without_any_tag_the_range_is_the_whole_history(self):
         self.assertIsNone(version_bump.last_tag(self.root))
         self.assertEqual(version_bump.release_range(self.root), "HEAD")
-        self.assertEqual(version_bump.changed_in(self.root, "HEAD"), ["src/peach/__init__.py"])
+        self.assertEqual(version_bump.changed_in(self.root, "HEAD"), ["src/medianfo/__init__.py"])
         self.assertEqual(plan_bump(self.root)["version"], "0.7.15")
 
     def test_a_feature_since_the_last_tag_plans_the_next_minor(self):
         self.tag()
-        self.commit("feat: 配置页加桌面快捷方式", self.write("src/peach/routes_configuration.py"))
+        self.commit("feat: 配置页加桌面快捷方式", self.write("src/medianfo/routes_configuration.py"))
         planned = plan_bump(self.root)
         self.assertEqual((planned["range"], planned["bump"], planned["current"],
                           planned["version"], planned["commits"]),
@@ -129,7 +129,7 @@ class ReleasePlanTests(unittest.TestCase):
 
     def test_an_explicit_part_overrides_the_commit_types(self):
         self.tag()
-        self.commit("fix: 一处小修", self.write("src/peach/tray.py"))
+        self.commit("fix: 一处小修", self.write("src/medianfo/tray.py"))
         self.assertEqual(plan_bump(self.root, "major")["version"], "1.0.0")
         self.assertEqual(plan_bump(self.root, "minor")["version"], "0.8.0")
 
@@ -145,7 +145,7 @@ class ReleasePlanTests(unittest.TestCase):
 
     def test_planning_writes_nothing(self):
         self.tag()
-        self.commit("feat: 新面板", self.write("src/peach/panel.py"))
+        self.commit("feat: 新面板", self.write("src/medianfo/panel.py"))
         plan_bump(self.root)
         self.assertEqual(read_version(self.root), "0.7.14")
         self.assertEqual(self.git("status", "--porcelain"), "")
@@ -166,7 +166,7 @@ class ReleasePlanTests(unittest.TestCase):
     def test_writing_the_version_leaves_the_rest_of_the_file_alone(self):
         self.assertEqual(write_version(self.root, "minor"), "0.8.0")
         self.assertEqual(read_version(self.root), "0.8.0")
-        self.assertEqual((self.root / "src/peach/__init__.py").read_text(encoding="utf-8"),
+        self.assertEqual((self.root / "src/medianfo/__init__.py").read_text(encoding="utf-8"),
                          VERSION_SEED.replace("0.7.14", "0.8.0"))
 
 

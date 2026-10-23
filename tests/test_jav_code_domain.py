@@ -30,7 +30,7 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
-from peach.catalog_rules import (
+from medianfo.catalog_rules import (
     CODE_BODY_STOPWORDS,
     REPOST_SITE_LABELS,
     code_query_variants,
@@ -50,9 +50,9 @@ from peach.catalog_rules import (
     tokyo_hot_code,
     western_release_identity,
 )
-from peach import scripting
-from peach.migrations import upgrade
-from peach.review_csv import write_rows
+from medianfo import scripting
+from medianfo.migrations import upgrade
+from medianfo.review_csv import write_rows
 
 MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
 SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "audit_domain_codes.py"

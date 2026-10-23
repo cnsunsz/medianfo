@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   sync:
-    if: github.repository == 'peach-mitao/peach'
+    if: github.repository == 'cnsunsz/medianfo'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:

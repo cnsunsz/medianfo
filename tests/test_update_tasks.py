@@ -10,9 +10,9 @@ import threading
 import unittest
 from unittest.mock import patch
 
-from peach import desktop_installer, job_recovery, settings_file, update_tasks
-from peach.jobs import BackgroundJob
-from peach.task_runs import TaskRunStore
+from medianfo import desktop_installer, job_recovery, settings_file, update_tasks
+from medianfo.jobs import BackgroundJob
+from medianfo.task_runs import TaskRunStore
 from support.ledger import fresh_ledger
 
 
@@ -199,7 +199,7 @@ class UpdateTaskTests(unittest.TestCase):
 
     def test_source_batch_waits_for_installation_and_continues_in_the_same_process(self):
         import argparse
-        from peach.jobs import DiskGuard, job_main
+        from medianfo.jobs import DiskGuard, job_main
         entered, checkpoint = threading.Event(), threading.Event()
         lock = self.root / 'state/.probe.lock'
         parser = argparse.ArgumentParser()
@@ -308,7 +308,7 @@ class UpdateTaskTests(unittest.TestCase):
 
     def test_cli_activity_is_observed_without_refusing_the_installation_request(self):
         child = self.child("from pathlib import Path; import sys; "
-                           "from peach.update_tasks import register; "
+                           "from medianfo.update_tasks import register; "
                            "register(Path(sys.argv[1]), 'CLI 抽帧'); print('ready', flush=True); input()")
         self.assertEqual(child.stdout.readline().strip(), 'ready')
         token = update_tasks.reserve(self.db)
@@ -319,7 +319,7 @@ class UpdateTaskTests(unittest.TestCase):
         update_tasks.release(self.db, token)
 
     def test_installer_accepts_a_running_task_and_holds_the_pause_until_completion(self):
-        config = settings_file.load_config(environ={'PEACH_DATA_ROOT': str(self.root)})
+        config = settings_file.load_config(environ={'MEDIANFO_DATA_ROOT': str(self.root)})
         self.store.start('library-processing', trigger='manual')
         error = self.root / 'prepare-error.txt'
         with patch.object(settings_file, 'load_config', return_value=config), patch.object(
@@ -341,9 +341,9 @@ class UpdateTaskTests(unittest.TestCase):
         update_tasks.release(self.db, token)
 
     def test_installer_migration_uses_the_selected_data_directory_and_skips_empty_installs(self):
-        config = settings_file.load_config(environ={'PEACH_DATA_ROOT': str(self.root)})
+        config = settings_file.load_config(environ={'MEDIANFO_DATA_ROOT': str(self.root)})
         with patch.object(settings_file, 'load_config', return_value=config), patch(
-                'peach.cli.main', return_value=0) as migrate:
+                'medianfo.cli.main', return_value=0) as migrate:
             self.assertEqual(desktop_installer.migrate_install(self.root / 'app'), 0)
             migrate.assert_called_once_with(['migrate', 'upgrade', '--yes', '--db', str(self.db)])
             migrate.reset_mock()
@@ -365,7 +365,7 @@ class UpdateTaskTests(unittest.TestCase):
         self.assertIsNotNone(self.store.start('library-processing', trigger='manual'))
 
     def test_interrupted_task_request_is_replayed_once_by_two_service_instances(self):
-        child = self.child("from pathlib import Path; import sys; from peach.job_recovery import save; "
+        child = self.child("from pathlib import Path; import sys; from medianfo.job_recovery import save; "
                            "save(Path(sys.argv[1]), 'library-processing', 'old', "
                            "{'stage':'previews','asset_ids':[7,9]}); print('ready', flush=True); input()")
         self.assertEqual(child.stdout.readline().strip(), 'ready')
@@ -399,7 +399,7 @@ class UpdateTaskTests(unittest.TestCase):
         def fail(body):
             calls.append(body)
             raise ValueError('影片已移出馆藏')
-        with self.assertLogs('peach.job_recovery', level='WARNING'):
+        with self.assertLogs('medianfo.job_recovery', level='WARNING'):
             self.assertEqual(job_recovery.resume(self.db, {'library-processing': fail}), [])
         self.assertEqual(job_recovery.read(self.db, 'library-processing')['status'], 'blocked')
         self.assertEqual(job_recovery.resume(self.db, {'library-processing': fail}), [])

@@ -1,6 +1,6 @@
 import unittest
 
-from peach.metadata import (
+from medianfo.metadata import (
     identifies_code,
     CATALOG_EVIDENCE_FIELDS,
     CREDENTIAL_ADVICE,

@@ -29,7 +29,7 @@
 --
 -- 没有改 `profile.user_id -> app_user(id)`，这是本迁移唯一保留 NO ACTION 的外键，两条理由：
 --   1) 语义上它本来就该是 RESTRICT，而 SQLite 的即时（非 deferred）外键下 NO ACTION 已经
---      实现了 RESTRICT：删 app_user 会直接报 FOREIGN KEY constraint failed。Peach 从不用
+--      实现了 RESTRICT：删 app_user 会直接报 FOREIGN KEY constraint failed。MediaNfo 从不用
 --      deferred 外键，两者行为没有可观察差别，改写只是换个词。
 --   2) 改它必须重建 `profile`，而重建要 DROP TABLE profile；`foreign_keys=ON` 时
 --      DROP TABLE 会先做一次隐式 DELETE FROM，于是 watch_queue / asset_preference /

@@ -5,14 +5,14 @@ from unittest import mock
 
 import httpx
 
-from peach import http as peach_http
-from peach.follow_stream import (
+from medianfo import http as peach_http
+from medianfo.follow_stream import (
     MAX_PROXY_REDIRECTS, FollowMediaResolver, FollowMediaUnavailable,
     FollowProxyError, ResolvedFollowMedia, open_upstream, proxy_request_headers,
     proxyable,
 )
-from peach.follow_secrets import Credential
-from peach.http import HttpResponse
+from medianfo.follow_secrets import Credential
+from medianfo.http import HttpResponse
 
 
 class FollowMediaResolverTests(unittest.TestCase):
@@ -234,7 +234,7 @@ class Rule34VideoUpstreamDedupeTests(unittest.TestCase):
         clock = [1000.0]
         transport = mock.Mock(return_value=HttpResponse(429, {"retry-after": "90"}, b""))
         resolver = FollowMediaResolver(transport, clock=lambda: clock[0])
-        with self.assertLogs("peach.follow_stream", "WARNING"):
+        with self.assertLogs("medianfo.follow_stream", "WARNING"):
             with self.assertRaises(FollowMediaUnavailable):
                 resolver.resolve(self._item(7))
         with self.assertRaises(FollowMediaUnavailable):
@@ -252,12 +252,12 @@ class Rule34VideoUpstreamDedupeTests(unittest.TestCase):
         resolver = FollowMediaResolver(
             mock.Mock(return_value=HttpResponse(403, {"Retry-After": "999999"}, b"")),
             clock=lambda: clock[0])
-        with self.assertLogs("peach.follow_stream", "WARNING"), self.assertRaises(FollowMediaUnavailable):
+        with self.assertLogs("medianfo.follow_stream", "WARNING"), self.assertRaises(FollowMediaUnavailable):
             resolver.resolve(self._item(7))
         self.assertEqual(resolver.cooling("rule34video"), resolver.MAX_COOLDOWN)
         resolver = FollowMediaResolver(mock.Mock(return_value=HttpResponse(429, {}, b"")),
                                        clock=lambda: clock[0])
-        with self.assertLogs("peach.follow_stream", "WARNING"), self.assertRaises(FollowMediaUnavailable):
+        with self.assertLogs("medianfo.follow_stream", "WARNING"), self.assertRaises(FollowMediaUnavailable):
             resolver.resolve(self._item(7))
         self.assertEqual(resolver.cooling("rule34video"), resolver.COOLDOWN)
 
@@ -476,7 +476,7 @@ class ProxyUpstreamTests(unittest.TestCase):
             {"Cookie": "source_session=fixture"}, allowed_hosts=("kemono.cr",))
         headers = proxy_request_headers(target, {
             "range": "bytes=0-1", "accept": "video/*",
-            # 浏览器发给 Peach 的凭据不能跟着请求送到上游去。
+            # 浏览器发给 MediaNfo 的凭据不能跟着请求送到上游去。
             "cookie": "peach=token", "authorization": "Bearer peach",
         })
         self.assertEqual(headers["Range"], "bytes=0-1")

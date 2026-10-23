@@ -30,7 +30,7 @@ describe('播放器字幕', () => {
       let release!: () => void;
       const response = new Promise<void>(resolve => { release = resolve });
       let searches = 0;
-      const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, viewport, async page => {
+      const opened = await visit(browser, `/assets/${requiredEnv('MEDIANFO_E2E_ITEM')}`, viewport, async page => {
         await page.emulateMedia({ reducedMotion: 'no-preference' });
         await page.route('**/api/subtitles/search?**', async route => {
           searches++;
@@ -68,7 +68,7 @@ describe('播放器字幕', () => {
     });
 
     it(`${viewport.name}：本地字幕、选项持久化、关闭和重新开启`, { timeout: 60_000 }, async () => {
-      const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, viewport);
+      const opened = await visit(browser, `/assets/${requiredEnv('MEDIANFO_E2E_ITEM')}`, viewport);
       const { page, problems } = opened;
       try {
         await page.locator('#stage .vjs-peach-bezel').waitFor({ state: 'attached' });
@@ -140,7 +140,7 @@ describe('播放器字幕', () => {
   for (const viewport of VIEWPORTS) {
   it(`${viewport.name}：自动搜索、返回结果与重复加载复用会话`, { timeout: 60_000 }, async () => {
     let downloads = 0, searches = 0;
-    const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, viewport, async page => {
+    const opened = await visit(browser, `/assets/${requiredEnv('MEDIANFO_E2E_ITEM')}`, viewport, async page => {
       await page.route('**/api/item?**', async route => {
         const response = await route.fetch(), item = await response.json();
         return route.fulfill({ response, json: { ...item, code: 'ABP-758' } });
@@ -187,7 +187,7 @@ describe('播放器字幕', () => {
 
   it('自动搜索失败可重试，空的中文批次可继续查看更多', { timeout: 60_000 }, async () => {
     const offsets: string[] = [];
-    const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, VIEWPORTS[0]!, async page => {
+    const opened = await visit(browser, `/assets/${requiredEnv('MEDIANFO_E2E_ITEM')}`, VIEWPORTS[0]!, async page => {
       await page.route('**/api/subtitles/search?**', route => {
         offsets.push(new URL(route.request().url()).searchParams.get('offset')!);
         if (offsets.length === 1) return route.fulfill({ contentType: 'application/json', body: '{' });

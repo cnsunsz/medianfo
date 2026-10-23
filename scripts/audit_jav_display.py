@@ -12,14 +12,14 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.catalog_rules import (
+from medianfo.catalog_rules import (
     is_jav_asset,
     is_jav_code,
     jav_display_metadata,
 )
-from peach.config import DATABASE_PATH, GENERATED_DIR
-from peach.scripting import open_readonly
-from peach.review_csv import write_rows
+from medianfo.config import DATABASE_PATH, GENERATED_DIR
+from medianfo.scripting import open_readonly
+from medianfo.review_csv import write_rows
 
 
 FIELDS = (

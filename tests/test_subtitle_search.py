@@ -8,7 +8,7 @@ from unittest import mock
 
 import httpx
 
-from peach import subtitle_search as source
+from medianfo import subtitle_search as source
 
 SEARCH = '<table class="sub-table"><tr><td><a href="subs/42/ABP-758.html">ABP-758</a></td></tr><tr><td><a href="subs/43/English.html">English</a></td></tr></table>'
 DETAIL = '<a href="/subs/42/ABP-758-zh-TW.srt">繁体</a><a href="/subs/42/ABP-758-zh-CN.srt">简体</a><a href="/subs/42/ABP-758-en.srt">English</a><a href="https://evil.example/evil-zh-CN.srt">bad</a>'
@@ -126,14 +126,14 @@ class SubtitleSearchTests(unittest.TestCase):
 
 class SubtitleUploadApiTests(unittest.TestCase):
     def setUp(self):
-        from peach.api import create_app
-        from peach.config import PeachSettings
+        from medianfo.api import create_app
+        from medianfo.config import MediaNfoSettings
         from tests.support.ledger import fresh_ledger
         from tests.support.web import route_client
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name).resolve()
-        self.app = create_app(PeachSettings(db_path=fresh_ledger(self.root), configured=True, token=''))
+        self.app = create_app(MediaNfoSettings(db_path=fresh_ledger(self.root), configured=True, token=''))
         self.client = route_client(self.app)
 
     def test_local_file_is_converted_without_registering_a_subtitle(self):

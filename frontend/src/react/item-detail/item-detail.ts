@@ -14,7 +14,7 @@ import { apiGet } from '../../api';
 import type { MediaCardActions, MediaCardHelpers, MediaCardLayout, MediaItem } from '../catalog-grid/types';
 import { queryClient } from '../query';
 
-/* ── 接口形状（`src/peach/web_catalog.py` 的 `q_item`） ── */
+/* ── 接口形状（`src/medianfo/web_catalog.py` 的 `q_item`） ── */
 
 /** 详情里一枚标签：`cat` 是分类，`official` 是来源站点给的。 */
 export interface DetailTag { k: string; cat?: string; official?: boolean }
@@ -400,7 +400,7 @@ export const withoutTag = (item: DetailItem, tag: string): DetailItem =>
 export const withTag = (item: DetailItem, tag: DetailTag): DetailItem =>
   (hasTag(item, tag.k) ? item : { ...item, tags: [...(item.tags || []), tag] });
 
-const RECENT_TAGS = 'peach.recentTags';
+const RECENT_TAGS = 'medianfo.recentTags';
 export function recentTags(): string[] {
   try {
     const value = JSON.parse(localStorage.getItem(RECENT_TAGS) || '[]');

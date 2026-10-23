@@ -12,11 +12,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach import studio_sites as sites   # noqa: E402
-from peach.config import STATE_DIR   # noqa: E402
-from peach.jobs import job_main   # noqa: E402
-from peach.review_csv import read_rows, write_rows   # noqa: E402
-from peach.scripting import open_readonly   # noqa: E402
+from medianfo import studio_sites as sites   # noqa: E402
+from medianfo.config import STATE_DIR   # noqa: E402
+from medianfo.jobs import job_main   # noqa: E402
+from medianfo.review_csv import read_rows, write_rows   # noqa: E402
+from medianfo.scripting import open_readonly   # noqa: E402
 
 
 def build_parser() -> argparse.ArgumentParser:

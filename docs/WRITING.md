@@ -1,6 +1,6 @@
 # 文档与界面文案
 
-Peach 使用 [seiso](https://github.com/scarletkc/seiso) 检查 Markdown 的职责、链接和规则例外。中文表达遵循 tech-doc-style-chinese；界面文字还需对照实际操作、错误状态和可用的恢复方式复核。
+MediaNfo 使用 [seiso](https://github.com/scarletkc/seiso) 检查 Markdown 的职责、链接和规则例外。中文表达遵循 tech-doc-style-chinese；界面文字还需对照实际操作、错误状态和可用的恢复方式复核。
 
 ## 文档职责
 
@@ -12,7 +12,7 @@ Peach 使用 [seiso](https://github.com/scarletkc/seiso) 检查 Markdown 的职�
 | 安装、配置、测试与维护步骤 | [运行与配置](OPERATIONS.md)、[测试与依赖](TESTING.md) 等操作文档 | `howto` |
 | 架构、术语、接口约束、复用依据 | [总体架构](ARCHITECTURE.md)、[开发约定](../AGENTS.md)、[复用清单](REUSE.md) | `reference` |
 | 决策背景、选择与代价 | `adr/` 下按编号命名的决策文件 | `adr` |
-| 尚未完成的工作 | [公开路线图](https://github.com/orgs/peach-mitao/projects/7) | `plan` |
+| 尚未完成的工作 | [公开路线图](https://github.com/cnsunsz/projects/7) | `plan` |
 | 面向使用者的发布记录 | [变更日志](../CHANGELOG.md) | `changelog` |
 
 同一事实只维护一处，其他页面链接到文件或章节。版本、文件数量、部署状态优先指向清单、代码或查询入口；保留观察值时写明核验日期。代码版本不能用来推断服务已更新。
@@ -21,7 +21,7 @@ README 保留开始使用所需的信息。字段定义放参考文档，操作�
 
 ## 公开与私有记录
 
-- 本机交接、运行状态、个人待办、会话复盘、馆藏盘点和逐条复核记录保存到 `<Peach 数据目录>/state/project-context/`、`review/` 或 `archive/`，不进入 Git。
+- 本机交接、运行状态、个人待办、会话复盘、馆藏盘点和逐条复核记录保存到 `<MediaNfo 数据目录>/state/project-context/`、`review/` 或 `archive/`，不进入 Git。
 - 公开文档使用中性账号、`<项目目录>` 等占位路径与 RFC 5737 文档地址。主机名、网络布局、媒体文件名与馆藏数量不从真实部署复制。
 - 公开参考证据保留来源、许可和复现方法；本机样本清单、原始日志与账号信息留在私有记录中。
 
@@ -64,6 +64,6 @@ uv run --locked --extra dev seiso policy
 
 Python 检查读取 AST 字符串、f-string 静态片段及注释；HTML 读取正文、注释和可见属性。JS/TS 由 `frontend/scripts/copy-check.mjs` 使用 Oxc 解析注释、字符串、模板及 JSX，忽略变量名、静态属性键和模块路径。前端文案检查随正式入口的前端 lint 用例执行，CI 由 `web-bundle` 执行；纯 Python 文档检查不要求安装 Node。
 
-提交模板不是成稿；`docs/reference-snapshots/upstream/` 保存第三方原文，相对链接属于上游仓库。这两类在配置中排除。Peach 自己撰写的取证摘要、ADR、技能和依赖来源说明仍接受检查；构建目录、依赖安装目录不属于项目文档。
+提交模板不是成稿；`docs/reference-snapshots/upstream/` 保存第三方原文，相对链接属于上游仓库。这两类在配置中排除。MediaNfo 自己撰写的取证摘要、ADR、技能和依赖来源说明仍接受检查；构建目录、依赖安装目录不属于项目文档。
 
 必要例外按 [seiso 的例外语法](https://github.com/scarletkc/seiso/blob/main/docs/guides/checking.md#explain-an-exception) 写明完整规则编号和原因。规则提示需先判断是否成立，不能通过扩大排除范围掩盖项目问题。

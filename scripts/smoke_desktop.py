@@ -151,9 +151,9 @@ def cleanup_smoke_directory(directory):
 def artifact_processes(executable: Path) -> list[int]:
     """仅核对本次制品的精确映像路径，包含脱离启动器的托盘与监视器。"""
     powershell = Path(os.environ["SystemRoot"]) / "System32/WindowsPowerShell/v1.0/powershell.exe"
-    environment = dict(os.environ, PEACH_SMOKE_EXECUTABLE=str(executable))
+    environment = dict(os.environ, MEDIANFO_SMOKE_EXECUTABLE=str(executable))
     result = subprocess.run([str(powershell), "-NoProfile", "-NonInteractive", "-Command",
-        "@(Get-Process | Where-Object { $_.Path -eq $env:PEACH_SMOKE_EXECUTABLE } | "
+        "@(Get-Process | Where-Object { $_.Path -eq $env:MEDIANFO_SMOKE_EXECUTABLE } | "
         "ForEach-Object { $_.Id }) | ConvertTo-Json -Compress"],
         env=environment, capture_output=True, text=True, encoding="utf-8", timeout=15, check=True)
     value = json.loads(result.stdout.strip() or "[]")
@@ -180,7 +180,7 @@ def tray_window_ready(process_ids: list[int]) -> bool:
         if process_id.value in process_ids:
             name = ctypes.create_unicode_buffer(512)
             user32.GetClassNameW(window, name, len(name))
-            if name.value.startswith("Peach") and name.value.endswith("SystemTrayIcon"):
+            if name.value.startswith("MediaNfo") and name.value.endswith("SystemTrayIcon"):
                 result = ctypes.c_size_t()
                 if user32.SendMessageTimeoutW(window, 0, 0, 0, 2, 1000, ctypes.byref(result)):
                     found.append(int(window))
@@ -220,7 +220,7 @@ def smoke_environment(data: Path) -> dict[str, str]:
     (state / 'remote-reporting.json').write_text(json.dumps({
         'usage': False, 'errors': False, 'revision': 'desktop-smoke',
     }), encoding='utf-8')
-    environment = dict(os.environ, PEACH_DATA_ROOT=str(data), PYTHONIOENCODING="utf-8")
+    environment = dict(os.environ, MEDIANFO_DATA_ROOT=str(data), PYTHONIOENCODING="utf-8")
     environment["LOCALAPPDATA"] = str(data.parent / "local-app-data")
     environment.pop("PYTHONPATH", None)
     environment["PATH"] = os.environ.get("SystemRoot", "/usr") + ("/System32" if os.name == "nt" else "/bin")
@@ -257,7 +257,7 @@ def smoke_tray(executable: Path, evidence_dir: Path) -> None:
     with smoke_directory(evidence_dir) as root:
         data, media = root / "data", root / "media"
         media.mkdir()
-        # 全新 Peach 数据目录的默认端口必须空闲，避免把其他部署当作首启服务。
+        # 全新 MediaNfo 数据目录的默认端口必须空闲，避免把其他部署当作首启服务。
         with socket.socket() as reservation:
             reservation.bind(("127.0.0.1", 8900))
         with socket.socket() as reservation:
@@ -427,7 +427,7 @@ def main() -> int:
                 # 验不到「局域网里真的解析得到 peach.local」。反查要 zeroconf，归
                 # `tests/test_desktop_settings.py` 那一侧。
                 assert health["mdns_backend"]
-                assert health["mdns_service_host"] == "peach.local"
+                assert health["mdns_service_host"] == "medianfo.local"
                 with opener.open(lan_base(port) + "/healthz", timeout=5) as response:
                     assert json.load(response)["ok"]
                 assert_requires_login(opener, base)
@@ -436,7 +436,7 @@ def main() -> int:
                     headers={"Origin": base})
                 with opener.open(login, timeout=10) as response:
                     assert response.status == 200
-                for path in ("/", "/app.css", "/dist/peach-app.js", "/dist/peach-app.css", "/api/items"):
+                for path in ("/", "/app.css", "/dist/medianfo-app.js", "/dist/medianfo-app.css", "/api/items"):
                     with opener.open(base + path, timeout=10) as response:
                         assert response.status == 200, path
                 with opener.open(base + "/api/configuration", timeout=5) as response:

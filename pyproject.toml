@@ -3,7 +3,7 @@ requires = ["setuptools==84.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "peach"
+name = "medianfo"
 dynamic = ["version"]
 description = "Local-first media library, behavior ledger, and discovery application"
 readme = "README.md"
@@ -11,12 +11,13 @@ readme = "README.md"
 # `tests/test_repo_hygiene.py` 钉住 LICENSE 那一侧。
 license = "AGPL-3.0-or-later"
 requires-python = ">=3.14"
-# `Private :: Do Not Upload` 不是修饰语：Peach 只自托管、不发 PyPI
+# `Private :: Do Not Upload` 不是修饰语：MediaNfo 只自托管、不发 PyPI
 # （`.github/workflows/test.yml`），PyPI 拒收带这枚 classifier 的包，
 # 所以误跑 `twine upload` 会在传上去之前就被挡住。
 classifiers = [
   "Private :: Do Not Upload",
   "Environment :: Web Environment",
+  "Environment :: Win32 (MS Windows)",
   "Operating System :: MacOS",
   "Operating System :: Microsoft :: Windows",
   "Operating System :: POSIX :: Linux",
@@ -45,6 +46,7 @@ dependencies = [
   "pillow==12.3.0",
   "protobuf==7.36.2",
   "pystray==0.19.5",
+  "pywebview==6.1",
   "pydantic==2.14.1",
   "resvg-py==0.5.0",
   "sentry-sdk==2.72.0",
@@ -57,13 +59,13 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/peach-mitao/peach"
-Repository = "https://github.com/peach-mitao/peach"
-Issues = "https://github.com/peach-mitao/peach/issues"
+Homepage = "https://github.com/cnsunsz/medianfo"
+Repository = "https://github.com/cnsunsz/medianfo"
+Issues = "https://github.com/cnsunsz/medianfo/issues"
 
 [project.scripts]
-peach = "peach.error_reporting:cli_main"
-peach-tray = "peach.error_reporting:tray_main"
+medianfo = "medianfo.error_reporting:cli_main"
+medianfo-tray = "medianfo.error_reporting:tray_main"
 
 [project.optional-dependencies]
 # psutil 给 `scripts/agent_worktree.py` 查工作树里的残留进程：当前目录、父进程、CPU 与内存。
@@ -96,17 +98,17 @@ package-dir = {"" = "src"}
 # dependency_inputs 也不算它）。Homebrew、winget 与官方脚本都只装最新版，写死等号
 # 会让每台新机器上的 uv 连 `--no-project` 的钩子都拒绝运行；CI 想复现就在 setup-uv 里给 version。
 required-version = ">=0.12.13"
-cache-keys = [{file = "pyproject.toml"}, {file = "setup.py"}, {file = "src/peach/__init__.py"}, {file = "README.md"}]
+cache-keys = [{file = "pyproject.toml"}, {file = "setup.py"}, {file = "src/medianfo/__init__.py"}, {file = "README.md"}]
 
 [tool.setuptools.dynamic]
-version = {attr = "peach.__version__"}
+version = {attr = "medianfo.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.ruff]
 target-version = "py314"
-extend-exclude = ["src/peach/downloads_clouddrive_pb2.py"]
+extend-exclude = ["src/medianfo/downloads_clouddrive_pb2.py"]
 
 [tool.ruff.lint]
 select = ["F", "PLE", "B006", "B012", "B018", "B023"]

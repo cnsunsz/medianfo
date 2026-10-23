@@ -53,26 +53,26 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach.avatar_face import (   # noqa: E402
+from medianfo.avatar_face import (   # noqa: E402
     FaceProbe, face_px_width, read_sidecar,
 )
-from peach.avatar_provider import (   # noqa: E402
+from medianfo.avatar_provider import (   # noqa: E402
     POLICY_VERSION,
     AvatarCandidateCache,
     inspect_avatar,
     install_entity_avatar,
     provenance_now,
 )
-from peach.config import (   # noqa: E402
+from medianfo.config import (   # noqa: E402
     DATABASE_PATH, GENERATED_DIR, REVIEW_DIR, STATE_DIR, COVER_DIR,
 )
-from peach.entities import resolve_entity_id  # noqa: E402
-from peach.http import HttpRequest, HttpTransport, HttpxTransport   # noqa: E402
-from peach.review_csv import read_rows, write_rows   # noqa: E402
-from peach.scripting import (   # noqa: E402
+from medianfo.entities import resolve_entity_id  # noqa: E402
+from medianfo.http import HttpRequest, HttpTransport, HttpxTransport   # noqa: E402
+from medianfo.review_csv import read_rows, write_rows   # noqa: E402
+from medianfo.scripting import (   # noqa: E402
     USER_AGENT, HostLimiter, host_under, hostname_of, open_readonly,
 )
-from peach.social_links import twimg_tiers   # noqa: E402
+from medianfo.social_links import twimg_tiers   # noqa: E402
 
 
 X_HOSTS = ("x.com", "twitter.com", "mobile.twitter.com")
@@ -1016,5 +1016,5 @@ def run(args) -> int:
 
 
 if __name__ == "__main__":
-    from peach.jobs import job_main
+    from medianfo.jobs import job_main
     raise SystemExit(job_main(build_parser, run))

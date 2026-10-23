@@ -7,7 +7,7 @@ from unittest import mock
 
 from PIL import Image
 
-from peach.follow_faces import (
+from medianfo.follow_faces import (
     FACE_DISTANCE,
     Face,
     FollowFaceIndex,
@@ -17,8 +17,8 @@ from peach.follow_faces import (
     face_clusters,
     same_face,
 )
-from peach.follow_stream import FollowMediaResolver
-from peach.http import HttpResponse
+from medianfo.follow_stream import FollowMediaResolver
+from medianfo.http import HttpResponse
 
 
 def _png(draw) -> bytes:
@@ -289,7 +289,7 @@ class FollowFaceIndexTests(unittest.TestCase):
         self.now = 1_000_000.0
         self.requests = []
         self.bodies = {"https://img.example.com/a.png": _png(_left_bright)}
-        public = mock.patch("peach.follow_faces.resolves_publicly", return_value=True)
+        public = mock.patch("medianfo.follow_faces.resolves_publicly", return_value=True)
         public.start()
         self.addCleanup(public.stop)
 

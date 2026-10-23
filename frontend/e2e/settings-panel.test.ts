@@ -24,7 +24,7 @@ async function posted(page: Page, server: Server, path: string, key: string): Pr
   return find()!.body;
 }
 
-const stored = (page: Page) => page.evaluate(() => JSON.parse(localStorage.getItem('peach.settings.v1') || '{}'));
+const stored = (page: Page) => page.evaluate(() => JSON.parse(localStorage.getItem('medianfo.settings.v1') || '{}'));
 
 async function pick(page: Page, field: string, value: string): Promise<void> {
   await page.locator(`${field} [data-select-trigger]`).click();
@@ -37,8 +37,8 @@ async function persistentContext(browser: Browser): Promise<BrowserContext> {
     viewport: { width: DESKTOP.width, height: DESKTOP.height }, reducedMotion: 'reduce', colorScheme: 'light',
   });
   await context.addInitScript(() => {
-    if (!localStorage.getItem('peach.settings.v1')) {
-      localStorage.setItem('peach.settings.v1', JSON.stringify({ detailAutoplay: false }));
+    if (!localStorage.getItem('medianfo.settings.v1')) {
+      localStorage.setItem('medianfo.settings.v1', JSON.stringify({ detailAutoplay: false }));
     }
   });
   return context;
@@ -49,7 +49,7 @@ describe('设置面板', () => {
   before(async () => { browser = await launch() });
   after(async () => { await browser?.close() });
 
-  it('五个偏好分区各自显示对应设置，Peach 配置单独直达配置页', { timeout: 60_000 }, async () => {
+  it('五个偏好分区各自显示对应设置，MediaNfo 配置单独直达配置页', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser);
     const { page } = opened;
     try {
@@ -65,7 +65,7 @@ describe('设置面板', () => {
         assert.deepEqual((await layout(page)).offenders, []);
       }
       assert.equal(await page.locator(`${PANEL} #videoThumbnailSetting, ${PANEL} #followScheduleSetting`).count(), 0);
-      const configuration = page.locator(PANEL).getByRole('button', { name: 'Peach 配置', exact: true });
+      const configuration = page.locator(PANEL).getByRole('button', { name: 'MediaNfo 配置', exact: true });
       await configuration.click();
       await page.waitForURL((url) => url.pathname === '/settings/library');
       await page.locator(PANEL).waitFor({ state: 'hidden' });
@@ -111,7 +111,7 @@ describe('设置面板', () => {
     try {
       const page = await context.newPage();
       await stubServer(page);
-      await page.goto(`${requiredEnv('PEACH_E2E_ORIGIN')}/`, { waitUntil: 'load' });
+      await page.goto(`${requiredEnv('MEDIANFO_E2E_ORIGIN')}/`, { waitUntil: 'load' });
       await settle(page);
       assert.equal(await page.evaluate(() => document.documentElement.classList.contains('dark')), false);
       await openPanel(page);

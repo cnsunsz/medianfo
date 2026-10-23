@@ -23,7 +23,7 @@ Windows 使用当前设备的 `APPDATA`、`LOCALAPPDATA`，Linux 使用 `XDG_CON
 
 Chrome、Chromium 的资料路径以[官方说明](https://chromium.googlesource.com/chromium/src/+/HEAD/docs/user_data_dir.md)和 `chrome://version` 的 `Profile Path` 为准；`--user-data-dir` 指定的任意位置需手动添加。
 
-Firefox 自定义资料可以从 `about:profiles` 找到根目录后手动添加。官方源码中，[`profiles.ini`](https://github.com/mozilla-firefox/firefox/blob/main/toolkit/profile/nsToolkitProfileService.cpp) 的相对路径基于 Firefox 根目录；新版 [Profile Groups](https://github.com/mozilla-firefox/firefox/blob/main/toolkit/profile/ProfilesDatastoreService.sys.mjs) 记录在独立 SQLite 配置里。Peach 自动查找默认资料位置，不解析这两类配置中的外置位置。UC 的 [Autopsy 目录规则](https://github.com/sleuthkit/autopsy/blob/develop/RecentActivity/src/org/sleuthkit/autopsy/recentactivity/Chromium.java)包含 `UCBrowser/User Data%`，存在资料目录与文件名后缀差异，未列入自动发现承诺；可手动选择历史文件，按实际格式校验。
+Firefox 自定义资料可以从 `about:profiles` 找到根目录后手动添加。官方源码中，[`profiles.ini`](https://github.com/mozilla-firefox/firefox/blob/main/toolkit/profile/nsToolkitProfileService.cpp) 的相对路径基于 Firefox 根目录；新版 [Profile Groups](https://github.com/mozilla-firefox/firefox/blob/main/toolkit/profile/ProfilesDatastoreService.sys.mjs) 记录在独立 SQLite 配置里。MediaNfo 自动查找默认资料位置，不解析这两类配置中的外置位置。UC 的 [Autopsy 目录规则](https://github.com/sleuthkit/autopsy/blob/develop/RecentActivity/src/org/sleuthkit/autopsy/recentactivity/Chromium.java)包含 `UCBrowser/User Data%`，存在资料目录与文件名后缀差异，未列入自动发现承诺；可手动选择历史文件，按实际格式校验。
 
 ## 验证与限制
 

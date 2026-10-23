@@ -34,12 +34,12 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import GENERATED_DIR   # noqa: E402
-from peach.entities import (   # noqa: E402
+from medianfo.config import GENERATED_DIR   # noqa: E402
+from medianfo.entities import (   # noqa: E402
     normalize_entity_name, rewrite_flat_projection, split_composite_person_name,
 )
-from peach.review_csv import read_rows, write_rows   # noqa: E402
-from peach.scripting import (   # noqa: E402
+from medianfo.review_csv import read_rows, write_rows   # noqa: E402
+from medianfo.scripting import (   # noqa: E402
     add_ledger_write_args, counts_of, open_for_write, verify_after_write,
 )
 

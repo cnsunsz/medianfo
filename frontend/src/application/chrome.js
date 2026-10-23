@@ -31,9 +31,9 @@ effects.own(()=>{
   if(preferencesState.placeSidebarHead===placeBrand)preferencesState.placeSidebarHead=previousPlace;
 });
 /* Board 外壳：媒体库选择、侧栏底部、玻璃折射。 */
-document.documentElement.classList.toggle('board-high-contrast',localStorage.getItem('peach.high-contrast')==='true');
+document.documentElement.classList.toggle('board-high-contrast',localStorage.getItem('medianfo.high-contrast')==='true');
 const boardBrand=document.querySelector('#brandHome');
-boardBrand.setAttribute('aria-label','Peach 首页');
+boardBrand.setAttribute('aria-label','MediaNfo 首页');
 const libraryPicker=document.createElement('div');libraryPicker.className='board-library-menu';libraryPicker.id='boardLibraryMenu';libraryPicker.hidden=true;libraryPicker.setAttribute('popover','manual');libraryPicker.setAttribute('role','dialog');libraryPicker.setAttribute('aria-label','媒体库');
 document.body.append(libraryPicker);
 effects.own(()=>libraryPicker.remove());
@@ -69,15 +69,15 @@ effects.listen(libraryPicker, 'keydown', event=>{if(event.key==='Escape'){event.
 api('/api/libraries',{signal:effects.signal}).then(data=>{
   if(!effects.isActive)return;
   const choices=[['','全部媒体库','database'],...data.libraries.map(row=>[row.id,row.name,row.icon||'database'])];
-  const selected=sessionStorage.getItem('peach.library')||'';
-  if(!choices.some(row=>row[0]===selected)){sessionStorage.removeItem('peach.library');location.reload();return}
-  const current=sessionStorage.getItem('peach.library')||'';
+  const selected=sessionStorage.getItem('medianfo.library')||'';
+  if(!choices.some(row=>row[0]===selected)){sessionStorage.removeItem('medianfo.library');location.reload();return}
+  const current=sessionStorage.getItem('medianfo.library')||'';
   boardBrand.querySelector('h1').textContent=current||'全部媒体库';
   const libraryMark=glyph=>MEDIA_SOURCE_ICONS[glyph]?.startsWith('data:')?`<img src="${MEDIA_SOURCE_ICONS[glyph]}" alt="">`:icon(MEDIA_SOURCE_ICONS[glyph]||glyph);
   const mark=document.createElement('span');mark.className='mark';mark.setAttribute('aria-hidden','true');
   mark.innerHTML=libraryMark(choices.find(row=>row[0]===current)?.[2]||'database');boardBrand.querySelector('.mark').replaceWith(mark);
   libraryPicker.innerHTML=`<p>媒体库</p><div class="board-library-rows">${choices.map(([id,name,glyph])=>`<button type="button" data-library="${esc(id)}" aria-pressed="${id===current}"><span class="board-library-avatar">${libraryMark(glyph)}</span><span>${esc(name)}</span></button>`).join('')}</div><footer><button type="button" class="geist-button primary" data-library-manage>管理媒体库</button></footer>`;
-  libraryPicker.querySelectorAll('[data-library]').forEach(button=>effects.handler(button, 'onclick', ()=>{sessionStorage.setItem('peach.library',button.dataset.library);location.assign('/')}));
+  libraryPicker.querySelectorAll('[data-library]').forEach(button=>effects.handler(button, 'onclick', ()=>{sessionStorage.setItem('medianfo.library',button.dataset.library);location.assign('/')}));
   effects.handler(libraryPicker.querySelector('[data-library-manage]'), 'onclick', ()=>{libraryFloating.setOpen(false);openDrawer(false);openConfigurationSection('媒体库与入库')});
   /* 委托在这一列上，不挂在每个按钮身上：菜单每次取回媒体库都整块重画。
      `pointerover`／`pointerout` 而不是 enter／leave，后两个不冒泡，委托接不到。 */

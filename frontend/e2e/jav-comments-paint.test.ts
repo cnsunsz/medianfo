@@ -27,7 +27,7 @@ describe('JAV 评论展开的详情绘制', () => {
             items: Array.from({ length: 10 }, (_, index) => ({ id: String(index), username: '示例评论者',
               content: '正常动画下的评论正文与资源来源。'.repeat(40), score: 4, created_at: '2026-10-13' })) } });
         });
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/works/EXM-001');
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/works/EXM-001');
         const title = page.locator('[data-jav-info] h1');
         await title.waitFor();
         await page.waitForFunction(() => !document.querySelector('#stage[data-stage-reveal]'));

@@ -121,7 +121,7 @@ class TestPlanningTests(unittest.TestCase):
                 plan = ci_plan.plan('pull_request', [path])
                 self.assertFalse(plan['browser'])
                 self.assertFalse(plan['wheel'])
-        for path in ('src/peach/server.py', 'src/peach/auth.py', 'frontend/src/core/index.ts',
+        for path in ('src/medianfo/server.py', 'src/medianfo/auth.py', 'frontend/src/core/index.ts',
                      'tests/test_web_e2e.py', 'frontend/e2e/setup.test.ts'):
             with self.subTest(path=path):
                 self.assertTrue(ci_plan.plan('pull_request', [path])['browser'])
@@ -130,7 +130,7 @@ class TestPlanningTests(unittest.TestCase):
         self.assertTrue(ci_plan.plan('pull_request', ['.github/workflows/unknown.yml'])['wide'])
 
     def setUp(self):
-        environment = patch.dict(os.environ, {'PEACH_TEST_FOCUS': '', 'PEACH_E2E_FILES': ''})
+        environment = patch.dict(os.environ, {'MEDIANFO_TEST_FOCUS': '', 'MEDIANFO_E2E_FILES': ''})
         environment.start()
         self.addCleanup(environment.stop)
 
@@ -186,10 +186,10 @@ class TestPlanningTests(unittest.TestCase):
                 runner.environment_preflight(('checks',), shard_count=1)
         switched = io.StringIO()
         with patch.object(runner.test_evidence, 'unspawnable_tools', return_value=('git',)), \
-             patch.dict(os.environ, {'PEACH_SKIP_PREFLIGHT': '1'}), \
+             patch.dict(os.environ, {'MEDIANFO_SKIP_PREFLIGHT': '1'}), \
              contextlib.redirect_stdout(switched):
             runner.environment_preflight(('checks',))
-        self.assertIn('PEACH_SKIP_PREFLIGHT=1', switched.getvalue())
+        self.assertIn('MEDIANFO_SKIP_PREFLIGHT=1', switched.getvalue())
 
     def test_dependency_changes_require_full_but_tool_version_does_not(self):
         source = '[project]\nrequires-python=">=3.12"\ndependencies=["demo==1"]\n[tool.uv]\nrequired-version="==1"\n'
@@ -286,7 +286,7 @@ class TestPlanningTests(unittest.TestCase):
                                           {'os': 'macos-latest', 'python': '3.14'}])
 
     def test_pull_request_uses_changed_domains(self):
-        rows = ci_plan.plan('pull_request', ['src/peach/follow_store.py'])['matrix']['include']
+        rows = ci_plan.plan('pull_request', ['src/medianfo/follow_store.py'])['matrix']['include']
         self.assertTrue(any(r['scope'] == 'auto' for r in rows))
         self.assertFalse(any(r['scope'] == 'full' for r in rows))
         self.assertEqual(runner.scopes_for_changes(['scripts/localize_performer_names.py'])[0],
@@ -303,7 +303,7 @@ class TestPlanningTests(unittest.TestCase):
         `test_stale_candidates.py`（metadata）和 `test_web_e2e.py`（web）；
         映射缺了这一条，改处理任务就整轮退化成 `full`。
         """
-        scopes, _ = runner.scopes_for_changes(['src/peach/library_processing.py'])
+        scopes, _ = runner.scopes_for_changes(['src/medianfo/library_processing.py'])
         self.assertEqual(scopes, ('metadata', 'web'))
         selected = {path.name for scope in scopes for path in runner.selected_files(scope)}
         self.assertLessEqual({'test_metadata_library.py', 'test_stale_candidates.py',

@@ -6,9 +6,9 @@
 
 ## 背景
 
-Peach 要发布到 GitHub 供所有人维护与使用。使用形态不变：每个部署仍是单人、本地优先、ledger 是唯一真相源。但代码和文档里嵌着只对当前用户成立的事实：
+MediaNfo 要发布到 GitHub 供所有人维护与使用。使用形态不变：每个部署仍是单人、本地优先、ledger 是唯一真相源。但代码和文档里嵌着只对当前用户成立的事实：
 
-- `src/peach/config.py` 用 `Path.home()/Desktop/peach`、`Desktop/<用户目录>/peach`、写者主机的 mDNS 名、SMB 账号名等字面量给默认值；代理与局域网 IP 散在 HANDOFF、STATUS 与技能文件里。
+- `src/medianfo/config.py` 用 `Path.home()/Desktop/peach`、`Desktop/<用户目录>/peach`、写者主机的 mDNS 名、SMB 账号名等字面量给默认值；代理与局域网 IP 散在 HANDOFF、STATUS 与技能文件里。
 - ledger 路径固定写成 Windows 盘符形状（`R:\Media\...`、`A:\`、`B:\`），由 `peach.platform` 在读取时翻译成本机挂载点；盘符含义只在文档里说明。
 - Windows 写者 / macOS 读者的单写者复制（SMB 共享、mDNS 名、钥匙串账号）默认开启、无法绕开，而多数用户只有一台机器。
 - [运行与配置](../OPERATIONS.md)、[开发约定](../../AGENTS.md) 与多份技能文件记录了个人运行态、真实 IP、备份文件名与磁盘布局。
@@ -20,7 +20,7 @@ Peach 要发布到 GitHub 供所有人维护与使用。使用形态不变：每
 分四个阶段推进，每个阶段独立可验收；未完成前一阶段不进入下一阶段的真实写入。
 
 1. **配置层与首次运行**
-   - 新增 `peach-data/config.toml`（或同等设置文件）承载数据根、媒体根、监听地址、代理、复制开关；环境变量继续作为覆盖，`config.py` 只保留读取与校验逻辑，不再含个人路径与主机名。
+   - 新增 `medianfo-data/config.toml`（或同等设置文件）承载数据根、媒体根、监听地址、代理、复制开关；环境变量继续作为覆盖，`config.py` 只保留读取与校验逻辑，不再含个人路径与主机名。
    - 新增 `peach init` 子命令：创建数据目录、跑迁移、生成设置文件与自签 CA，并输出下一步。
    - 不带参数的 `peach init` 在终端里问答（数据根、一个本地媒体目录、监听范围、端口、局域网名字），写出只声明 `local` 的设置文件并可选地首次扫描；问答逻辑在 `peach.onboarding`，托盘设置页复用（2026-09-04 落地）。
    - 「未配置」是明确状态：服务能启动并在页面提示去设置，而不是因缺目录崩掉。
@@ -56,8 +56,8 @@ Peach 要发布到 GitHub 供所有人维护与使用。使用形态不变：每
 - Windows 上盘符本身就是挂载点，`translate_ledger_path` 原样返回，`[media.mounts]` 整表可空。
 - 第 2 阶段同时补上了写入侧的一致性门槛：`peach scan <location> <root>` 现在拒绝
   与 `[media.locations]` 声明根不一致的组合，新导入的行不可能再落到别的来源名下。
-- 诊断用的 `PEACH_DRIVE_MAP` 键空间是盘符，与新方案不兼容，已删除；替代品是同样语法、
-  按 ID 键的 `PEACH_MEDIA_MOUNTS`（`local=/mnt/res,115=/mnt/115`）。
+- 诊断用的 `MEDIANFO_DRIVE_MAP` 键空间是盘符，与新方案不兼容，已删除；替代品是同样语法、
+  按 ID 键的 `MEDIANFO_MEDIA_MOUNTS`（`local=/mnt/res,115=/mnt/115`）。
 
 第 3 阶段有一处与原文不同，是刻意的：
 
@@ -83,7 +83,7 @@ Peach 要发布到 GitHub 供所有人维护与使用。使用形态不变：每
 
 ## 第 4 阶段实施记录（2026-09-04）
 
-本节是交接面：任何智能体接手开源发布，只读本节加 [公开路线图](https://github.com/orgs/peach-mitao/projects/7) 即可，不需要对话记录。
+本节是交接面：任何智能体接手开源发布，只读本节加 [公开路线图](https://github.com/cnsunsz/projects/7) 即可，不需要对话记录。
 
 ### 用户已定的决定
 

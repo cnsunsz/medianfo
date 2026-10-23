@@ -13,13 +13,13 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.review_csv import write_rows
-from peach.fsutil import atomic_write_text
-from peach.scripting import open_readonly
-from peach.metadata_creator_attributions import (
+from medianfo.review_csv import write_rows
+from medianfo.fsutil import atomic_write_text
+from medianfo.scripting import open_readonly
+from medianfo.metadata_creator_attributions import (
     FIELDS, apply_plan, collect, fingerprint, restore,
 )
-from peach.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
+from medianfo.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
 
 
 ITEM_FIELDS = FIELDS

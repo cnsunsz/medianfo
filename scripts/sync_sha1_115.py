@@ -3,9 +3,9 @@
 """115 SHA1 对账：读取服务端文件清单，按文件名和大小写入 ledger。
 
 安装 maintenance-115 可选依赖后运行；首次登录使用 115 手机 App 扫码。
-Cookie 默认存入配置 Peach 数据目录的 secrets/115-cookies.txt，重复报告存入 review/。
---cookie-file / PEACH_115_COOKIE_FILE 可指定已有 Cookie 文件；
---dupes-out / PEACH_115_DUPES_OUT 可指定重复报告位置，需同时启用 --dupes。
+Cookie 默认存入配置 MediaNfo 数据目录的 secrets/115-cookies.txt，重复报告存入 review/。
+--cookie-file / MEDIANFO_115_COOKIE_FILE 可指定已有 Cookie 文件；
+--dupes-out / MEDIANFO_115_DUPES_OUT 可指定重复报告位置，需同时启用 --dupes。
 重复项默认按目录深度与 Provider 自动目录排序；--deprioritize-dir 可重复指定
 优先删除的目录名，只生成复核报告，不删除文件。
 """
@@ -24,21 +24,21 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.review_csv import ENCODING
-from peach.config import DATABASE_PATH, LOG_DIR, REVIEW_DIR, SECRETS_DIR
+from medianfo.review_csv import ENCODING
+from medianfo.config import DATABASE_PATH, LOG_DIR, REVIEW_DIR, SECRETS_DIR
 
 
 def parse_args(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--cookie-file", type=Path,
-                        default=Path(os.environ.get("PEACH_115_COOKIE_FILE")
+                        default=Path(os.environ.get("MEDIANFO_115_COOKIE_FILE")
                                      or SECRETS_DIR / "115-cookies.txt"),
-                        help="115 Cookie 文件，默认使用配置 Peach 数据目录的 secrets 目录")
+                        help="115 Cookie 文件，默认使用配置 MediaNfo 数据目录的 secrets 目录")
     parser.add_argument("--dupes", action="store_true", help="写入后生成 SHA1 重复报告")
     parser.add_argument("--dupes-out", type=Path,
-                        default=Path(os.environ.get("PEACH_115_DUPES_OUT")
+                        default=Path(os.environ.get("MEDIANFO_115_DUPES_OUT")
                                      or REVIEW_DIR / "115-sha1重复.csv"),
-                        help="重复报告路径，默认使用配置 Peach 数据目录的 review 目录")
+                        help="重复报告路径，默认使用配置 MediaNfo 数据目录的 review 目录")
     parser.add_argument("--deprioritize-dir", action="append", default=[],
                         help="重复报告中优先删除的目录名，可重复指定")
     args = parser.parse_args(argv)

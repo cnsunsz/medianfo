@@ -65,7 +65,7 @@
   `rgba(237,237,237,.84)` 靠左；开 = 轨道 `rgb(0,112,243)`、圆点靠右。
   禁用：轨道 `rgb(31,31,31)`、圆点 `rgb(69,69,69)`。
 - **卡片面用贴背景的实底升起面**，不是白色透明叠加：Vercel 后台黑主题
-  实测卡片 `rgb(10,10,10)` 置于 `#000` 上，配低透明发丝边。Peach 对应
+  实测卡片 `rgb(10,10,10)` 置于 `#000` 上，配低透明发丝边。MediaNfo 对应
   `--surface` 置于 `--ground` 上（统计卡即此方案），设置面板此前用的
   `--overlay-5`（白色 5% 叠加）与全站卡片色系不一致，已统一到 `--surface`。
 
@@ -90,8 +90,8 @@
   手工截图的 SHA-256 为
   `037CBD12E6254072817F402864A0B11C641AA920CA4BD9EDEC08D591DAF2EA1E`（1673×189）。
 
-Peach 保留的差异：添加关注沿用现有 38px 输入基线，因此筛选钮是 38×38px；Tooltip
-使用 Peach 的暗色 surface 且不复制箭头或淡入动画。复用的是可聚焦语义、严格视口夹取、
+MediaNfo 保留的差异：添加关注沿用现有 38px 输入基线，因此筛选钮是 38×38px；Tooltip
+使用 MediaNfo 的暗色 surface 且不复制箭头或淡入动画。复用的是可聚焦语义、严格视口夹取、
 菜单无展开动画，以及 Collapse 的高度／chevron 过渡，不把三种组件的 motion 混用。
 
 ## Context Card／Toast／Material（2026-08-30 补查）
@@ -103,9 +103,9 @@ Peach 保留的差异：添加关注沿用现有 38px 输入基线，因此筛�
 - <https://vercel.com/geist/material>：浮层的阴影、边框只负责视觉层级，语义必须落在外层
   `role` 和标题关联上；暗色主题不能只靠阴影分层。
 
-Peach 图片灯箱的信息卡据此保持一个“在资源管理器中显示”动作，改为具名非模态 dialog；
+MediaNfo 图片灯箱的信息卡据此保持一个“在资源管理器中显示”动作，改为具名非模态 dialog；
 触发器通过 `aria-controls`／`aria-expanded` 关联，打开后把焦点移到动作，Escape 只关闭信息卡
-并交还焦点。成功回执进入现有 Toast，失败原因保留在卡内。视觉上沿用 Peach 的 12px
+并交还焦点。成功回执进入现有 Toast，失败原因保留在卡内。视觉上沿用 MediaNfo 的 12px
 浮层圆角、发丝边与双层阴影，不复制 Vercel 品牌样式。
 
 ## 选中态与开关色（2026-09-03 实测，深色主题）
@@ -205,7 +205,7 @@ error 底 `rgb(217,48,54)` 字 `#fff`；warning 底 `rgb(255,153,10)` 字 `rgb(1
 「Theme」行），类名与上表逐条一致，只多一个把 32 收成 24 的 `data-small` 档。这套几何在
 文档站与后台是同一份。
 
-**Peach 采用与差异**：形状、尺寸、语义和「选中项加环」照抄，颜色换成本仓库 token
+**MediaNfo 采用与差异**：形状、尺寸、语义和「选中项加环」照抄，颜色换成本仓库 token
 （外框环 `--border-15`，选中底 `--ground`、环 `--line` 加 `0 1px 2px var(--overlay-5)`，
 未选中 `--muted`、悬停提到 `--ink`）。跟随系统那一档同样用显示器字形（Lucide `monitor`）：
 这一档说的是「照这台设备的设定走」，讲的是设备而不是明暗。详情页的画面尺寸因此换成
@@ -243,7 +243,7 @@ error 底 `rgb(217,48,54)` 字 `#fff`；warning 底 `rgb(255,153,10)` 字 `rgb(1
 要点：浅色这一档**没有色相**，从纸白到近黑全部落在 `hsl(0,0%,·)` 上；中间态（悬停、选中）
 是纯黑透明度而不是调过色的实色灰，所以它永远比所在面板重一点点，不会自己变成一块底。
 
-**Peach 采用与差异**：浅色色板照这张表改成无色相，`--hover` 从实色 `#EEF1F5` 换成
+**MediaNfo 采用与差异**：浅色色板照这张表改成无色相，`--hover` 从实色 `#EEF1F5` 换成
 `rgba(0,0,0,.05)`；`--surface`/`--sunk`/`--line`/`--line-soft` 取 `#FAFAFA`/`#F2F2F2`/
 `#E5E5E5`/`#EBEBEB`，`--ink`/`--ink-2` 取 `#171717`/`#4D4D4D`。两处不同：`--muted` 用
 `#666666` 而不是 Geist 的 `#8F8F8F`（本仓库这一档要承担 12–13px 的说明文字，56% 灰在白底
@@ -274,7 +274,7 @@ error 底 `rgb(217,48,54)` 字 `#fff`；warning 底 `rgb(255,153,10)` 字 `rgb(1
   所以横排选项组那条「填充专属选中、悬停只提文字色」在这里是反的。
 - 当前项确实不加边、不加环、不加字重——上一节这部分结论仍然成立。
 
-Peach 的两列侧栏导航按上表对齐：`.edge button` 与 `.dnav button` 的未选中字色都是
+MediaNfo 的两列侧栏导航按上表对齐：`.edge button` 与 `.dnav button` 的未选中字色都是
 `--muted`（63% 灰），当前项是 `--hover` 底 `--ink` 字。抽屉里的图标不再自己声明颜色，
 跟着按钮的 `currentColor` 走，所以图标与标签始终同色、同时变。
 
@@ -286,7 +286,7 @@ Peach 的两列侧栏导航按上表对齐：`.edge button` 与 `.dnav button` �
 证据只覆盖横排选项组，推广到侧栏没有依据。已按上表把两处填充改回，并加正向断言
 `test_sidebar_nav_keeps_the_hover_fill_and_leaves_state_to_the_color` 锁住。
 
-### Peach 对应（2026-09-03 收敛，2026-09-04 修正侧栏一条）
+### MediaNfo 对应（2026-09-03 收敛，2026-09-04 修正侧栏一条）
 
 - 按下／选中（`aria-pressed="true"`、`aria-current`、`.selected`、`.current`、`.picked`、`:checked`）
   只有填充：一律 `--hover` 底 `--ink` 字，不加边、不加内嵌一圈线、不加字重。这与本文件早前记录
@@ -305,10 +305,10 @@ Peach 的两列侧栏导航按上表对齐：`.edge button` 与 `.dnav button` �
 - 主动作 `--ink` 底 `--ground` 字，悬停 `color-mix(in srgb,var(--ink) 88%,var(--ground))`
   （对应 Geist 的 #EDEDED→#CCC，同为掉一档而非换色）；每屏最多一个。
 - 按钮（无选中态）悬停只抬填充到 `--hover`，边框与文字色不动——同样推翻此前的
-  「悬停边提亮到墨色 28%」，那一档在 Peach 是全站最亮的边，实际效果比 Vercel 重得多。
+  「悬停边提亮到墨色 28%」，那一档在 MediaNfo 是全站最亮的边，实际效果比 Vercel 重得多。
   墨色 28% 的边现在只剩输入框 `.fpicksearch:hover` 一处。
 - 禁用统一 `--sunk` 底、`--line-soft` 边、`--muted` 字，不用 `opacity`；
-  按下不加 `scale`。Peach 保留 `cursor:default` 而不是 Geist 的 `not-allowed`，
+  按下不加 `scale`。MediaNfo 保留 `cursor:default` 而不是 Geist 的 `not-allowed`，
   与本仓库其余禁用态写法一致。
 - 计数徽章（如作者别名「3 组」）走 gray badge：`--overlay-5` 底、`--border-15` 细边、`--muted` 字、`--control-radius`。
 - 保留蓝：`:focus*`、真正的链接（`.entitylink`／`.flink`／`.fsourcelink`／`.fcred a`／`.tokauthor>a`）、
@@ -316,7 +316,7 @@ Peach 的两列侧栏导航按上表对齐：`.edge button` 与 `.dnav button` �
 - `--tungsten-soft` 退役。允许清单由 `tests/test_web_ui.py` 的
   `test_tungsten_is_reserved_for_focus_links_progress_and_toggle` 强制。
 
-## Peach 对应
+## MediaNfo 对应
 
 - 语义按钮：`.fbtn.danger`（清空回收站等销毁类）、`.fbtn.primary` 保持主推进、
   批量已看/忽略保持 secondary；回收站清空区用红发丝边框卡。
@@ -373,16 +373,16 @@ Peach 的两列侧栏导航按上表对齐：`.edge button` 与 `.dnav button` �
 整站 `scrollbar-width` 与 `scrollbar-color` 都是 `auto`，没有一条 `::-webkit-scrollbar` 规则；
 只在个别内部滚动区把滚动条整个藏掉。明暗两档的滚动条外观由 `color-scheme` 交给浏览器。
 
-## Peach 对应（2026-09-05）
+## MediaNfo 对应（2026-09-05）
 
 - 输入框一组边与环收进 `--field-ring`／`--field-ring-hover`／`--field-ring-focus`／`--field-glow`，
   聚焦是 1px 中性边加 4px 辉光，不再是蓝。顶部搜索、`.geist-search`、`.geist-input`、
   `.gselectfield`、`.sidebaraddfield`、偏好文本域共用这一份。
 - 全站收成两张面。`--page` 是退到后面那张：`body`、框体里的操作条。`--ground` 是浮在它
   上面那张：顶栏、窄栏、卡片、面板、按钮和输入框，外框 1px `--field-ring`、内部分隔线
-  `--line-soft`，不靠投影。暗色一档 Peach 的底带蓝，所以 `--page` 取 `#04060A` 而不是纯黑，
+  `--line-soft`，不靠投影。暗色一档 MediaNfo 的底带蓝，所以 `--page` 取 `#04060A` 而不是纯黑，
   方向与 Vercel 一致（面比底亮）。`--surface` 不再当面用，只剩内嵌与控件禁用那一档。
-- 顶栏与窄栏是有意与 Vercel 分开的一处：Vercel 的页头和页面底同色、不浮起，Peach 有一条
+- 顶栏与窄栏是有意与 Vercel 分开的一处：Vercel 的页头和页面底同色、不浮起，MediaNfo 有一条
   从上贯到底的窄栏，两条一起留在 `--ground` 才不会在左上角撞出两种白。
 - 按钮次级档填 `--ground` 而不是透明，悬停抬到 Geist 的 gray-200 那一档，写作
   `color-mix(in srgb,var(--ink) 8%,var(--ground))`：浅色落在 `#EBEBEB`、深色往亮处抬，
@@ -428,14 +428,14 @@ Peach 的两列侧栏导航按上表对齐：`.edge button` 与 `.dnav button` �
 应用」的外链标。带文字的动作按钮不加前置图标——文字已经说清动作，再加一个图标是把
 同一件事说两遍，一排按钮的左边缘还会被大小不一的图形推得参差。
 
-### Peach 对应
+### MediaNfo 对应
 
 - 保留：`chevron-down` 这类触发器标、`check` 这类选中标、`external-link`、侧栏与抽屉的
   导航标（那一层是 icon-only 加标签的列表，对应 Vercel 的左栏）、状态语义色块。
 - 去掉：带文字的动作按钮上的前置图标（`refresh-cw` + 检查死链／扫描差异／重试同步、
   `upload` + 导入历史、`trash` + 删除空文件夹／移入回收站、`plus` + 新建播放列表、
   `play` + 进入沉浸模式）。
-- 补上：任何跳出 Peach 的链接都要 external-link 标，站标（favicon）只在来源行这种
+- 补上：任何跳出 MediaNfo 的链接都要 external-link 标，站标（favicon）只在来源行这种
   「哪个站」本身是信息的位置用。
 
 ## 2026-09-05 实测 vercel.com/<team>/~/deployments 的筛选行
@@ -466,10 +466,10 @@ Peach 的两列侧栏导航按上表对齐：`.edge button` 与 `.dnav button` �
 ### 这套配色成立的前提
 
 该页页面底色是 `#FAFAFA`（`bg-background-200`），`--ds-background-100` 才是纯白。
-所以「填成 `#FFFFFF` = 更亮 = 生效」是相对页面底色抬了一档。Peach 首页的 `--ground` 已经是纯白，
+所以「填成 `#FFFFFF` = 更亮 = 生效」是相对页面底色抬了一档。MediaNfo 首页的 `--ground` 已经是纯白，
 同一套写法没有可填的更亮档；要照搬得先把页面底色降到 `--surface` 这一层。
 
-### Peach 对应（2026-09-05）
+### MediaNfo 对应（2026-09-05）
 
 虚线只借给 `#tagbar` 那一排，即首页顶上的筛选条：未生效 `background:transparent` +
 `1px dashed var(--field-ring-hover)`，已生效 `background:var(--ground)` +
@@ -478,8 +478,8 @@ Peach 的两列侧栏导航按上表对齐：`.edge button` 与 `.dnav button` �
 虚线在 Vercel 上说的是「这条筛选还没加上去」，配得上它的只有恒常在场、可开可关的那一排；
 随内容来去的药丸也画成虚线，整页就是一片没生效的框，虚线不再指向任何东西。
 中间加了一档 Vercel 没有的悬停：只把虚线拉成实线，不填色。原因是语义不同——
-Vercel 的令牌可叠加，悬停预演成生效态没有代价；Peach 首页那一排是单选、恒有一颗生效，
-悬停也填就会同屏出现两颗选中。文字色也没照搬：Vercel 一行只有四颗，Peach 那一排有二十来颗，
+Vercel 的令牌可叠加，悬停预演成生效态没有代价；MediaNfo 首页那一排是单选、恒有一颗生效，
+悬停也填就会同屏出现两颗选中。文字色也没照搬：Vercel 一行只有四颗，MediaNfo 那一排有二十来颗，
 全部提到 `--ink` 会让整条筛选比页面其它部分都重，所以未生效仍停在 `--muted`。
 
 ## 覆盖式滚动条（2026-09-05 实测）
@@ -505,17 +505,17 @@ Vercel 的令牌可叠加，悬停预演成生效态没有代价；Peach 首页�
 `scrollbar-gutter:auto`，量到 15px 实宽。站内其余滚动区多数只写
 `scrollbar-width:thin; scrollbar-color:var(--ds-gray-500) transparent`。
 
-### Peach 对应（2026-09-05）
+### MediaNfo 对应（2026-09-05）
 
 `.ovtrack` / `.ovthumb` 与 `attachOverlayScrollbar()` 照抄上面的几何与两档宽度，颜色换成
 `--field-ring-hover`：它在浅色一档是 `rgba(0,0,0,.21)`，压在白面上正好是 `rgb(201,201,201)`，
 和实测值同一个数，还自带暗色一档。有意差异三条：
 
-1. **粗指针仍然画滑块。** Vercel 的轨道 `hidden pointer-fine:block`，触屏上整条不画。Peach 的
+1. **粗指针仍然画滑块。** Vercel 的轨道 `hidden pointer-fine:block`，触屏上整条不画。MediaNfo 的
    原生滚动条同样已经关掉，跟着收掉就等于触屏上既没有滑块也没有系统指示器，读不出这一列
    有多长、自己停在哪儿。滑块不占宽度，留着不挡任何东西；「能拖」才收给细指针，靠
    `pointer-events` 分档，拖不动的东西不该吃走触摸事件。
-2. **整页也换掉。** Vercel 只接管内部滚动区，根滚动条留给浏览器。Peach 的根滚动条本来要靠
+2. **整页也换掉。** Vercel 只接管内部滚动区，根滚动条留给浏览器。MediaNfo 的根滚动条本来要靠
    `scrollbar-gutter:stable` 永久扣下 15px 才不跳版，等于为一条装饰付一整列；换成覆盖式之后
    宽度归零，跳版的前提也一起消失。
 3. **整页那条的命中区收到滑块本身。** 侧栏轨道只覆盖侧栏，吃掉的点击本来就是它自己的；整页

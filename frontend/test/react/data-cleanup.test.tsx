@@ -166,7 +166,7 @@ describe('读数卡', () => {
   });
 
   it('回收站计数跟着侧栏选中的媒体库走', async () => {
-    sessionStorage.setItem('peach.library', '网盘');
+    sessionStorage.setItem('medianfo.library', '网盘');
     const { server } = await openPage(withRoots, { '/api/items?state=trash&limit=1&library=%E7%BD%91%E7%9B%98': { total: 1, bytes: 0 } });
     expect(server.calls.map((call) => call.path)).toContain('/api/items?state=trash&limit=1&library=%E7%BD%91%E7%9B%98');
     expect(server.calls.map((call) => call.path)).not.toContain('/api/items?state=trash&limit=1');

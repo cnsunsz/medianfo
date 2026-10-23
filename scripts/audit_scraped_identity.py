@@ -25,10 +25,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach.config import DATABASE_PATH, GENERATED_DIR  # noqa: E402
-from peach.metadata import identifies_code  # noqa: E402
-from peach.review_csv import write_rows  # noqa: E402
-from peach.scripting import open_readonly  # noqa: E402
+from medianfo.config import DATABASE_PATH, GENERATED_DIR  # noqa: E402
+from medianfo.metadata import identifies_code  # noqa: E402
+from medianfo.review_csv import write_rows  # noqa: E402
+from medianfo.scripting import open_readonly  # noqa: E402
 
 MISMATCH, PREFIX, NO_ID = "错配", "前缀未证实", "来源无编号"
 FIELDS = ("tier", "asset_code", "review_code", "provider_id", "content_id", "source_url",

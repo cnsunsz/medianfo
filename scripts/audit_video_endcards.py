@@ -23,20 +23,20 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import DATABASE_PATH, FFMPEG_DIR, GENERATED_DIR, STATE_DIR
-from peach.scripting import open_readonly
-from peach.endcard import POLICY_VERSION, detect_endcard
-from peach.ffmpeg import FFmpegResolver
-from peach.jobs import (
+from medianfo.config import DATABASE_PATH, FFMPEG_DIR, GENERATED_DIR, STATE_DIR
+from medianfo.scripting import open_readonly
+from medianfo.endcard import POLICY_VERSION, detect_endcard
+from medianfo.ffmpeg import FFmpegResolver
+from medianfo.jobs import (
     DiskGuard,
     JobPolicyError,
     SourceAccessPolicy,
     require_free_space,
     job_main,
 )
-from peach.media import resolve_case_insensitive
-from peach.platform import system_volume
-from peach.review_csv import write_rows
+from medianfo.media import resolve_case_insensitive
+from medianfo.platform import system_volume
+from medianfo.review_csv import write_rows
 
 
 CANDIDATE_FIELDS = (

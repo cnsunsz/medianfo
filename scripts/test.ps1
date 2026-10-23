@@ -15,7 +15,7 @@ $ErrorActionPreference = 'Stop'
 $WorktreeRoot = (Resolve-Path -LiteralPath (Split-Path -Parent $PSScriptRoot)).Path
 $GitCommonRaw = (& git -C $WorktreeRoot rev-parse --git-common-dir).Trim()
 if ($LASTEXITCODE -ne 0 -or -not $GitCommonRaw) {
-    throw '无法定位 Peach 主工作树。'
+    throw '无法定位 MediaNfo 主工作树。'
 }
 
 if ([IO.Path]::IsPathRooted($GitCommonRaw)) {
@@ -29,7 +29,7 @@ $Python = Join-Path $MainRoot '.venv\Scripts\python.exe'
 $LocalPython = Join-Path $WorktreeRoot '.venv\Scripts\python.exe'
 if (Test-Path -LiteralPath $LocalPython -PathType Leaf) { $Python = $LocalPython }
 if (-not (Test-Path -LiteralPath $Python -PathType Leaf)) {
-    throw "Peach 主项目 venv 不存在：$Python"
+    throw "MediaNfo 主项目 venv 不存在：$Python"
 }
 
 $SourceRoot = (Resolve-Path -LiteralPath (Join-Path $WorktreeRoot 'src')).Path
@@ -63,11 +63,11 @@ try {
         throw "测试加载了错误源码：$LoadedPath；预期位于 $SourceRoot"
     }
 
-    Write-Host "Peach source: $LoadedPath"
-    $PeachTestExtra = @()
-    if ($Fresh) { $PeachTestExtra += '--fresh' }
-    foreach ($PeachFocusSelector in $Focus) { $PeachTestExtra += @('--focus', $PeachFocusSelector) }
-    & $Python scripts\test_runner.py --scope $Scope --base $Base --shard-index $ShardIndex --shard-count $ShardCount --jobs $Jobs @PeachTestExtra
+    Write-Host "MediaNfo source: $LoadedPath"
+    $MediaNfoTestExtra = @()
+    if ($Fresh) { $MediaNfoTestExtra += '--fresh' }
+    foreach ($MediaNfoFocusSelector in $Focus) { $MediaNfoTestExtra += @('--focus', $MediaNfoFocusSelector) }
+    & $Python scripts\test_runner.py --scope $Scope --base $Base --shard-index $ShardIndex --shard-count $ShardCount --jobs $Jobs @MediaNfoTestExtra
     exit $LASTEXITCODE
 } finally {
     Pop-Location

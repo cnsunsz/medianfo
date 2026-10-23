@@ -16,7 +16,7 @@
 填错。使用 `curl_cffi==0.16.2` 的 `firefox147` 传输特征、同一 Cookie、`Origin` 和帖子
 `Referer` 后，才重新得到下述完全相同的 6,961 字节响应与 SHA-256。
 
-这项纠正只改变传输假设，不改变响应结构和产品边界：Peach 不执行网页脚本、不求解质询，
+这项纠正只改变传输假设，不改变响应结构和产品边界：MediaNfo 不执行网页脚本、不求解质询，
 只回查公开、免费且不受限的官方 `post.info`；Cookie 仍只发给 `api.fanbox.cc`。
 
 - HTTP 200，6,961 字节，SHA-256
@@ -25,7 +25,7 @@
 - 正文 `body.blocks` 内含 `https://gofile.io/d/OS2Qz9`。
 - `body.imageMap` 有 6 张图片，原图和缩略图均由官方响应直接给出。
 
-Peach 因此在列表请求后有界回查公开详情：按正文块顺序保留全部图片，详情右侧使用
+MediaNfo 因此在列表请求后有界回查公开详情：按正文块顺序保留全部图片，详情右侧使用
 Mix 同款队列切换；正文中的文件站链接继续作为可点击资源页显示。
 
 ## Gofile 官方 API
@@ -45,7 +45,7 @@ Mix 同款队列切换；正文中的文件站链接继续作为可点击资源�
   证明 token 有效；同一 token 请求 `GET /contents/OS2Qz9` 返回 HTTP 401、
   `status=error-notPremium`。拒绝原因是账户套餐，不是 token 错误。
 
-Peach 新增独立的 Gofile API token 输入；配置后递归读取 API 返回的 `children`，只保留
+MediaNfo 新增独立的 Gofile API token 输入；配置后递归读取 API 返回的 `children`，只保留
 MIME 为图片或视频的文件。文件直链留在服务端 metadata，浏览器只收到媒体序号、名称、
 类型与缩略图；播放由 `/follow-stream` 代理，token 仍只进上游请求头。
 
@@ -67,6 +67,6 @@ FANBOX Cookie 是另一份本机可选凭据，只发给 `api.fanbox.cc`，用�
 - `video#main_image source` 给 MP4，`poster` 给封面；信息表给精确 UTC 时间、28.4 秒、
   标签、上传者和原始出处 `https://subscribestar.adult/posts/2639932`。
 
-Peach 以标签页为有界列表、逐条详情补全出处。该帖子归一为
+MediaNfo 以标签页为有界列表、逐条详情补全出处。该帖子归一为
 `subscribestar:2639932`，与其他来源声明的同一 SubscribeStar 帖精确合并；标签拼出的
 展示名不参与标题模糊去重。

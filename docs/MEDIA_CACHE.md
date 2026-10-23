@@ -1,6 +1,6 @@
 # 媒体缓存
 
-远程媒体缓存在本机数据目录 `peach-data/generated/remote-media/`，不进入 Git。DMM 样张继续使用 `generated/sample-cache/`，已安装封面、头像和 favicon 继续复用各自目录。
+远程媒体缓存在本机数据目录 `medianfo-data/generated/remote-media/`，不进入 Git。DMM 样张继续使用 `generated/sample-cache/`，已安装封面、头像和 favicon 继续复用各自目录。
 
 | 内容 | 保存与刷新 |
 | --- | --- |

@@ -1,12 +1,12 @@
 ---
-name: peach-batch-jobs
+name: medianfo-batch-jobs
 description: 在用户说抽帧、九宫格、probe、sheets、creator_boards、刮削、批量、长任务、限流、续跑、流量预算或磁盘余量时使用。
 ---
 
 # 长跑批处理与流量边界
 
 最后复核：2026-10-18
-证据来源：`scripts/probe.py`、`scripts/sheets.py`、`scripts/traffic_watch.py`、`src/peach/jobs.py`、相关单元测试与 ADR-0015。
+证据来源：`scripts/probe.py`、`scripts/sheets.py`、`scripts/traffic_watch.py`、`src/medianfo/jobs.py`、相关单元测试与 ADR-0015。
 
 ## 失败值
 

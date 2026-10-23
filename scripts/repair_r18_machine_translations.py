@@ -33,11 +33,11 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import GENERATED_DIR, SOURCES_DIR
-from peach.entities import normalize_entity_name, rewrite_flat_projection
-from peach.field_owners import auto_owner, owner_of, write_owned_fields
-from peach.review_csv import write_rows
-from peach.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
+from medianfo.config import GENERATED_DIR, SOURCES_DIR
+from medianfo.entities import normalize_entity_name, rewrite_flat_projection
+from medianfo.field_owners import auto_owner, owner_of, write_owned_fields
+from medianfo.review_csv import write_rows
+from medianfo.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
 
 
 SOURCE_OWNER = auto_owner("r18dev")
@@ -190,7 +190,7 @@ ENTITY_FIELDS = (
 
 
 def _payload(path: Path) -> dict[str, object] | None:
-    """快照正文。Javinizer-Go 的快照把作品包在 ``result`` 里，Peach 自己的直接是作品。"""
+    """快照正文。Javinizer-Go 的快照把作品包在 ``result`` 里，MediaNfo 自己的直接是作品。"""
     payload = _snapshot(path)
     if payload is not None and isinstance(payload.get("result"), dict):
         return payload["result"]

@@ -3,7 +3,7 @@ import { realDuration } from '@peach/legacy/core';
 
 import type { PlayerItem } from './types';
 
-const KEY = 'peach.playback-position.v1';
+const KEY = 'medianfo.playback-position.v1';
 const tracking = new WeakMap<HTMLVideoElement, () => void>();
 
 export function stopPlaybackPosition(video: HTMLVideoElement): void {

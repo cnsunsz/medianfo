@@ -19,14 +19,14 @@ from unittest import mock
 
 from datetime import datetime, timezone
 
-from peach import follow_image_dims, scripting
-from peach.follow_sources import FollowCandidate, SourceFetch
-from peach.follow_store import FollowStore
-from peach.http import HttpResponse
-from peach.migrations import upgrade
-from peach.scan import medium_of
+from medianfo import follow_image_dims, scripting
+from medianfo.follow_sources import FollowCandidate, SourceFetch
+from medianfo.follow_store import FollowStore
+from medianfo.http import HttpResponse
+from medianfo.migrations import upgrade
+from medianfo.scan import medium_of
 from support.ledger import fresh_ledger
-from peach.classification import is_probable_mainstream_release, is_structural_creator
+from medianfo.classification import is_probable_mainstream_release, is_structural_creator
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -60,7 +60,7 @@ class ProjectBoardTests(unittest.TestCase):
 
     def issue(self, **changes):
         return {"__typename": "Issue", "state": "OPEN", "labels": {"nodes": []},
-                "repository": {"nameWithOwner": "peach-mitao/peach"}, **changes}
+                "repository": {"nameWithOwner": "cnsunsz/medianfo"}, **changes}
 
     def test_merge_and_publication_keep_open_issue_waiting_for_acceptance(self):
         release = {"tag_name": "v1.2.0", "html_url": "https://example.test/release"}
@@ -83,12 +83,12 @@ class ProjectBoardTests(unittest.TestCase):
         self.assertEqual(self.script.decision(waiting, {}, [{"merged": True}], None)["Status"], "待评估")
 
     def test_reference_lines_exclude_other_repositories_and_casual_mentions(self):
-        body = "参考 #64 的讨论\nRefs #65, peach-mitao/peach#66, other/repo#67\nCloses #68"
-        self.assertEqual(self.script.references(body, "peach-mitao/peach"),
-                         {f"peach-mitao/peach#{number}" for number in (65, 66, 68)})
+        body = "参考 #64 的讨论\nRefs #65, cnsunsz/medianfo#66, other/repo#67\nCloses #68"
+        self.assertEqual(self.script.references(body, "cnsunsz/medianfo"),
+                         {f"cnsunsz/medianfo#{number}" for number in (65, 66, 68)})
 
     def test_migrated_references_deduplicate_without_cross_repository_number_collision(self):
-        main, planning = "peach-mitao/peach", "peach-mitao/peach-roadmap"
+        main, planning = "cnsunsz/medianfo", "cnsunsz/medianfo-roadmap"
         config = {"repository": main, "issue_repositories": [main, planning],
                   "issue_aliases": {f"{main}#70": f"{planning}#1"}}
         pr = {"state": "MERGED", "merged": True, "mergeCommit": {"oid": "a" * 40}, "url": "https://example.test/pr",
@@ -114,7 +114,7 @@ class ProjectBoardTests(unittest.TestCase):
         ancestry.assert_called_once_with("b" * 40, "origin/master")
 
     def test_planning_poll_includes_closed_issues_and_alias_cycles_fail(self):
-        main, planning = "peach-mitao/peach", "peach-mitao/peach-roadmap"
+        main, planning = "cnsunsz/medianfo", "cnsunsz/medianfo-roadmap"
         closed = self.issue(id="closed", state="CLOSED")
         with mock.patch.object(self.script, "connection", side_effect=[[], [closed]]) as read:
             result = self.script.incoming_issues({"repository": main, "planning_repository": planning,
@@ -137,7 +137,7 @@ class ProjectBoardTests(unittest.TestCase):
         fields += [{"id": "status", "name": "Status", "options": [{"id": "verify", "name": "待验证"}]},
                    {"id": "delivery", "name": "交付进度", "options": [{"id": "published", "name": "已发布"}]},
                    {"id": "source", "name": "来源", "options": [{"id": "feedback", "name": "用户反馈"}, {"id": "plan", "name": "维护者待办"}]}]
-        issue = self.issue(id="issue", number=65, title="历史导入", author={"login": "visitor"}, url="https://github.com/peach-mitao/peach/issues/65")
+        issue = self.issue(id="issue", number=65, title="历史导入", author={"login": "visitor"}, url="https://github.com/cnsunsz/medianfo/issues/65")
         item = {"id": "item", "content": issue, "isArchived": False, "fieldValues": {"nodes": []}}
         archived = {**item, "id": "archive", "isArchived": True, "content": {**issue, "id": "old", "number": 90}}
         draft = {"id": "draft", "isArchived": False, "content": {"__typename": "DraftIssue", "id": "draft-content"}}
@@ -164,11 +164,11 @@ class ProjectBoardTests(unittest.TestCase):
         with mock.patch.object(self.script, "graphql", side_effect=api_result), \
                 mock.patch.object(self.script, "gh", return_value=releases), \
                 mock.patch.object(self.script, "ancestor", return_value=True):
-            changes = self.script.reconcile({"project_id": "project", "repository": "peach-mitao/peach",
-                                              "implementation_commits": {"peach-mitao/peach#65": [commit]}}, apply=True)
-            maintained = self.script.reconcile({"project_id": "project", "repository": "peach-mitao/peach",
-                                                "planning_repository": "peach-mitao/peach",
-                                                "implementation_commits": {"peach-mitao/peach#65": [commit]}}, apply=False)
+            changes = self.script.reconcile({"project_id": "project", "repository": "cnsunsz/medianfo",
+                                              "implementation_commits": {"cnsunsz/medianfo#65": [commit]}}, apply=True)
+            maintained = self.script.reconcile({"project_id": "project", "repository": "cnsunsz/medianfo",
+                                                "planning_repository": "cnsunsz/medianfo",
+                                                "implementation_commits": {"cnsunsz/medianfo#65": [commit]}}, apply=False)
         self.assertEqual({change["number"] for change in changes}, {65})
         actual = {change["field"]: change["value"] for change in changes}
         self.assertEqual(actual["发布版本"], "v0.43.0")
@@ -203,8 +203,8 @@ class ProjectBoardTests(unittest.TestCase):
         candidates = {"private-draft": internal}
         with mock.patch.object(self.script, "connection", return_value=[issue]), \
                 mock.patch.object(self.script, "graphql", return_value={"node": pr}) as api:
-            self.script.include_incoming({"repository": "peach-mitao/peach", "project_id": "public", "issues_only": True},
-                                         candidates, [pr], {"repository": {"full_name": "peach-mitao/peach"},
+            self.script.include_incoming({"repository": "cnsunsz/medianfo", "project_id": "public", "issues_only": True},
+                                         candidates, [pr], {"repository": {"full_name": "cnsunsz/medianfo"},
                                                             "pull_request": {"node_id": "pr"}}, False)
         self.assertEqual(set(candidates), {"private-draft", "public-issue"})
         self.assertIs(candidates["private-draft"], internal)
@@ -215,7 +215,7 @@ class UpdateTaskSmokeTests(unittest.TestCase):
     def test_dry_run_does_not_open_artifacts_or_create_installation_data(self):
         with mock.patch.dict(sys.modules, {'smoke_desktop': load_script('smoke_desktop')}):
             script = load_script('smoke_update_tasks')
-        with mock.patch.object(sys, 'argv', ['smoke_update_tasks.py', 'missing/Peach.exe']), \
+        with mock.patch.object(sys, 'argv', ['smoke_update_tasks.py', 'missing/MediaNfo.exe']), \
                 mock.patch.object(script, 'smoke_directory') as directory, redirect_stdout(io.StringIO()):
             self.assertEqual(script.main(), 0)
         directory.assert_not_called()
@@ -227,17 +227,17 @@ class DesktopSmokeTests(unittest.TestCase):
         cls.script = load_script("smoke_desktop")
 
     def test_smoke_environment_disables_remote_reporting_before_startup(self):
-        from peach import remote_reporting
+        from medianfo import remote_reporting
         with tempfile.TemporaryDirectory() as directory:
             data = Path(directory).resolve() / 'data'
             environment = self.script.smoke_environment(data)
-            self.assertEqual(environment['PEACH_DATA_ROOT'], str(data))
+            self.assertEqual(environment['MEDIANFO_DATA_ROOT'], str(data))
             config = SimpleNamespace(directory=lambda name: data / name)
             self.assertEqual(remote_reporting.consent(config), {
                 'usage': False, 'errors': False, 'revision': 'desktop-smoke',
             })
             with mock.patch.dict(os.environ, {
-                    'PEACH_SENTRY_DSN': 'https://public@o1.ingest.us.sentry.io/1',
+                    'MEDIANFO_SENTRY_DSN': 'https://public@o1.ingest.us.sentry.io/1',
                     }), mock.patch.object(remote_reporting, '_disabled', False), \
                     mock.patch.object(remote_reporting, '_new_client') as client:
                 remote_reporting.usage(config)
@@ -314,9 +314,9 @@ class DesktopSmokeTests(unittest.TestCase):
         with mock.patch.dict(os.environ, {"SystemRoot": "C:/Windows"}), \
                 mock.patch.object(self.script.subprocess, "run",
                                   return_value=SimpleNamespace(stdout="42")) as run:
-            executable = Path("C:/isolated/Peach.exe")
+            executable = Path("C:/isolated/MediaNfo.exe")
             self.assertEqual(self.script.artifact_processes(executable), [42])
-        self.assertEqual(run.call_args.kwargs["env"]["PEACH_SMOKE_EXECUTABLE"], str(executable))
+        self.assertEqual(run.call_args.kwargs["env"]["MEDIANFO_SMOKE_EXECUTABLE"], str(executable))
         self.assertIn("-NonInteractive", run.call_args.args[0])
 
     def test_health_wait_accepts_a_detached_launcher(self):
@@ -334,7 +334,7 @@ class DesktopSmokeTests(unittest.TestCase):
             watchdogs.mkdir(parents=True)
             (watchdogs / "session.json").write_text("{}", encoding="utf-8")
             (watchdogs / "session.ready").write_text("43", encoding="utf-8")
-            executable = root / "Peach.exe"
+            executable = root / "MediaNfo.exe"
             launcher = mock.Mock()
             with mock.patch.dict(os.environ, {"SystemRoot": "C:/Windows"}), \
                     mock.patch.object(self.script, "artifact_processes", side_effect=[[42, 43], []]), \
@@ -352,7 +352,7 @@ class DesktopSmokeTests(unittest.TestCase):
     def test_setup_failure_still_stops_tray_and_checks_all_artifact_processes(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
-            executable = root / "Peach.exe"
+            executable = root / "MediaNfo.exe"
             process = mock.Mock()
 
             def wait_for(check, description, **_kwargs):
@@ -408,8 +408,8 @@ class Sha1SyncOptionsTests(unittest.TestCase):
     def test_explicit_paths_override_environment_defaults(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
-            environment = {"PEACH_115_COOKIE_FILE": str(root / "env-cookie.txt"),
-                           "PEACH_115_DUPES_OUT": str(root / "env-report.csv")}
+            environment = {"MEDIANFO_115_COOKIE_FILE": str(root / "env-cookie.txt"),
+                           "MEDIANFO_115_DUPES_OUT": str(root / "env-report.csv")}
             with mock.patch.dict("os.environ", environment):
                 defaults = self.script.parse_args([])
                 explicit = self.script.parse_args([
@@ -458,17 +458,17 @@ class LocalTlsDirectoryTests(unittest.TestCase):
             "$ErrorActionPreference = 'Stop'\n"
             "$TlsTokens = $null\n$TlsErrors = $null\n"
             "$TlsAst = [System.Management.Automation.Language.Parser]::ParseFile("
-            "$env:PEACH_TLS_SCRIPT, [ref]$TlsTokens, [ref]$TlsErrors)\n"
+            "$env:MEDIANFO_TLS_SCRIPT, [ref]$TlsTokens, [ref]$TlsErrors)\n"
             "$TlsFunction = $TlsAst.Find({ param($TlsNode) "
             "$TlsNode -is [System.Management.Automation.Language.FunctionDefinitionAst] "
-            "-and $TlsNode.Name -eq 'Resolve-PeachTlsDirectory' }, $true)\n"
+            "-and $TlsNode.Name -eq 'Resolve-MediaNfoTlsDirectory' }, $true)\n"
             ". ([ScriptBlock]::Create($TlsFunction.Extent.Text))\n"
-            "Resolve-PeachTlsDirectory -RequestedDirectory $env:PEACH_TLS_OVERRIDE "
-            "-ProjectRoot $env:PEACH_TLS_PROJECT\n",
+            "Resolve-MediaNfoTlsDirectory -RequestedDirectory $env:MEDIANFO_TLS_OVERRIDE "
+            "-ProjectRoot $env:MEDIANFO_TLS_PROJECT\n",
             encoding="utf-8")
-        environment = dict(os.environ, PEACH_DATA_ROOT=str(root / "data"),
-                           PEACH_TLS_SCRIPT=str(ROOT / "scripts" / "setup_local_tls.ps1"),
-                           PEACH_TLS_PROJECT=str(ROOT), PEACH_TLS_OVERRIDE=override)
+        environment = dict(os.environ, MEDIANFO_DATA_ROOT=str(root / "data"),
+                           MEDIANFO_TLS_SCRIPT=str(ROOT / "scripts" / "setup_local_tls.ps1"),
+                           MEDIANFO_TLS_PROJECT=str(ROOT), MEDIANFO_TLS_OVERRIDE=override)
         return subprocess.run([shutil.which("pwsh"), "-NoProfile", "-File", str(harness)],
                               env=environment, capture_output=True, text=True, encoding="utf-8",
                               check=False, timeout=30)
@@ -523,7 +523,7 @@ class PosixTlsDirectoryTests(unittest.TestCase):
         (project / ".venv" / "bin").mkdir(parents=True)
         interpreter = project / ".venv" / "bin" / "python"
         interpreter.write_text(
-            '#!/bin/sh\nPYTHONPATH="$PEACH_TLS_TEST_SOURCE" exec "$PEACH_TLS_TEST_PYTHON" "$@"\n',
+            '#!/bin/sh\nPYTHONPATH="$MEDIANFO_TLS_TEST_SOURCE" exec "$MEDIANFO_TLS_TEST_PYTHON" "$@"\n',
             encoding="utf-8")
         interpreter.chmod(0o755)
         shutil.copyfile(ROOT / "scripts" / "resolve_tls_directory.py",
@@ -532,9 +532,9 @@ class PosixTlsDirectoryTests(unittest.TestCase):
         # 只运行路径解析段，证书签发与私钥读取不进入夹具。
         harness = project / "scripts" / "resolve-tls.sh"
         harness.write_text(source.partition("CA_CRT=")[0] + 'printf \'%s\\n\' "$TLS_DIR"\n', encoding="utf-8")
-        environment = dict(os.environ, PEACH_DATA_ROOT=str(root / "data"), PEACH_TLS_DIR=override,
-                           PEACH_TLS_TEST_PYTHON=Path(sys.executable).resolve().as_posix(),
-                           PEACH_TLS_TEST_SOURCE=str(ROOT / "src"))
+        environment = dict(os.environ, MEDIANFO_DATA_ROOT=str(root / "data"), MEDIANFO_TLS_DIR=override,
+                           MEDIANFO_TLS_TEST_PYTHON=Path(sys.executable).resolve().as_posix(),
+                           MEDIANFO_TLS_TEST_SOURCE=str(ROOT / "src"))
         return subprocess.run([shell, harness.as_posix()], env=environment,
                               capture_output=True, text=True, encoding="utf-8", check=False, timeout=30)
 
@@ -1109,7 +1109,7 @@ class LibraryDirectoryTests(unittest.TestCase):
         return ledger, translate, calls, operations, patches
 
     def test_provider_rejection_is_recorded_and_skipped_on_resume(self):
-        from peach.organize_clouddrive import MoveNotExecuted
+        from medianfo.organize_clouddrive import MoveNotExecuted
         script = self.script
         def reject(source):
             raise MoveNotExecuted('官方接口拒绝')
@@ -1192,7 +1192,7 @@ class LibraryDirectoryTests(unittest.TestCase):
         self.assertIsNone(row['code'])
 
     def test_mixed_creator_files_keep_unknown_media_and_original_structure(self):
-        from peach.entity_classification import write_claim
+        from medianfo.entity_classification import write_claim
         script = self.script
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
@@ -1537,7 +1537,7 @@ class OperationalScriptTests(unittest.TestCase):
             )
             connection.commit(); connection.close()
 
-            from peach.metadata import auth_error
+            from medianfo.metadata import auth_error
             error = self.scrape_codes.MetadataProviderError
 
             class Walled:
@@ -1781,12 +1781,12 @@ class OperationalScriptTests(unittest.TestCase):
         这里守的是那条用例碰不到的：拒收别处源码的核对、主工作树定位和两边相同的测试域。"""
         windows = (ROOT / "scripts" / "test.ps1").read_text(encoding="utf-8")
         self.assertIn("rev-parse --git-common-dir", windows)
-        self.assertIn("peach.__file__", windows)
+        self.assertIn("medianfo.__file__", windows)
         self.assertIn("ValidateSet('full', 'auto', 'follow'", windows)
         # 两个平台各有一个入口，契约必须相同——否则「两边都要绿」只是句口号。
         posix = (ROOT / "scripts" / "test.sh").read_text(encoding="utf-8")
         self.assertIn("rev-parse --git-common-dir", posix)
-        self.assertIn("peach.__file__", posix)
+        self.assertIn("medianfo.__file__", posix)
         self.assertIn("full|auto|follow|catalog|media|sync|metadata|tooling|web|checks|core|packaging)", posix)
         # 文档里可以「提到」裸命令来说明它为什么不可信，但绝不能让它单独出现成为一条可照抄的指令。
         # 判据因此不是黑名单，而是：凡出现该命令的行，必须在同一行指向某个正式入口。
@@ -1824,7 +1824,7 @@ class OperationalScriptTests(unittest.TestCase):
         self.assertEqual(separator, marker)
         exec_line = next(line for line in tail.splitlines() if line.startswith("exec "))
         stub_line = exec_line.replace('"$PYTHON" scripts/test_runner.py',
-                                      '"$PEACH_PY" "$PEACH_STUB"', 1)
+                                      '"$MEDIANFO_PY" "$MEDIANFO_STUB"', 1)
         self.assertNotEqual(stub_line, exec_line)
 
         directory = Path(tempfile.mkdtemp()).resolve()
@@ -1837,8 +1837,8 @@ class OperationalScriptTests(unittest.TestCase):
         # 不按 shebang 找 Windows 上的 Python。
         entrypoint.write_text(
             f'{prologue}{marker}'
-            f'PEACH_PY={Path(sys.executable).as_posix()}\n'
-            f'PEACH_STUB={stub.as_posix()}\n'
+            f'MEDIANFO_PY={Path(sys.executable).as_posix()}\n'
+            f'MEDIANFO_STUB={stub.as_posix()}\n'
             f'{stub_line}\n', encoding="utf-8")
 
         # `/bin/bash` 在 macOS 上就是那个 3.2；装了新版 bash 的机器两个都跑。
@@ -1914,27 +1914,27 @@ class OperationalScriptTests(unittest.TestCase):
         runner = load_script("test_runner")
         pick = runner.scopes_for_changes
         # 前缀表：多个文件取并集，反斜杠路径也认。
-        self.assertEqual(pick(["src/peach/follow_store.py", "web/app.js"])[0], ("follow", "web"))
-        self.assertEqual(pick(["src\\peach\\tray.py"])[0], ("sync", "tooling"))
+        self.assertEqual(pick(["src/medianfo/follow_store.py", "web/app.js"])[0], ("follow", "web"))
+        self.assertEqual(pick(["src\\medianfo\\tray.py"])[0], ("sync", "tooling"))
         self.assertEqual(pick(["scripts/probe.py", "pyproject.toml", ".github/workflows/test.yml"])[0],
                          ("full",))
         self.assertEqual(pick(["README.md", "docs/STATUS.md", ".claude/skills/x/SKILL.md"])[0],
                          ("checks", "tooling"))
-        self.assertEqual(pick(["src/peach/web_entity.py", "src/peach/routes_pages.py"])[0],
+        self.assertEqual(pick(["src/medianfo/web_entity.py", "src/medianfo/routes_pages.py"])[0],
                          ("catalog", "tooling", "web"))
-        self.assertEqual(pick(["src/peach/web_follow.py"])[0], ("follow",))
+        self.assertEqual(pick(["src/medianfo/web_follow.py"])[0], ("follow",))
         # 模块名 ↔ 测试文件名推断，登记在几个域就跑几个域。
-        self.assertEqual(pick(["src/peach/media.py"])[0], ("media",))
-        self.assertEqual(pick(["src/peach/jobs.py"])[0], ("media", "tooling"))
+        self.assertEqual(pick(["src/medianfo/media.py"])[0], ("media",))
+        self.assertEqual(pick(["src/medianfo/jobs.py"])[0], ("media", "tooling"))
         # `test_metadata_library.py` 也登记在 web 域（它有一段读 `web/app.js`），
         # 名字又落在 `test_metadata_` 这一族里，于是这个模块把 web 域一起带上。
         # 宽一档是安全的那一侧，web 域全是源码文本断言，代价只有几秒。
-        self.assertEqual(pick(["src/peach/metadata.py"])[0], ("metadata", "web"))
+        self.assertEqual(pick(["src/medianfo/metadata.py"])[0], ("metadata", "web"))
         # 测试文件按自己的文件名归域；公共门槛文件归 tooling。
         self.assertEqual(pick(["tests/test_certs.py"])[0], ("sync", "tooling"))
         self.assertEqual(pick(["tests/test_context_budget.py"])[0], ("tooling",))
-        scopes, why = pick(["src/peach/follow.py", "web/app.js"])
-        self.assertTrue(why.startswith("Peach auto scope: follow, web <- "), why)
+        scopes, why = pick(["src/medianfo/follow.py", "web/app.js"])
+        self.assertTrue(why.startswith("MediaNfo auto scope: follow, web <- "), why)
         self.assertIn("web: web/app.js", why)
         self.assertEqual(pick([])[0], ("checks",))
         # full 覆盖公共设施和未知影响面。
@@ -1944,10 +1944,10 @@ class OperationalScriptTests(unittest.TestCase):
                                 (["package-lock.json"], "必须 full"),
                                 (["frontend/package.json"], "必须 full"),
                                 (["LICENSE"], "映射不到"),
-                                (["src/peach/kanji.py", "web/app.js"], "映射不到")):
+                                (["src/medianfo/kanji.py", "web/app.js"], "映射不到")):
             scopes, why = pick(paths)
             self.assertEqual(scopes, ("full",), paths)
-            self.assertTrue(why.startswith("Peach auto scope: full <- "), why)
+            self.assertTrue(why.startswith("MediaNfo auto scope: full <- "), why)
             self.assertIn(fragment, why)
 
     def test_the_full_runner_can_import_repository_scripts(self):
@@ -2135,7 +2135,7 @@ class OperationalScriptTests(unittest.TestCase):
         )
         self.assertEqual(
             self.clean_names._join("/tmp/peach", "ABW-234.mp4"),
-            "/tmp/peach/ABW-234.mp4",
+            "/tmp/medianfo/ABW-234.mp4",
         )
 
     def test_filename_cleanup_supports_mounted_cloud_sources(self):
@@ -2378,7 +2378,7 @@ class OperationalScriptTests(unittest.TestCase):
         self.assertEqual(rows[0]["review"], "待复核账号归属")
 
     def test_studio_social_scan_checks_response_and_completes_age_gate(self):
-        from peach.http import HttpResponse
+        from medianfo.http import HttpResponse
         module = load_script("find_studio_socials")
         gate = ('<a href="https://x.com/main_brand">X</a>'
                 '<a href="/top">はい</a>').encode()
@@ -2452,7 +2452,7 @@ class OperationalScriptTests(unittest.TestCase):
         """脚本是给人直接敲的，不该要求先设 PYTHONPATH。
 
         2026-09-02 交给用户的 `flatten_release_dirs.py --apply` 第一行就
-        ModuleNotFoundError：`from peach.catalog_rules import ...` 在裸 python 下
+        ModuleNotFoundError：`from medianfo.catalog_rules import ...` 在裸 python 下
         找不到 `src`。仓库里 `job_status.py` 等脚本早就带着这段引导，只是没有门槛
         逼后来的脚本跟上。判据只看「导入 peach 之前有没有把 src 挂进 sys.path」，
         不规定写法。
@@ -2463,7 +2463,7 @@ class OperationalScriptTests(unittest.TestCase):
             lines = source.splitlines()
             peach_import = next(
                 (index for index, line in enumerate(lines)
-                 if line.startswith(("from peach.", "import peach"))), -1)
+                 if line.startswith(("from medianfo.", "import peach"))), -1)
             if peach_import < 0:
                 continue
             head = "\n".join(lines[:peach_import])
@@ -2478,7 +2478,7 @@ class OperationalScriptTests(unittest.TestCase):
 
         from PIL import Image
 
-        from peach.images import PAD, REJECT, SQUARE, classify, pad_to_square
+        from medianfo.images import PAD, REJECT, SQUARE, classify, pad_to_square
 
         self.assertEqual(classify(512, 512)[0], SQUARE)
         self.assertEqual(classify(600, 500)[0], SQUARE, "轻微非方图不必补")
@@ -2516,7 +2516,7 @@ class OperationalScriptTests(unittest.TestCase):
 
         from PIL import Image
 
-        from peach.images import MARK, PLATE_CONTENT_RATIO, bake_square, classify_plate
+        from medianfo.images import MARK, PLATE_CONTENT_RATIO, bake_square, classify_plate
 
         source = Image.new("RGBA", (400, 100), (0, 0, 0, 0))
         for x in range(10, 310):
@@ -2544,7 +2544,7 @@ class OperationalScriptTests(unittest.TestCase):
 
         from PIL import Image
 
-        from peach.images import TILE, bake_square, classify_plate
+        from medianfo.images import TILE, bake_square, classify_plate
 
         def opaque(size, color):
             buffer = io.BytesIO()
@@ -2575,7 +2575,7 @@ class OperationalScriptTests(unittest.TestCase):
 
         from PIL import Image
 
-        from peach.images import bake_square
+        from medianfo.images import bake_square
 
         def png(image):
             buffer = io.BytesIO()
@@ -2613,7 +2613,7 @@ class OperationalScriptTests(unittest.TestCase):
 
         from PIL import Image, ImageDraw
 
-        from peach.images import PLATE_CONTENT_RATIO, refit_plate
+        from medianfo.images import PLATE_CONTENT_RATIO, refit_plate
 
         def png(image):
             buffer = io.BytesIO()
@@ -2674,7 +2674,7 @@ class OperationalScriptTests(unittest.TestCase):
 
         from PIL import Image, ImageDraw
 
-        from peach.images import PLATE_MIN_SIDE, PLATE_MIN_SPAN, refit_plate
+        from medianfo.images import PLATE_MIN_SIDE, PLATE_MIN_SPAN, refit_plate
 
         def png(image):
             buffer = io.BytesIO()
@@ -2725,7 +2725,7 @@ class OperationalScriptTests(unittest.TestCase):
         """
         import xml.etree.ElementTree as ElementTree
 
-        from peach.images import (PLATE_CONTENT_RATIO, SVG_NS, bake_square_vector,
+        from medianfo.images import (PLATE_CONTENT_RATIO, SVG_NS, bake_square_vector,
                                   vector_image_size)
 
         def svg(body, box="0 0 207 70"):
@@ -3221,7 +3221,7 @@ class OperationalScriptTests(unittest.TestCase):
             choice = type("C", (), {"path": "ffmpeg"})
             with mock.patch.object(sheets, "make_sheet", fake_sheet), \
                  mock.patch.object(sheets.FFmpegResolver, "ffmpeg", lambda _self: choice), \
-                 mock.patch("peach.jobs.shutil.disk_usage", shrinking_disk), \
+                 mock.patch("medianfo.jobs.shutil.disk_usage", shrinking_disk), \
                  redirect_stdout(io.StringIO()):
                 code = sheets.run(args)
 
@@ -3254,7 +3254,7 @@ class OperationalScriptTests(unittest.TestCase):
 
     def test_probe_never_records_an_unknown_duration_as_zero(self):
         """0 会同时躲过 probe 的 `duration IS NULL` 和抽帧的 `duration>2`，永久卡住。"""
-        from peach import media_probe as module
+        from medianfo import media_probe as module
 
         class _Empty:
             returncode = 0
@@ -3891,7 +3891,7 @@ class OperationalScriptTests(unittest.TestCase):
             # avbase 排到末尾之后。
             self.assertEqual([c["source"] for c in candidates], ["javdb", "javbus", "avbase"])
             # 候选记的解析器名与采集任务的证据文件同一份（`PROVIDER_NAMES`）。
-            from peach.library_processing import PROVIDER_NAMES
+            from medianfo.library_processing import PROVIDER_NAMES
             self.assertEqual(candidates[0]["provider"], PROVIDER_NAMES["javdb"])
             health = output.with_name("metadata-source-health-chain.csv")
             with health.open(encoding="utf-8-sig", newline="") as handle:
@@ -3904,9 +3904,9 @@ class OperationalScriptTests(unittest.TestCase):
 
     def test_censored_tags_can_be_recollected_and_rejudged_when_tags_are_already_present(self):
         """按番号文件重取候选不依赖标签为空；临时库的旧自动标签按 JavDB 策略重判。"""
-        from peach.entities import upsert_asset_entity
-        from peach.metadata_auto_apply import auto_apply_metadata
-        from peach.repository import LedgerDatabase
+        from medianfo.entities import upsert_asset_entity
+        from medianfo.metadata_auto_apply import auto_apply_metadata
+        from medianfo.repository import LedgerDatabase
 
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp).resolve()
@@ -3992,8 +3992,8 @@ class OperationalScriptTests(unittest.TestCase):
 
     def test_chain_failures_are_translated_into_the_script_error_kinds(self):
         """正式链的四种异常各落一档：没有是定论，限流与预算是临时，401/403 是鉴权。"""
-        from peach.jav_cover_fetch import DeadlineExceeded, NotFound, Unavailable
-        from peach.scraping_access import SourcePaused
+        from medianfo.jav_cover_fetch import DeadlineExceeded, NotFound, Unavailable
+        from medianfo.scraping_access import SourcePaused
         translate = self.scrape_codes.translate_failure
         self.assertEqual((translate("javdb", NotFound("没有")).kind,
                           translate("javdb", NotFound("没有")).retryable), ("not_found", False))
@@ -4378,7 +4378,7 @@ class FlattenReleaseDirTests(unittest.TestCase):
 
     def test_ad_stripping_only_touches_the_head_and_tail(self):
         """欧美片名里的 `[Vixen.com]` 是厂牌，不是广告；删中间那段等于丢真信息。"""
-        from peach.catalog_rules import strip_promo_markers
+        from medianfo.catalog_rules import strip_promo_markers
         self.assertEqual(strip_promo_markers("[44x.me]tre-080"), "tre-080")
         self.assertEqual(strip_promo_markers("MattieDoll - pornhub.com"), "MattieDoll")
         self.assertEqual(strip_promo_markers("[98t.tv][98t.tv]ABW-251"), "ABW-251",
@@ -4841,7 +4841,7 @@ class PinnedReleaseTests(unittest.TestCase):
             ("git", "status", "--porcelain"): "",
             ("git", "branch", "--show-current"): "master",
             ("git", "rev-parse", f"{self.SHA}^{{commit}}"): self.SHA,
-            ("git", "show", f"{self.SHA}:src/peach/__init__.py"): '__version__ = "0.37.0"',
+            ("git", "show", f"{self.SHA}:src/medianfo/__init__.py"): '__version__ = "0.37.0"',
             ("git", "show", f"{self.SHA}:CHANGELOG.md"): self.NOTES,
             ("git", "tag", "--list", "v0.37.0"): "",
         }
@@ -4891,7 +4891,7 @@ class PinnedReleaseTests(unittest.TestCase):
             {("git", "status", "--porcelain"): " M file"},
             {("git", "branch", "--show-current"): "feature"},
             {("git", "rev-parse", f"{self.SHA}^{{commit}}"): "2" * 40},
-            {("git", "show", f"{self.SHA}:src/peach/__init__.py"): ""},
+            {("git", "show", f"{self.SHA}:src/medianfo/__init__.py"): ""},
             {("git", "show", f"{self.SHA}:CHANGELOG.md"): "## [未发布]\n"},
             {("git", "show", f"{self.SHA}:CHANGELOG.md"): self.NOTES.replace("**界面**：", "web：")},
             {("git", "tag", "--list", "v0.37.0"): "v0.37.0"},
@@ -4918,7 +4918,7 @@ class PinnedReleaseTests(unittest.TestCase):
                 "--repo", "owner/repo", "--release-sha", self.SHA, "--apply"]), 0)
         self.assertEqual(plan.call_args_list, [mock.call("owner/repo", self.SHA)] * 2)
         self.assertEqual(ShipTests._writes(command), [
-            ("git", "tag", "-a", "v0.37.0", self.SHA, "-m", "Peach v0.37.0 Windows 测试版"),
+            ("git", "tag", "-a", "v0.37.0", self.SHA, "-m", "MediaNfo v0.37.0 Windows 测试版"),
             ("git", "push", "https://github.com/owner/repo.git", "refs/tags/v0.37.0"),
         ])
 
@@ -4939,7 +4939,7 @@ class ShipTests(unittest.TestCase):
 
     #: 一次干净的起点：在 master 上，工作区正好是那两份定版文件，本地没有这个标签。
     SHELL = {("git", "branch", "--show-current"): "master",
-             ("git", "status", "--porcelain"): " M CHANGELOG.md\n M src/peach/__init__.py",
+             ("git", "status", "--porcelain"): " M CHANGELOG.md\n M src/medianfo/__init__.py",
              ("git", "rev-parse", "HEAD"): "abc",
              ("git", "tag", "--list", "v0.8.0"): ""}
 
@@ -4987,18 +4987,18 @@ class ShipTests(unittest.TestCase):
         """`git status --porcelain` 首行以空格开头；按列取路径前不能对整段输出 strip。
 
         2026-09-08 定版时两份文件都在，发布却被拒：第一行被读成 `HANGELOG.md`。"""
-        porcelain = " M CHANGELOG.md\n M src/peach/__init__.py\n"
+        porcelain = " M CHANGELOG.md\n M src/medianfo/__init__.py\n"
         with mock.patch.object(self.release.subprocess, "run",
                                return_value=mock.Mock(stdout=porcelain)):
             self.assertEqual(self.release._pending_files(),
-                             ["CHANGELOG.md", "src/peach/__init__.py"])
+                             ["CHANGELOG.md", "src/medianfo/__init__.py"])
 
     def test_unrelated_changes_are_never_carried_into_the_release_commit(self):
         """标签指向发布提交，夹带什么就等于发出去什么。"""
         dirty = {("git", "status", "--porcelain"):
-                 " M CHANGELOG.md\n M src/peach/api.py\n M src/peach/__init__.py"}
+                 " M CHANGELOG.md\n M src/medianfo/api.py\n M src/medianfo/__init__.py"}
         with self._shell(dirty) as command, self._api(), self._version(), self._document(), \
-                self.assertRaisesRegex(ValueError, "src/peach/api.py"):
+                self.assertRaisesRegex(ValueError, "src/medianfo/api.py"):
             self.release.ship("owner/repo", apply=True)
         self.assertEqual(self._writes(command), [])
 
@@ -5028,10 +5028,10 @@ class ShipTests(unittest.TestCase):
         with self._shell() as command, self._api(), self._version(), self._document():
             result = self.release.ship("owner/repo", apply=True)
         self.assertEqual(self._writes(command), [
-            ("git", "add", "src/peach/__init__.py", "CHANGELOG.md"),
-            ("git", "-c", "peach.masterWriter=release", "commit", "-m", "chore(release): 版本 0.8.0"),
+            ("git", "add", "src/medianfo/__init__.py", "CHANGELOG.md"),
+            ("git", "-c", "medianfo.masterWriter=release", "commit", "-m", "chore(release): 版本 0.8.0"),
             ("git", "push", "https://github.com/owner/repo.git", "refs/heads/master"),
-            ("git", "tag", "-a", "v0.8.0", "abc", "-m", "Peach v0.8.0 Windows 测试版"),
+            ("git", "tag", "-a", "v0.8.0", "abc", "-m", "MediaNfo v0.8.0 Windows 测试版"),
             ("git", "push", "https://github.com/owner/repo.git", "refs/tags/v0.8.0"),
         ])
         self.assertEqual(result["test"], "test-url")
@@ -5042,7 +5042,7 @@ class ShipTests(unittest.TestCase):
                 self._document(), self.assertRaisesRegex(ValueError, "尚未通过"):
             self.release.ship("owner/repo", apply=True)
         issued = self._writes(command)
-        self.assertIn(("git", "-c", "peach.masterWriter=release", "commit",
+        self.assertIn(("git", "-c", "medianfo.masterWriter=release", "commit",
                        "-m", "chore(release): 版本 0.8.0"), issued)
         self.assertFalse([args for args in issued if "refs/tags/v0.8.0" in args], issued)
 
@@ -5053,7 +5053,7 @@ class ShipTests(unittest.TestCase):
             result = self.release.ship("owner/repo", apply=True)
         self.assertEqual((result["commit"], result["push"]), (False, False))
         self.assertEqual(self._writes(command), [
-            ("git", "tag", "-a", "v0.8.0", "abc", "-m", "Peach v0.8.0 Windows 测试版"),
+            ("git", "tag", "-a", "v0.8.0", "abc", "-m", "MediaNfo v0.8.0 Windows 测试版"),
             ("git", "push", "https://github.com/owner/repo.git", "refs/tags/v0.8.0"),
         ])
 

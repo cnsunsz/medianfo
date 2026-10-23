@@ -33,13 +33,13 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import GENERATED_DIR   # noqa: E402
-from peach.entities import agency_key, rejected_agencies   # noqa: E402
-from peach.review_csv import write_rows   # noqa: E402
-from peach.scripting import (   # noqa: E402
+from medianfo.config import GENERATED_DIR   # noqa: E402
+from medianfo.entities import agency_key, rejected_agencies   # noqa: E402
+from medianfo.review_csv import write_rows   # noqa: E402
+from medianfo.scripting import (   # noqa: E402
     add_ledger_write_args, counts_of, open_for_write, verify_after_write,
 )
-from peach.social_links import classify, host_owners, owner_key   # noqa: E402
+from medianfo.social_links import classify, host_owners, owner_key   # noqa: E402
 
 FIELDS = ("verdict", "entity_id", "performer", "link_id", "hostname",
           "label", "new_label", "link_kind", "new_link_kind", "agency", "note")

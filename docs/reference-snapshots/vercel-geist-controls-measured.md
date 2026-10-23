@@ -9,13 +9,13 @@
 
 ## 实测值
 
-Peach 配置页的产品取值（2026-09-05 定的间距）：文字按钮左右内边距为 14px，
+MediaNfo 配置页的产品取值（2026-09-05 定的间距）：文字按钮左右内边距为 14px，
 纯图标按钮保留正方形；下拉箭头距右边框 14px，文字右侧预留 42px。以下上游测量值保留为证据，
 实现采用这里的产品取值。删除用危险色，在线与离线用成功色与危险色，并保留文字状态。
 系统说明只在当前运行系统适用时显示；配置页验收使用完整主站外壳与完整运行信息。
 
 配置页补充取证（2026-09-05）：Vercel Toolbar 的手工截图；浅色页面与底栏为浅灰、
-正文为白色，外边框与底栏分隔线同色。Peach 对应使用 `--page`／`--surface`、`--ground`、
+正文为白色，外边框与底栏分隔线同色。MediaNfo 对应使用 `--page`／`--surface`、`--ground`、
 `--line` 和 6px 控件圆角；深色沿用项目色板。截图没有提供展开菜单的上游画面，展开行为沿用
 已取证的 `selectFieldHtml`／`wireSelectField`，不能只重画原生 select 的箭头。
 链接默认无下划线，悬停允许下划线；外链附右上角箭头图标。验收必须包含明暗主题和展开菜单。
@@ -31,9 +31,9 @@ Peach 配置页的产品取值（2026-09-05 定的间距）：文字按钮左右
 | `--geist-radius` | 6 px |
 | `--ds-gray-alpha-400` | `#ffffff24` |
 
-## Peach 复用了什么
+## MediaNfo 复用了什么
 
-2026-09-06 复核：官方 `https://vercel.com/geist/button` 明确导航使用 ButtonLink；首次设置完成页复用主站 `.geist-button.primary`，保持链接语义。`https://vercel.com/geist/label` 未给出「可选」专用颜色；Peach 自行采用已有 `--muted`、`--fs-sm` 与 400 字重。密码输入与其他文本字段共用首启样式。官方正文可读取；IAB 与 Chrome 控制均返回 `js execution timed out`，上游浏览器视觉实测未取得。
+2026-09-06 复核：官方 `https://vercel.com/geist/button` 明确导航使用 ButtonLink；首次设置完成页复用主站 `.geist-button.primary`，保持链接语义。`https://vercel.com/geist/label` 未给出「可选」专用颜色；MediaNfo 自行采用已有 `--muted`、`--fs-sm` 与 400 字重。密码输入与其他文本字段共用首启样式。官方正文可读取；IAB 与 Chrome 控制均返回 `js execution timed out`，上游浏览器视觉实测未取得。
 
 关注管理页（`web/css/22-followmanage.css`）据此：控件统一 32 px 高、14 px 字；
 圆角取根变量的 **6 px** 而不是按钮的 4 px；默认按钮描边透明，只有主操作填色。
@@ -87,7 +87,7 @@ Peach 配置页的产品取值（2026-09-05 定的间距）：文字按钮左右
 `tests/test_web_ui.py` 断言全站不再有字面整圆值，也断言上面几个选择器分别落在哪个
 token 上；样式表里除 iOS 那条之外出现任何字面字号都会红。
 
-## Peach 主动保留的差异
+## MediaNfo 主动保留的差异
 
 继续使用自己的 `--tungsten` 主色和既有暗色表面变量，不引入 Geist 的调色板或字体。
 这是有意的差异，不是没做完。
@@ -99,7 +99,7 @@ token 上；样式表里除 iOS 那条之外出现任何字面字号都会红。
   32×32px、圆角 6px；主操作高 36px、圆角 6px。
 - 圆形只用于 emoji 反馈等具有独立语义的动作，不是普通操作按钮的默认形状。
 
-因此 Peach 的普通操作与关闭按钮统一使用 `--control-radius:6px`；筛选 Tag 继续使用
+因此 MediaNfo 的普通操作与关闭按钮统一使用 `--control-radius:6px`；筛选 Tag 继续使用
 `--pill-radius`，图片左右切换继续保留圆形，因为它们是媒体空间导航而不是普通操作。
 本次同步检查确认 `design.md` 的锁定 SHA-256 未变化。
 
@@ -164,7 +164,7 @@ rule34video / rule34.xxx **未取得**：本机账本里没有这两个站的来
 - 官方 `https://api.fanbox.cc/creator.get?creatorId=lazyprocrast` 返回同一
   `userId=30917150` 与 `pixiv.pximg.net` 的 `user.iconUrl`；图片实载为 JPEG 160×160、
   14,534 字节。
-- Peach 只允许 `service=fanbox` 与数字 user id，固定访问 Pixiv/FANBOX 主机，并校验 API
+- MediaNfo 只允许 `service=fanbox` 与数字 user id，固定访问 Pixiv/FANBOX 主机，并校验 API
   返回的 user id 和图片主机；客户端不能提供任意 URL。界面先用官方头像，失败再用归档站。
 
 ## Select 的标签位置与危险按钮填色（2026-09-03）
@@ -182,10 +182,10 @@ Select 有两种标明用途的方式，工具行里能用的只有前者：
 行内并排一个文字标签的写法 Geist 没有。官方 Best Practices 另外写明 Label 是简短的
 Title Case 名词，直接作为 `<Select>` 的 prop 传，不是外挂的兄弟节点。
 
-Peach 的关注管理标题行没有控件上方的空间，于是取 prefix 图标那条：`.fmanagesort` 改成
+MediaNfo 的关注管理标题行没有控件上方的空间，于是取 prefix 图标那条：`.fmanagesort` 改成
 `position:relative`，图标绝对定位在 `left:9px`（16px 图标，视觉笔画到左边框约 10px，
 与右侧自绘箭头对称），`select` 左内距 31px。无障碍名称只剩 `aria-label="关注列表排序"`。
 
 Button 的 error 变体实测是**实心红填充**：背景 `oklch(0.5801 0.227 25.12)`、文字纯白，
-不是描红边加红字。Peach 的危险按钮静止态仍是安静的描边按钮，只把悬停态统一成
+不是描红边加红字。MediaNfo 的危险按钮静止态仍是安静的描边按钮，只把悬停态统一成
 `--drop` 实底加白字——暗色底上只换描边和文字色的话，两个状态几乎一样亮。

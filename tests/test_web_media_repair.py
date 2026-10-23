@@ -11,10 +11,10 @@ from pathlib import Path, PureWindowsPath
 from types import SimpleNamespace
 from unittest import mock
 
-from peach import web_contract as rm_web
-from peach import web_media_repair as rm_repair
-from peach.mp4recover import Recovery
-from peach.mp4repair import RepairUnavailable
+from medianfo import web_contract as rm_web
+from medianfo import web_media_repair as rm_repair
+from medianfo.mp4recover import Recovery
+from medianfo.mp4repair import RepairUnavailable
 
 from support.ledger import fresh_ledger
 

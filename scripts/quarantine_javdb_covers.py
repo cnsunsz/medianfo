@@ -8,8 +8,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 
-from peach.cover_artwork import has_javdb_source
-from peach.fsutil import atomic_write_text
+from medianfo.cover_artwork import has_javdb_source
+from medianfo.fsutil import atomic_write_text
 
 
 def main(argv=None):
@@ -20,7 +20,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     root, report = args.data_root.resolve(), args.report.resolve()
     if not report.is_relative_to(root / 'review'):
-        parser.error('备份区必须位于当前 Peach 数据目录的 review 内')
+        parser.error('备份区必须位于当前 MediaNfo 数据目录的 review 内')
     covers = root / 'generated/covers'
     paths = [path for path in sorted(covers.glob('*.jpg')) if has_javdb_source(path)]
     report.mkdir(parents=True, exist_ok=True)

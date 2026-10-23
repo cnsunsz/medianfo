@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""按番号批量取多来源资料，产出逐字段的 Peach 复核候选。
+"""按番号批量取多来源资料，产出逐字段的 MediaNfo 复核候选。
 
 走的是采集任务那条正式链（ADR-0044）：一个番号问谁、什么顺序、何时停由
 `peach.metadata_routes` 决定，来源解析器与凭据、限流、冷却都复用
@@ -29,17 +29,17 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach import __version__ as PEACH_VERSION
-from peach import metadata_routes
-from peach.catalog_rules import (RELEASE_EVIDENCE_KINDS, code_query_variants, is_jav_code,
+from medianfo import __version__ as MEDIANFO_VERSION
+from medianfo import metadata_routes
+from medianfo.catalog_rules import (RELEASE_EVIDENCE_KINDS, code_query_variants, is_jav_code,
                                  normalise_code_key, same_release_code)
-from peach.scripting import HostLimiter, open_readonly
-from peach.config import DATABASE_PATH, GENERATED_DIR, LOG_DIR, SECRETS_DIR, SOURCES_DIR, TOOLS_DIR
-from peach.genre_decisions import load_genre_decisions
-from peach.genre_taxonomy import CONTENT_GENRES, map_genres
-from peach.jobs import DiskGuard, JobPolicyError
-from peach.task_runs import cli_run
-from peach.metadata import (
+from medianfo.scripting import HostLimiter, open_readonly
+from medianfo.config import DATABASE_PATH, GENERATED_DIR, LOG_DIR, SECRETS_DIR, SOURCES_DIR, TOOLS_DIR
+from medianfo.genre_decisions import load_genre_decisions
+from medianfo.genre_taxonomy import CONTENT_GENRES, map_genres
+from medianfo.jobs import DiskGuard, JobPolicyError
+from medianfo.task_runs import cli_run
+from medianfo.metadata import (
     CATALOG_EVIDENCE_FIELDS,
     MetadataProviderError,
     auth_error,
@@ -48,13 +48,13 @@ from peach.metadata import (
     extract_peach_fields,
     identifies_code,
 )
-from peach.metadata_policy import (PEACH_FIELDS, POLICY_VERSION, SOURCE_SPECS, field_rank,
+from medianfo.metadata_policy import (MEDIANFO_FIELDS, POLICY_VERSION, SOURCE_SPECS, field_rank,
                                    preferred_tag_source, sort_candidates)
-from peach.platform import system_volume
-from peach.review_csv import ENCODING, read_rows, write_rows
-from peach.fsutil import atomic_write_text
-from peach.sources import Session
-from peach.sources.seesaa import SEESAA, WIKI_SOURCES as WIKI_SITES, WikiPages
+from medianfo.platform import system_volume
+from medianfo.review_csv import ENCODING, read_rows, write_rows
+from medianfo.fsutil import atomic_write_text
+from medianfo.sources import Session
+from medianfo.sources.seesaa import SEESAA, WIKI_SOURCES as WIKI_SITES, WikiPages
 
 
 _logf = None
@@ -74,7 +74,7 @@ HEALTH_FIELDS = [
     "source", "profile", "attempted", "snapshot_reused", "fetched", "succeeded",
     "empty", "errors", "retryable_errors", "cooldown_skips", "auth_skips",
     "blocked", "elapsed_ms",
-    *dict.fromkeys((*PEACH_FIELDS, *CATALOG_EVIDENCE_FIELDS)),
+    *dict.fromkeys((*MEDIANFO_FIELDS, *CATALOG_EVIDENCE_FIELDS)),
     "last_error_kind", "last_error_status", "last_error_message",
 ]
 
@@ -148,9 +148,9 @@ def translate_failure(source: str, error: Exception) -> MetadataProviderError:
     `SourceTransport` 撞上 403 会自己把来源停下并抛 `SourcePaused`，措辞里带着状态码，
     这里认出来后本批不再问它——限流会过去，凭据不会。
     """
-    from peach.jav_cover_fetch import DeadlineExceeded
-    from peach.library_processing import describe_failure, is_missing
-    from peach.scraping_access import SourcePaused
+    from medianfo.jav_cover_fetch import DeadlineExceeded
+    from medianfo.library_processing import describe_failure, is_missing
+    from medianfo.scraping_access import SourcePaused
     if isinstance(error, MetadataProviderError):
         return error
     text = describe_failure(error)
@@ -222,7 +222,7 @@ class ChainAdapter:
         return found, {}
 
     def _community(self, code: str, members: tuple[str, ...]):
-        from peach.community_catalog import community_sources_for
+        from medianfo.community_catalog import community_sources_for
         found, errors = {}, {}
         for source in community_sources_for(code, route=members):
             try:
@@ -433,18 +433,18 @@ def _read_settled_error(path: Path) -> MetadataProviderError | None:
 
 def _provider_name(source: str) -> str:
     """快照与候选里记的解析器名，和采集任务写的同一份（`library_processing.PROVIDER_NAMES`）。"""
-    from peach.library_processing import PROVIDER_NAMES
+    from medianfo.library_processing import PROVIDER_NAMES
     return PROVIDER_NAMES.get(source, source)
 
 
 def _write_snapshot(path: Path, *, code: str, source: str, result: dict | None = None,
                     error: MetadataProviderError | None = None) -> None:
     """原始快照：`result` 的形状与采集任务的证据文件一致，`jav_cover_fetch` 离线复用它的
-    `cover_url` 与 `content_id`。`provider` 记解析器名，`provider_version` 记 Peach 版本——
+    `cover_url` 与 `content_id`。`provider` 记解析器名，`provider_version` 记 MediaNfo 版本——
     事后判断「这条证据出自哪一版解析器」靠的是这两项。"""
     path.parent.mkdir(parents=True, exist_ok=True)
     wrapper: dict[str, object] = {
-        "provider": _provider_name(source), "provider_version": PEACH_VERSION,
+        "provider": _provider_name(source), "provider_version": MEDIANFO_VERSION,
         "code": code, "source": source,
         "fetched_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -613,7 +613,7 @@ def _health_rows(sources, profile: str) -> dict[str, dict[str, object]]:
         "snapshot_reused": 0, "fetched": 0, "succeeded": 0, "empty": 0,
         "errors": 0, "retryable_errors": 0, "cooldown_skips": 0, "auth_skips": 0,
         "blocked": 0, "elapsed_ms": 0,
-        **{field: 0 for field in (*PEACH_FIELDS, *CATALOG_EVIDENCE_FIELDS)},
+        **{field: 0 for field in (*MEDIANFO_FIELDS, *CATALOG_EVIDENCE_FIELDS)},
         "last_error_kind": "", "last_error_status": "", "last_error_message": "",
     } for source in sources}
 
@@ -824,7 +824,7 @@ def _build_adapter(args, sources, provider=None):
                                                refresh=args.refresh, max_requests=max(0, args.wiki_max_requests))))
 
     def factory():
-        from peach.library_processing import LibraryMetadataProvider
+        from medianfo.library_processing import LibraryMetadataProvider
         return LibraryMetadataProvider(args.secrets_root, tools_root=args.tools_root)
 
     return ChainAdapter(factory, wikis)

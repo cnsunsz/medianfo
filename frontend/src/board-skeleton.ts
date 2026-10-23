@@ -46,7 +46,7 @@ const followAuthor = (rows: number) => `<section class="min-w-0 bg-background-pr
  *  这时候页面自己的状态还不存在。 */
 const followPageSize = (): number => {
   try {
-    return Number(JSON.parse(localStorage.getItem('peach.settings.v1')||'{}').followPageSize)||20;
+    return Number(JSON.parse(localStorage.getItem('medianfo.settings.v1')||'{}').followPageSize)||20;
   } catch { return 20 }
 };
 /* 表格的列、列名与排序指示照 React 那张 Board UI `Table`：「选择」「操作」两列名只给读屏，

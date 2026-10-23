@@ -5,9 +5,9 @@
 
 ## 背景
 
-ADR-0044 按站的性质分归属：官方与半官方站由 Peach 自写，社区站经 amane 桥。照这条判据，amane 里现成的
+ADR-0044 按站的性质分归属：官方与半官方站由 MediaNfo 自写，社区站经 amane 桥。照这条判据，amane 里现成的
 片商官网解析器（按系列前缀路由到二十九家片商的 `official` 模块，以及 Prestige、FALENO、DAHLIA、MGStage
-各自的解析器）只能等 Peach 逐家重写；在那之前，有码与素人链的官方档只有 r18.dev 一家，它是 DMM 数字版
+各自的解析器）只能等 MediaNfo 逐家重写；在那之前，有码与素人链的官方档只有 r18.dev 一家，它是 DMM 数字版
 目录的镜像，给的发行日是配信开始日口径，演员与标签也只是 DMM 那一份。
 
 用户 2026-09-23 决定把 amane 的片商级解析器开进官方档，并把归属判据改为「每个站只有一个归属」。
@@ -16,14 +16,14 @@ ADR-0044 按站的性质分归属：官方与半官方站由 Peach 自写，社�
 
 ### 归属判据
 
-一个站只由一条路径问：Peach 已有自写解析器的站只问自写那一份，没有的站可以经 amane 桥，不论它是官方站还是
+一个站只由一条路径问：MediaNfo 已有自写解析器的站只问自写那一份，没有的站可以经 amane 桥，不论它是官方站还是
 社区站。自写与 amane 重叠的四站（r18dev、fc2、javbus、javdb）继续只问自写解析器，不经桥重复问；两条路径答
 同一站，分歧没人会去看。来源分级仍按站的性质登记在 `metadata_policy.SOURCE_SPECS`：经桥的片商官网是
 `official`，经桥的转载站是 `community`，分级决定结算层级，与取数路径无关。
 
 ### 进链的站
 
-| 站名（Peach 来源名） | amane 模块 | 分级 | 作用 |
+| 站名（MediaNfo 来源名） | amane 模块 | 分级 | 作用 |
 | --- | --- | --- | --- |
 | `makers` | `official` | official | 按系列前缀路由到二十九家片商官网的作品页；前缀不在它的表里不发请求 |
 | `prestige` | `prestige` | official | Prestige 的作品 API |
@@ -31,7 +31,7 @@ ADR-0044 按站的性质分归属：官方与半官方站由 Peach 自写，社�
 | `dahlia` | `dahlia` | official | DAHLIA 的站方 REST 接口 |
 | `mgstage` | `mgstage` | official | MGS 素人系的发行渠道 |
 
-amane 的 `official` 模块在 Peach 里叫 `makers`：`official` 已是来源分级的名字，一个词不同时当站名。
+amane 的 `official` 模块在 MediaNfo 里叫 `makers`：`official` 已是来源分级的名字，一个词不同时当站名。
 选站理由是「片商官网 > 官方镜像」：片商自己那一页是发行方口径，r18.dev 转的是 DMM 数字版目录。
 2026-09-23 实测（`build/agent-verification/amane-official-stage.md`）五站都经代理取到了自家番号，
 S1、MOODYZ、IDEA POCKET 官网与 FALENO、DAHLIA 给的发行日和 r18.dev 当前快照一致。
@@ -69,7 +69,7 @@ amane 的失败原因经 `metadata_amane.AMANE_REASONS` 进契约。`geo_restric
 
 | 站 | 原因 |
 | --- | --- |
-| dmm（amane 的 HTML 爬虫） | 与 r18.dev 是同一份目录，发行日给配信开始日（SSIS-057 答 2021-05-01，账本 2021-05-07），ABW-032 答的是蓝光 BOD 版，一次 3～14 秒；再问一遍只多一次请求，不多一层口径。DMM 自己的 GraphQL 接口另由 Peach 自写解析器接入（ADR-0059），不经桥 |
+| dmm（amane 的 HTML 爬虫） | 与 r18.dev 是同一份目录，发行日给配信开始日（SSIS-057 答 2021-05-01，账本 2021-05-07），ABW-032 答的是蓝光 BOD 版，一次 3～14 秒；再问一遍只多一次请求，不多一层口径。DMM 自己的 GraphQL 接口另由 MediaNfo 自写解析器接入（ADR-0059），不经桥 |
 | giga | 实测站内搜索 `/top/search?keyword=` 两次都回 HTTP 404，未取得 |
 | kin8 | 爬虫从 `KIN8-3500` 里取到 8，拼出 `/moviepages/8/`；换纯数字 3500 仍是没有，未取得 |
 | r18dev、fc2、javbus、javdb | 已有自写解析器，只有一个归属 |
@@ -81,17 +81,17 @@ giga 与 kin8 留在桥的站表里（`tools/amane-bridge/bridge.py` 的 `SITES`
 
 ## 被否决的方案
 
-- 按 ADR-0044 的原判据逐家自写片商解析器：二十九家片商官网的路由与页面解析 amane 已经在维护，Peach 再写一份等于
+- 按 ADR-0044 的原判据逐家自写片商解析器：二十九家片商官网的路由与页面解析 amane 已经在维护，MediaNfo 再写一份等于
   同一件事两份实现，而官方站的真相字段恰恰最该有人持续盯着上游的改版。
 - 让片商站排在 r18.dev 之后作补充：这样片商那一页只在镜像落空时才问，发行方口径永远排在镜像口径后面，
   与「片商官网 > 官方镜像」相反。
 - 每个番号把 Prestige、FALENO、DAHLIA 都问一遍再看谁答：这三家对不认识的番号也发请求，一部片白发三次。
-- 把前缀表从 amane 的 `MANUFACTURER_SERIES` 抄进 Peach 来决定问不问 `makers`：那是复制上游数据，前缀不认时桥内本来就
+- 把前缀表从 amane 的 `MANUFACTURER_SERIES` 抄进 MediaNfo 来决定问不问 `makers`：那是复制上游数据，前缀不认时桥内本来就
   零 HTTP，省下的只是一次子进程。
 
 ## 后果
 
-- 影响面：`tools/amane-bridge/bridge.py`、`src/peach/metadata_amane.py`、`metadata_routes.py`、`metadata_policy.py`、
+- 影响面：`tools/amane-bridge/bridge.py`、`src/medianfo/metadata_amane.py`、`metadata_routes.py`、`metadata_policy.py`、
   `library_processing.py`、`sources/base.py`、`scripts/scrape_codes.py`，对应测试与 [docs/SOURCING.md](../SOURCING.md)、[docs/REUSE.md](../REUSE.md)。
   采集设置页从 `metadata_amane.describe` 读站名，前端无改动。
 - `POLICY_VERSION` 升为 `metadata-source-policy-v5`；`SOURCE_SPECS` 多了四个来源名，`sources_fingerprint` 随之变化，

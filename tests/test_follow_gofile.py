@@ -7,10 +7,10 @@
 import json
 import unittest
 
-from peach.follow import FollowSourceError
-from peach.follow_gofile import GofileExpander, folder_ids, folder_labels
-from peach.follow_secrets import Credential, CredentialError
-from peach.http import HttpResponse
+from medianfo.follow import FollowSourceError
+from medianfo.follow_gofile import GofileExpander, folder_ids, folder_labels
+from medianfo.follow_secrets import Credential, CredentialError
+from medianfo.http import HttpResponse
 
 
 CONTENTS_OK = json.dumps({

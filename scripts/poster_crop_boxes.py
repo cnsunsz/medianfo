@@ -30,8 +30,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from peach import jav_poster_crop  # noqa: E402
-from peach.config import COVER_DIR  # noqa: E402
+from medianfo import jav_poster_crop  # noqa: E402
+from medianfo.config import COVER_DIR  # noqa: E402
 
 #: 每处理这么多张报一次进度。封面目录是千张量级，一张一行会把日志淹掉。
 PROGRESS_EVERY = 100

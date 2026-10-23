@@ -1,6 +1,6 @@
 """模块分层门槛。
 
-Peach 是模块化单体，分层靠约定而不是包结构，所以约定必须有人守。这里守一条：
+MediaNfo 是模块化单体，分层靠约定而不是包结构，所以约定必须有人守。这里守一条：
 **web 层之外的模块不许 import web 层。**
 
 这条规则不是凭空立的。`catalog_rules.py` 原名 `web_logic.py`，而 `repository.py`
@@ -15,8 +15,8 @@ import tempfile
 import typing
 import unittest
 
-import peach
-from peach.web_contract import WebContract
+import medianfo
+from medianfo.web_contract import WebContract
 
 
 SOURCE_ROOT = pathlib.Path(peach.__file__).parent
@@ -51,7 +51,7 @@ def _local_imports(path: pathlib.Path) -> set[str]:
     return names
 
 
-#: 项目根：`src/peach` 的上两级。脚本和源码要一起扫。
+#: 项目根：`src/medianfo` 的上两级。脚本和源码要一起扫。
 PROJECT_ROOT = SOURCE_ROOT.parent.parent
 
 
@@ -126,15 +126,15 @@ class SharedRuleTests(unittest.TestCase):
         """纯规则要直接从 `catalog_rules` 取，不要借道 web 层的再导出。
 
         `web_contract` 把 `is_jav_code` 再导出了一遍，于是脚本写成
-        `from peach.web_contract import is_jav_code`——为一条纯规则拉起整个 web 层，
+        `from medianfo.web_contract import is_jav_code`——为一条纯规则拉起整个 web 层，
         读代码的人还会以为这条规则属于 web。
         """
         offenders = []
         for path in sorted((PROJECT_ROOT / "scripts").glob("*.py")):
             text = path.read_text(encoding="utf-8")
             for rule in ("is_jav_code", "normalise_code_key", "LENGTH_TAGS"):
-                if "from peach.web_contract import" in text and rule in text.split(
-                        "from peach.web_contract import", 1)[1].split("\n", 1)[0]:
+                if "from medianfo.web_contract import" in text and rule in text.split(
+                        "from medianfo.web_contract import", 1)[1].split("\n", 1)[0]:
                     offenders.append(f"{path.name} → web_contract.{rule}")
         self.assertEqual(offenders, [],
                          "纯规则请直接从 peach.catalog_rules 取")
@@ -164,7 +164,7 @@ class ContractConformanceTests(unittest.TestCase):
         """web 层各模块自己定义的 Protocol，按文件名发现而不是手写清单。"""
         found: list[type] = []
         for path in sorted(SOURCE_ROOT.glob("web_*.py")):
-            module = importlib.import_module(f"peach.{path.stem}")
+            module = importlib.import_module(f"medianfo.{path.stem}")
             for obj in vars(module).values():
                 if (isinstance(obj, type) and getattr(obj, "_is_protocol", False)
                         and obj.__module__ == module.__name__ and obj not in found):
@@ -261,10 +261,10 @@ class LayeringTests(unittest.TestCase):
         )
 
     def test_catalog_rules_depends_on_nothing_inside_peach(self):
-        """最底下那层必须是纯的：只要它开始 import 别的 Peach 模块，就不再是策略了。"""
+        """最底下那层必须是纯的：只要它开始 import 别的 MediaNfo 模块，就不再是策略了。"""
         self.assertEqual(
             _local_imports(SOURCE_ROOT / "catalog_rules.py"), set(),
-            "catalog_rules 是最底层纯规则，不能依赖任何 Peach 模块",
+            "catalog_rules 是最底层纯规则，不能依赖任何 MediaNfo 模块",
         )
 
     def test_the_old_web_logic_name_is_gone(self):

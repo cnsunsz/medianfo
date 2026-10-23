@@ -37,14 +37,14 @@ _SRC = Path(__file__).resolve().parents[1] / "src"
 if str(_SRC) not in sys.path:
     sys.path.insert(0, str(_SRC))
 
-from peach.config import PROJECT_ROOT, STATE_DIR
+from medianfo.config import PROJECT_ROOT, STATE_DIR
 
 from . import changelog
 
 #: 发布只从主线走，`release_tag.py` 也只认这一条。
 MAIN_BRANCH = "master"
 
-#: 闩：上一次问过的 master sha。落在 `peach-data/state/`，不进 Git——它是这台机器
+#: 闩：上一次问过的 master sha。落在 `medianfo-data/state/`，不进 Git——它是这台机器
 #: 的记忆，跟进度产物一样每次现写，进了 Git 只会让工作区永远是 modified。
 LATCH = STATE_DIR / "release-due.json"
 

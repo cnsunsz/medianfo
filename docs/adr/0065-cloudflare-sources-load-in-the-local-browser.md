@@ -8,11 +8,11 @@
 ## 背景
 
 ADR-0060 让 FC2PPV-DB 与 JAVten 收用户从浏览器里贴过来的 Cookie。上线一天的账：`cf_clearance` 在这两站
-只活 30 分钟（2026-09-24 实测，站方设置，不是 Peach 的问题），一轮处理里两站各在第一条请求 403 后整站
+只活 30 分钟（2026-09-24 实测，站方设置，不是 MediaNfo 的问题），一轮处理里两站各在第一条请求 403 后整站
 冷却，那一轮 FC2 番号的女优栏与日文标题几乎全写「来源正在冷却」。要它们真的出资料，用户得每半小时
 去浏览器里复制一次 Cookie，这不是「无感落库」（ADR-0052 的目标）。
 
-OpenAver 的做法是让一个隐藏的 WebView2 打开站点、由它过 Turnstile，Peach 只拿它的会话。评估过两档：
+OpenAver 的做法是让一个隐藏的 WebView2 打开站点、由它过 Turnstile，MediaNfo 只拿它的会话。评估过两档：
 嵌一个 WebView2（要 pythonnet 或 pywebview，加 15 MB 依赖，只在 Windows 上有）；驱动用户机器上已装的
 Chrome 或 Edge（Chrome DevTools Protocol，只需要一个 WebSocket 客户端）。选后者。
 
@@ -43,7 +43,7 @@ DOM 解析完（`interactive`）且不是验证页就用 `Runtime.evaluate` 读�
 Cookie、User-Agent 与出口三者天然一致，不再要用户贴 Cookie；请求头里只有 Accept-Language 经
 `Network.setExtraHTTPHeaders` 挂在会话上（JAVten 按语言决定回日文原页还是译文页），Referer 经 `Page.navigate`
 的 `referrer` 只落在主文档上——挂在会话上它会跟进 Turnstile 子框架的导航并被浏览器拦下。请求串行，一个进程一个
-浏览器；连接方式不同（直连／带地址的 Peach 代理）各起一个。`Network.setBlockedURLs` 挡掉图片、字体与媒体，
+浏览器；连接方式不同（直连／带地址的 MediaNfo 代理）各起一个。`Network.setBlockedURLs` 挡掉图片、字体与媒体，
 只下载 HTML。不用页面内 `fetch()`：它只能同源，且跟到 `http://` 跳转会被浏览器按混合内容拦下。
 
 **二、验证页三态。** 导航落到验证页（标题 `Just a moment...`／`请稍候…`，页头含 `cf-chl-`、`challenge-platform`）
@@ -88,8 +88,8 @@ FC2PPV-DB 的年龄确认页（`/age-verify`）。
 `--test-type`（压掉「不受支持的命令行标志」警告条）。
 
 **五、来源开关与退路。** `scraping_access.SOURCES` 里登记 `browser: True` 的来源（眼下 fc2ppvdb、javten）
-走这条路；`find_browser` 找不到浏览器（`PEACH_BROWSER` 指定的、Windows 的 Chrome／Edge 安装目录、macOS 的
-`.app`、Linux PATH 上的 `google-chrome`／`chromium`／`microsoft-edge`；Linux 无 `DISPLAY` 视为没有）或 Peach
+走这条路；`find_browser` 找不到浏览器（`MEDIANFO_BROWSER` 指定的、Windows 的 Chrome／Edge 安装目录、macOS 的
+`.app`、Linux PATH 上的 `google-chrome`／`chromium`／`microsoft-edge`；Linux 无 `DISPLAY` 视为没有）或 MediaNfo
 代理地址带凭据（Chromium 不收命令行里的代理凭据）时，退回 ADR-0060 那条路：整站 UA、用户贴的 Cookie。
 `describe()` 的 `browser` 字段告诉来源卡这台机器走的是哪条路，走浏览器的卡不再要 Cookie，「撤销 Cookie」
 留着清旧的。macOS 是读者不采集，这条路在它上面不会被走到。
@@ -109,6 +109,6 @@ FC2PPV-DB 的年龄确认页（`/age-verify`）。
 - 读回的是浏览器解析后再序列化的 DOM，不是服务器发的原始字节：解析器拿到的 HTML 结构相同、字面略有出入
   （属性引号、自闭合标签、脚本已执行后的插入）。状态码来自 Navigation Timing，读不到时按 200。
 - 导航走的是浏览器的网络栈：代理按来源连接方式换成启动参数，`environment` 模式跟系统代理，
-  与 httpx 读环境变量的口径略有出入；Peach 代理地址带用户名密码的来源退回 httpx 路径。
+  与 httpx 读环境变量的口径略有出入；MediaNfo 代理地址带用户名密码的来源退回 httpx 路径。
 - 其他被 Cloudflare 拦的来源（AVBase 等）要走这条路只需登记 `browser: True`，但每个来源的请求都多一层
   浏览器往返，只给确实过不去的站。

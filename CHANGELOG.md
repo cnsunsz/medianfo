@@ -1,6 +1,6 @@
 # 变更日志
 
-本文件记录 Peach 每个发布版本里值得使用者知道的变化。
+本文件记录 MediaNfo 每个发布版本里值得使用者知道的变化。
 
 格式遵循 [Keep a Changelog 1.1.0](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循
 [Semantic Versioning 2.0.0](https://semver.org/lang/zh-CN/spec/v2.0.0.html)。分组标题是
@@ -49,7 +49,7 @@ Removed / Fixed / Security。
 ### 新增
 
 - **桌面**：提供轻量安装包，安装时校验并复用已有媒体工具，仅在缺失或版本变化时下载；工具准备失败可重试，现有安装保持可用。
-- **采集**：提供浏览器用户脚本，在支持站点点击「加入 Peach」后按番号搜索并提交到默认网盘，沿用现有下载与入库流程；配置页可安装脚本并管理专用令牌。
+- **采集**：提供浏览器用户脚本，在支持站点点击「加入 MediaNfo」后按番号搜索并提交到默认网盘，沿用现有下载与入库流程；配置页可安装脚本并管理专用令牌。
 
 ## [0.43.0] - 2026-10-18
 
@@ -86,10 +86,10 @@ Removed / Fixed / Security。
 
 - **播放**：播放前等待媒体来源挂载就绪；媒体读取与命令行抽帧遵循目录读取策略和视频预览设置。
 - **馆藏**：只读挂载目录禁用文件改名与索引修复等写入操作。
-- **采集**：浏览器采集遵循 Peach 的显式直连设置。
+- **采集**：浏览器采集遵循 MediaNfo 的显式直连设置。
 - **界面**：详情页显示视频缩略图；数据表支持横向覆盖式滑块，横向导航、管理页层级、配置页与来源空列表使用一致的布局。
 
-首次安装请选择 `Peach-0.42.0-windows-x64-setup.exe`，免安装使用请选择完整 ZIP。`ffmpeg-corresponding-source.zip` 和 `untrunc-corresponding-source.zip` 是第三方工具的对应源码，普通使用无需下载；`tools-*.zip` 由更新器按需下载，无需手动选择。
+首次安装请选择 `MediaNfo-0.42.0-windows-x64-setup.exe`，免安装使用请选择完整 ZIP。`ffmpeg-corresponding-source.zip` 和 `untrunc-corresponding-source.zip` 是第三方工具的对应源码，普通使用无需下载；`tools-*.zip` 由更新器按需下载，无需手动选择。
 
 ## [0.41.0] - 2026-10-17
 
@@ -155,7 +155,7 @@ Removed / Fixed / Security。
 - **馆藏**：调整头像占位、自动档案缩略图、宽封套取景和在线封面的本地处理。
 - **界面**：深链首屏使用对应内容的等待态并复用详情缓存；提示按可见内容定位，筛选骨架和关注卡片使用一致的中性样式。
 
-已有馆藏却出现首次设置页时，可选择“使用已有数据目录”，填入保存馆藏的 peach-data 目录。未取得目录位置的部署需要选择一次。
+已有馆藏却出现首次设置页时，可选择“使用已有数据目录”，填入保存馆藏的 medianfo-data 目录。未取得目录位置的部署需要选择一次。
 
 本版包含本地诊断能力；远程遥测和问题反馈上传尚未接入。
 
@@ -217,7 +217,7 @@ Removed / Fixed / Security。
 
 ### 新增
 
-- **桌面**：Windows 版多了安装包 `Peach-<版本>-windows-x64-setup.exe`，装到当前用户、不需要管理员权限，开始菜单里有入口，可以在系统设置里卸载；原来的 zip 继续作为免安装包提供，两种共用同一份数据。
+- **桌面**：Windows 版多了安装包 `MediaNfo-<版本>-windows-x64-setup.exe`，装到当前用户、不需要管理员权限，开始菜单里有入口，可以在系统设置里卸载；原来的 zip 继续作为免安装包提供，两种共用同一份数据。
 - **关注**：JAV 订阅支持按女优名添加，订阅列表显示人物资料图，并提供分页与批量操作。
 - **馆藏**：女优照片档按作品分段展示样张；资源同步可检查并清理失效记录与空文件夹。
 
@@ -259,7 +259,7 @@ Removed / Fixed / Security。
 - **界面**：往下翻过之后在搜索框里打字，页面不再一个字一个字地往回滚。
 - **界面**：资料页的图集按张数计，同一张图不再重复计数；口味雷达改用平方根刻度，小值不再挤在中心；手机上统计页播放次数的末档名字不再和前一档挤在一起。
 - **采集**：死链清理可以只清一个站。
-- **桌面**：卸载前结束进程只认 Peach 自己的进程。
+- **桌面**：卸载前结束进程只认 MediaNfo 自己的进程。
 
 ## [0.35.0] - 2026-09-25
 
@@ -455,7 +455,7 @@ Removed / Fixed / Security。
 - **关注**：「添加关注」边敲字边出建议，本机已有的和站上的标签分两组给；rule34.xxx 的作者单独分出一组，等站点时下拉里自报正在做事；F95 按标题约定和首楼名片认作者名与头像。
 - **关注**：关注列表分默认视图与表格视图，表格有框线和可排序的列；作者与来源筛选可以同时选多个，行首各有「全选」「全不选」（多个标签仍按「同时具备」筛，所以标签行只有「全不选」）。
 - **关注**：筛选多一档「未看时间范围」。
-- **关注**：作者头像与来源图标由 Peach 取回保存在本机，页面不直接向对方站点要图；站点打不开时继续显示已保存的那张。视频与图片仍不保存。
+- **关注**：作者头像与来源图标由 MediaNfo 取回保存在本机，页面不直接向对方站点要图；站点打不开时继续显示已保存的那张。视频与图片仍不保存。
 - **关注**：创作者别名可以自己输入，首次采集的范围在同一张表单里设。
 - **馆藏**：产地成为独立的一个维度（JAV 只是它的一种投影），筛选项、详情入口和批量判定都认它；韩国 MIB 不再算 JAV。
 - **馆藏**：扫描和采集可以分开跑，各自有入口与进度；进度里列出当前项、失败项可以只重试这些。
@@ -487,7 +487,7 @@ Removed / Fixed / Security。
 ### 变更
 
 - **界面**：整套界面换成 Board 风格：顶栏、侧栏和吸顶浮层是半透明玻璃，卡片、按钮、输入框和菜单按同一套尺寸、圆角与间距重画，明暗两个主题各成一套。设置里的「增加对比度」关掉玻璃的透明与折射，改用实色背景。
-- **配置**：配置页搬进右上角的设置里，成为「这台电脑」这一块，按「通用 / 媒体 / 网络与访问 / 更新与维护」分开列，管理菜单不再单列「配置」。在别的设备上打开设置仍看得到这一块，里面写明这几项要在运行 Peach 的那台电脑上改。
+- **配置**：配置页搬进右上角的设置里，成为「这台电脑」这一块，按「通用 / 媒体 / 网络与访问 / 更新与维护」分开列，管理菜单不再单列「配置」。在别的设备上打开设置仍看得到这一块，里面写明这几项要在运行 MediaNfo 的那台电脑上改。
 - **播放**：分片重编码走 NVENC，同一分片只起一个 FFmpeg；不兼容的片源即使账本没有时长也按片切，不整片转码。
 - **采集**：来源说「没有」的番号 7 天内不再问，没有番号的视频不列成问题项；FC2 的番号只问封面，资料不再向 r18.dev 要。
 - **馆藏**：扫描按目录列表自带的大小与时间登记文件，只采集跳过齐全的那些行。
@@ -501,7 +501,7 @@ Removed / Fixed / Security。
 - **界面**：窄屏上搜索开合的聚焦不带着页面滚，筛选框按滚动方向切换吸顶，资料页那排外链改横滚；会横向溢出的层一律配滚轮映射与两端渐隐。
 - **界面**：照片墙改等宽网格、各列从顶上开始排，关注图片墙的瀑布流不随图片加载重排。
 - **界面**：厂牌标识摆进圆形图位不发空也不被切角，比小圆片还小的用自己的底色补到 64 实像素。
-- **界面**：数据管理页和关注页上几处说明改成读得懂的话——链接按「官网/事务所、社交账号、作品资料站、资料出处」分类，检查结果分成「页面已经没了」和「这次没访问成功」两组并写明区别，文件检查说清是拿馆藏里的记录去磁盘和网盘上找文件，关注凭据那一段写明它存成运行 Peach 那台电脑上的一个文件、谁能打开它。
+- **界面**：数据管理页和关注页上几处说明改成读得懂的话——链接按「官网/事务所、社交账号、作品资料站、资料出处」分类，检查结果分成「页面已经没了」和「这次没访问成功」两组并写明区别，文件检查说清是拿馆藏里的记录去磁盘和网盘上找文件，关注凭据那一段写明它存成运行 MediaNfo 那台电脑上的一个文件、谁能打开它。
 - **复核**：复核页顶上的工具条和分组条从进页面起就是玻璃，两条合成一块，左右和标题、卡片同一条边；上面那排页签也回到同一条左边。
 - **复核**：候选落库前核验来源自报的番号。
 - **播放**：人脸检出跳三个尺度各检一次、分数取中位数，圆标不再框在躯干上；客户端断开后 Range 响应停止读文件。
@@ -518,13 +518,13 @@ Removed / Fixed / Security。
 
 ### 新增
 
-- **关注**：SimpCity 线程可以作为关注来源。站点不让游客读帖，需要把你自己的登录 Cookie 写进凭据文件；Peach 不解任何机器人质询。
+- **关注**：SimpCity 线程可以作为关注来源。站点不让游客读帖，需要把你自己的登录 Cookie 写进凭据文件；MediaNfo 不解任何机器人质询。
 - **关注**：在「添加关注」里输入名字查找时，也会用你的 Cookie 搜 SimpCity 站内线程标题，结果带上版块标签（如 OnlyFans、Simp Chat）供你分辨。
 - **关注**：来源筛选菜单新增「全选」与「全不选」。
 
 ### 修复
 
-- **关注**：SimpCity 帖子里的网盘链接（Gofile、Pixeldrain 等）现在能从站点的跳转链接里还原出来，详情页会显示对应按钮；帖子里的图片不论挂在站方图床还是哪家第三方图站，都能在详情页就地查看（Peach 代取时不带任何登录态，也不会去取内网地址）；有图的楼层以图为主，网盘链接只做按钮；来源图标补上 SimpCity。
+- **关注**：SimpCity 帖子里的网盘链接（Gofile、Pixeldrain 等）现在能从站点的跳转链接里还原出来，详情页会显示对应按钮；帖子里的图片不论挂在站方图床还是哪家第三方图站，都能在详情页就地查看（MediaNfo 代取时不带任何登录态，也不会去取内网地址）；有图的楼层以图为主，网盘链接只做按钮；来源图标补上 SimpCity。
 
 ## [0.30.0] - 2026-09-08
 
@@ -617,26 +617,26 @@ Removed / Fixed / Security。
 - **桌面**：独立包使用 UTF-8 启动日志。
 - **配置**：首次设置后的跳转目标取新鲜读到的 mDNS 名。
 
-[未发布]: https://github.com/peach-mitao/peach/compare/v0.46.1...HEAD
-[0.46.1]: https://github.com/peach-mitao/peach/compare/v0.45.0...v0.46.1
-[0.45.0]: https://github.com/peach-mitao/peach/compare/v0.43.0...v0.45.0
-[0.43.0]: https://github.com/peach-mitao/peach/compare/v0.42.0...v0.43.0
-[0.42.0]: https://github.com/peach-mitao/peach/compare/v0.41.0...v0.42.0
-[0.41.0]: https://github.com/peach-mitao/peach/compare/v0.40.1...v0.41.0
-[0.40.1]: https://github.com/peach-mitao/peach/compare/v0.40.0...v0.40.1
-[0.40.0]: https://github.com/peach-mitao/peach/compare/v0.39.0...v0.40.0
-[0.39.0]: https://github.com/peach-mitao/peach/compare/v0.38.0...v0.39.0
-[0.38.0]: https://github.com/peach-mitao/peach/compare/v0.37.0...v0.38.0
-[0.37.0]: https://github.com/peach-mitao/peach/compare/v0.36.0...v0.37.0
-[0.36.0]: https://github.com/longmeidao/peach/compare/v0.35.0...v0.36.0
-[0.35.0]: https://github.com/longmeidao/peach/compare/v0.34.2...v0.35.0
-[0.34.2]: https://github.com/longmeidao/peach/compare/v0.34.1...v0.34.2
-[0.34.1]: https://github.com/longmeidao/peach/compare/v0.34.0...v0.34.1
-[0.34.0]: https://github.com/longmeidao/peach/compare/v0.33.0...v0.34.0
-[0.33.0]: https://github.com/longmeidao/peach/compare/v0.31.0...v0.33.0
-[0.31.0]: https://github.com/longmeidao/peach/compare/v0.30.0...v0.31.0
-[0.30.0]: https://github.com/longmeidao/peach/compare/v0.27.1...v0.30.0
-[0.27.1]: https://github.com/longmeidao/peach/compare/v0.16.0...v0.27.1
-[0.16.0]: https://github.com/longmeidao/peach/compare/v0.11.2...v0.16.0
-[0.11.2]: https://github.com/longmeidao/peach/compare/v0.7.14...v0.11.2
-[0.7.14]: https://github.com/longmeidao/peach/releases/tag/v0.7.14
+[未发布]: https://github.com/cnsunsz/medianfo/compare/v0.46.1...HEAD
+[0.46.1]: https://github.com/cnsunsz/medianfo/compare/v0.45.0...v0.46.1
+[0.45.0]: https://github.com/cnsunsz/medianfo/compare/v0.43.0...v0.45.0
+[0.43.0]: https://github.com/cnsunsz/medianfo/compare/v0.42.0...v0.43.0
+[0.42.0]: https://github.com/cnsunsz/medianfo/compare/v0.41.0...v0.42.0
+[0.41.0]: https://github.com/cnsunsz/medianfo/compare/v0.40.1...v0.41.0
+[0.40.1]: https://github.com/cnsunsz/medianfo/compare/v0.40.0...v0.40.1
+[0.40.0]: https://github.com/cnsunsz/medianfo/compare/v0.39.0...v0.40.0
+[0.39.0]: https://github.com/cnsunsz/medianfo/compare/v0.38.0...v0.39.0
+[0.38.0]: https://github.com/cnsunsz/medianfo/compare/v0.37.0...v0.38.0
+[0.37.0]: https://github.com/cnsunsz/medianfo/compare/v0.36.0...v0.37.0
+[0.36.0]: https://github.com/cnsunsz/medianfo/compare/v0.35.0...v0.36.0
+[0.35.0]: https://github.com/cnsunsz/medianfo/compare/v0.34.2...v0.35.0
+[0.34.2]: https://github.com/cnsunsz/medianfo/compare/v0.34.1...v0.34.2
+[0.34.1]: https://github.com/cnsunsz/medianfo/compare/v0.34.0...v0.34.1
+[0.34.0]: https://github.com/cnsunsz/medianfo/compare/v0.33.0...v0.34.0
+[0.33.0]: https://github.com/cnsunsz/medianfo/compare/v0.31.0...v0.33.0
+[0.31.0]: https://github.com/cnsunsz/medianfo/compare/v0.30.0...v0.31.0
+[0.30.0]: https://github.com/cnsunsz/medianfo/compare/v0.27.1...v0.30.0
+[0.27.1]: https://github.com/cnsunsz/medianfo/compare/v0.16.0...v0.27.1
+[0.16.0]: https://github.com/cnsunsz/medianfo/compare/v0.11.2...v0.16.0
+[0.11.2]: https://github.com/cnsunsz/medianfo/compare/v0.7.14...v0.11.2
+[0.7.14]: https://github.com/cnsunsz/medianfo/releases/tag/v0.7.14

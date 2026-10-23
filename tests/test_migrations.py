@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from peach.migrations import plan, upgrade
+from medianfo.migrations import plan, upgrade
 
 
 MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"

@@ -8,9 +8,9 @@ import unittest.mock
 from pathlib import Path
 from unittest.mock import Mock
 
-from peach.windows_update import sweep_onefile_extractions
+from medianfo.windows_update import sweep_onefile_extractions
 
-from peach.windows_update import (
+from medianfo.windows_update import (
     BACKUP_GLOB,
     WindowsUpdateInstaller,
     swap_tray_binary,
@@ -38,17 +38,17 @@ class WindowsUpdateInstallerTests(unittest.TestCase):
         (root / "scripts" / "replace_windows_tray.py").write_text("helper", encoding="ascii")
         (root / ".venv" / "Scripts").mkdir(parents=True)
         (root / ".venv" / "Scripts" / "pythonw.exe").write_bytes(b"python")
-        target_dir = root / "dist" / "Peach"
+        target_dir = root / "dist" / "MediaNfo"
         target_dir.mkdir(parents=True)
-        target = target_dir / "Peach.exe"
+        target = target_dir / "MediaNfo.exe"
         target.write_bytes(b"old")
         return target, root / "state", root / "logs"
 
     def test_rebuild_scope_includes_every_frozen_input(self):
         self.assertFalse(windows_tray_rebuild_required(("docs/STATUS.md",)))
         for path in (
-            "src/peach/web.py", "web/index.html", "migrations/0021.sql",
-            "resources/peach.ico", "scripts/build_windows.ps1", "pyproject.toml",
+            "src/medianfo/web.py", "web/index.html", "migrations/0021.sql",
+            "resources/medianfo.ico", "scripts/build_windows.ps1", "pyproject.toml",
         ):
             self.assertTrue(windows_tray_rebuild_required((path,)), path)
 
@@ -60,11 +60,11 @@ class WindowsUpdateInstallerTests(unittest.TestCase):
                 root, state_dir=state, log_dir=logs,
                 current_executable=target, powershell="pwsh", frozen=False,
             )
-            installer.mark_pending("abc12345", ("src/peach/tray.py",))
+            installer.mark_pending("abc12345", ("src/medianfo/tray.py",))
             pending = installer.pending()
             self.assertIsNotNone(pending)
             self.assertEqual(pending.commit, "abc12345")
-            self.assertEqual(pending.changed_paths, ("src/peach/tray.py",))
+            self.assertEqual(pending.changed_paths, ("src/medianfo/tray.py",))
             installer.clear_pending()
             self.assertIsNone(installer.pending())
 
@@ -92,7 +92,7 @@ class WindowsUpdateInstallerTests(unittest.TestCase):
                 if "build_windows.ps1" in " ".join(command):
                     output = Path(command[command.index("-OutputDirectory") + 1])
                     output.mkdir(parents=True, exist_ok=True)
-                    (output / "Peach.exe").write_bytes(b"new")
+                    (output / "MediaNfo.exe").write_bytes(b"new")
                 return subprocess.CompletedProcess(command, 0)
 
             popen = Mock(return_value=Mock())
@@ -100,10 +100,10 @@ class WindowsUpdateInstallerTests(unittest.TestCase):
                 root, state_dir=state, log_dir=logs, current_executable=target,
                 run=run, popen=popen, powershell="pwsh", frozen=True, process_id=123,
             )
-            installer.mark_pending("abc12345", ("src/peach/tray.py",))
-            result = installer.prepare("abc12345", ("src/peach/tray.py",))
+            installer.mark_pending("abc12345", ("src/medianfo/tray.py",))
+            result = installer.prepare("abc12345", ("src/medianfo/tray.py",))
             self.assertEqual(result.state, "replace")
-            backups = list(target.parent.glob("Peach.pre-source-sync-*.exe"))
+            backups = list(target.parent.glob("MediaNfo.pre-source-sync-*.exe"))
             self.assertEqual(len(backups), 1)
             self.assertEqual(backups[0].read_bytes(), b"old")
             helper_command = popen.call_args.args[0]
@@ -121,7 +121,7 @@ class WindowsUpdateInstallerTests(unittest.TestCase):
                 run=Mock(return_value=subprocess.CompletedProcess([], 1)), popen=popen,
                 powershell="pwsh", frozen=True,
             )
-            result = installer.prepare("abc12345", ("src/peach/tray.py",))
+            result = installer.prepare("abc12345", ("src/medianfo/tray.py",))
             self.assertEqual(result.state, "failed")
             installer._run.assert_called_once()
             popen.assert_not_called()
@@ -151,34 +151,34 @@ class WindowsUpdateInstallerTests(unittest.TestCase):
             root = Path(directory).resolve()
             target, state, logs = self.make_tree(root)
             for stamp in ("20260901-090000", "20260902-090000", "20260903-090000"):
-                (target.parent / f"Peach.pre-source-sync-{stamp}.exe").write_bytes(b"old")
-            manual = target.parent / "Peach.pre-0.7.4-20260828-160731.exe"
+                (target.parent / f"MediaNfo.pre-source-sync-{stamp}.exe").write_bytes(b"old")
+            manual = target.parent / "MediaNfo.pre-0.7.4-20260828-160731.exe"
             manual.write_bytes(b"manual")
             staging = state / "source-sync-build"
             for commit in ("aaaa1111", "bbbb2222"):
                 (staging / commit).mkdir(parents=True)
-                (staging / commit / "Peach.exe").write_bytes(b"staged")
+                (staging / commit / "MediaNfo.exe").write_bytes(b"staged")
             (staging / "windows-source-sync.log").write_text("log", encoding="ascii")
             installer = WindowsUpdateInstaller(
                 root, state_dir=state, log_dir=logs,
                 current_executable=target, powershell="pwsh", frozen=True,
             )
-            installer.mark_pending("bbbb2222", ("src/peach/tray.py",))
+            installer.mark_pending("bbbb2222", ("src/medianfo/tray.py",))
 
             removed = installer.sweep_artifacts()
 
             self.assertEqual(
                 sorted(path.name for path in removed),
-                ["Peach.pre-source-sync-20260901-090000.exe", "aaaa1111"],
+                ["MediaNfo.pre-source-sync-20260901-090000.exe", "aaaa1111"],
             )
             self.assertEqual(
-                sorted(path.name for path in target.parent.glob("Peach.pre-source-sync-*.exe")),
-                ["Peach.pre-source-sync-20260902-090000.exe",
-                 "Peach.pre-source-sync-20260903-090000.exe"],
+                sorted(path.name for path in target.parent.glob("MediaNfo.pre-source-sync-*.exe")),
+                ["MediaNfo.pre-source-sync-20260902-090000.exe",
+                 "MediaNfo.pre-source-sync-20260903-090000.exe"],
             )
             self.assertEqual(target.read_bytes(), b"old", "运行中的 EXE 本体不在清退边界内")
             self.assertTrue(manual.exists(), "只认更新器自己的命名，手工放的文件不碰")
-            self.assertTrue((staging / "bbbb2222" / "Peach.exe").exists(), "待应用的暂存构建保留")
+            self.assertTrue((staging / "bbbb2222" / "MediaNfo.exe").exists(), "待应用的暂存构建保留")
             self.assertTrue((staging / "windows-source-sync.log").exists(), "只删目录，不删文件")
 
             installer.clear_pending()
@@ -243,9 +243,9 @@ class WindowsTrayReplacerTests(unittest.TestCase):
         cls.replacer = load_replacer()
 
     def paths(self, root: Path):
-        target = root / "Peach.exe"
+        target = root / "MediaNfo.exe"
         staged = root / "staged.exe"
-        backup = root / "Peach.pre-source-sync.exe"
+        backup = root / "MediaNfo.pre-source-sync.exe"
         pending = root / "pending.json"
         log = root / "sync.log"
         target.write_bytes(b"old")
@@ -290,8 +290,8 @@ class WindowsTrayReplacerTests(unittest.TestCase):
 
 class SwapTrayBinaryTests(unittest.TestCase):
     def paths(self, root: Path) -> tuple[Path, Path]:
-        target = root / "Peach.exe"
-        staged = root / "staged" / "Peach.exe"
+        target = root / "MediaNfo.exe"
+        staged = root / "staged" / "MediaNfo.exe"
         staged.parent.mkdir()
         target.write_bytes(b"old")
         staged.write_bytes(b"new")
@@ -320,7 +320,7 @@ class SwapTrayBinaryTests(unittest.TestCase):
     def test_a_replacement_that_never_lands_leaves_no_orphan_backup(self):
         with tempfile.TemporaryDirectory() as directory:
             staged, target = self.paths(Path(directory).resolve())
-            with unittest.mock.patch("peach.windows_update.os.replace",
+            with unittest.mock.patch("medianfo.windows_update.os.replace",
                                      side_effect=PermissionError("held")):
                 with self.assertRaises(PermissionError):
                     swap_tray_binary(staged, target, timeout=0.0,

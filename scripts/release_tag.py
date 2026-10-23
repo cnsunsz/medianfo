@@ -34,7 +34,7 @@ ROOT = Path(__file__).resolve().parents[1]
 #: 它住在这里而不是 `agent_worktree`：`--verify-sha` 跟着 Release 工作流跑，那一步只有裸
 #: Python，依赖要到后面的构建步骤才装；反过来引用就把 `test_evidence` 那条链（filelock）拘进来，
 #: 标签推上去也发不出东西。
-MASTER_WRITER = "peach.masterWriter"
+MASTER_WRITER = "medianfo.masterWriter"
 
 #: 定版只该改这两份：版本号一行，变更日志一节。`--ship` 拒绝夹带别的文件。
 RELEASE_FILES = (version_bump.VERSION_FILE, changelog.CHANGELOG)
@@ -203,7 +203,7 @@ def ship(repo: str, *, apply: bool, timeout: float = TEST_TIMEOUT) -> dict:
     if api(repo, "git/ref/heads/master")["object"]["sha"] != sha:
         command("git", "push", f"https://github.com/{repo}.git", "refs/heads/master")
     checked = await_test(repo, sha, timeout=timeout)
-    command("git", "tag", "-a", tag, sha, "-m", f"Peach {tag} Windows 测试版")
+    command("git", "tag", "-a", tag, sha, "-m", f"MediaNfo {tag} Windows 测试版")
     command("git", "push", f"https://github.com/{repo}.git", f"refs/tags/{tag}")
     return {**result, "sha": sha, "test": checked["html_url"],
             "release": f"https://github.com/{repo}/releases/tag/{tag}"}
@@ -252,7 +252,7 @@ def plan_commit(repo: str, sha: str) -> dict:
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--repo", default="peach-mitao/peach")
+    parser.add_argument("--repo", default="cnsunsz/medianfo")
     parser.add_argument("--apply", action="store_true",
                         help="真的动手：带 --bump 时写版本号与变更日志，带 --ship 时走完发布，"
                              "都不带时创建并推送标签")
@@ -287,7 +287,7 @@ def main(argv=None) -> int:
             elif api(args.repo, "git/ref/heads/master")["object"]["sha"] != result["sha"]:
                 raise ValueError("检查期间 master 已更新，请重新执行")
             command("git", "tag", "-a", result["tag"], result["sha"],
-                    "-m", f"Peach {result['tag']} Windows 测试版")
+                    "-m", f"MediaNfo {result['tag']} Windows 测试版")
             command("git", "push", f"https://github.com/{args.repo}.git",
                     f"refs/tags/{result['tag']}")
         print(json.dumps({**result, "applied": args.apply}, ensure_ascii=False, indent=2))

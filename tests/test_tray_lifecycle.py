@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from peach import tray_lifecycle as lifecycle
+from medianfo import tray_lifecycle as lifecycle
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -47,7 +47,7 @@ class TrayLifecycleTests(unittest.TestCase):
     def test_abnormal_exit_preserves_data_root_and_records_unknown_actor(self):
         self.assertEqual(self.watch(), 0)
         fields = self.spawn.call_args.kwargs
-        self.assertEqual(fields["env"]["PEACH_DATA_ROOT"], str(self.root))
+        self.assertEqual(fields["env"]["MEDIANFO_DATA_ROOT"], str(self.root))
         self.assertEqual(json.loads(fields["env"][lifecycle.HISTORY_ENV]), [1000])
         failure = next(row for row in self.events() if row["event"] == "unexpected_exit")
         self.assertEqual((failure["exit_code"], failure["actor"]), (99, "unknown"))
@@ -87,7 +87,7 @@ class TrayLifecycleTests(unittest.TestCase):
         item = lifecycle.Lifecycle(self.root, self.root, self.root, ROOT)
         item.guard = Mock()
         with patch.object(Path, "unlink", side_effect=PermissionError("busy")), \
-                self.assertLogs("peach.tray_lifecycle", level="WARNING"):
+                self.assertLogs("medianfo.tray_lifecycle", level="WARNING"):
             item.stop("menu-exit")
         self.assertEqual(item.reason, "menu-exit")
         item.guard.wait.assert_called_once_with(timeout=5)
@@ -132,8 +132,8 @@ class TrayLifecycleTests(unittest.TestCase):
         item.guard.wait.assert_called_once_with(timeout=5)
 
     def test_menu_exit_disarms_before_stopping_services(self):
-        from peach.tray import PeachTray
-        tray = PeachTray.__new__(PeachTray)
+        from medianfo.tray import MediaNfoTray
+        tray = MediaNfoTray.__new__(MediaNfoTray)
         events = []
         tray.lifecycle = Mock()
         tray.lifecycle.stop.side_effect = lambda *args: events.append("intent")
@@ -173,7 +173,7 @@ class WindowsWatchdogTests(TrayLifecycleTests):
                                      "from pathlib import Path; Path(" + repr(str(marker)) + ").write_text('ok')"])
             self.save()
             environment = {**os.environ, "PYTHONPATH": str(ROOT / "src")}
-            guard = subprocess.Popen([sys.executable, "-m", "peach.tray_lifecycle", str(self.path)],
+            guard = subprocess.Popen([sys.executable, "-m", "medianfo.tray_lifecycle", str(self.path)],
                                      env=environment, creationflags=subprocess.CREATE_NO_WINDOW)
             deadline = time.monotonic() + 10
             while not self.path.with_suffix(".ready").exists():

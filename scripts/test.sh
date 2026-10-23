@@ -28,7 +28,7 @@ WORKTREE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 GIT_COMMON_RAW="$(git -C "$WORKTREE_ROOT" rev-parse --git-common-dir)"
 if [[ -z "$GIT_COMMON_RAW" ]]; then
-    echo "无法定位 Peach 主工作树。" >&2
+    echo "无法定位 MediaNfo 主工作树。" >&2
     exit 1
 fi
 if [[ "$GIT_COMMON_RAW" = /* ]]; then
@@ -44,7 +44,7 @@ if [[ -x "$WORKTREE_ROOT/.venv/bin/python" ]]; then
     PYTHON="$WORKTREE_ROOT/.venv/bin/python"
 fi
 if [[ ! -x "$PYTHON" ]]; then
-    echo "Peach 测试 venv 不存在：$PYTHON" >&2
+    echo "MediaNfo 测试 venv 不存在：$PYTHON" >&2
     exit 1
 fi
 
@@ -61,5 +61,5 @@ if [[ "$LOADED_MODULE" != "$SOURCE_ROOT/"* ]]; then
     exit 1
 fi
 
-echo "Peach source: $LOADED_MODULE"
+echo "MediaNfo source: $LOADED_MODULE"
 exec "$PYTHON" scripts/test_runner.py --scope "$SCOPE" ${JOBS[@]+"${JOBS[@]}"} ${EXTRA[@]+"${EXTRA[@]}"}

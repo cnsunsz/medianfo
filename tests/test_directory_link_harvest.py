@@ -9,7 +9,7 @@ from urllib.parse import quote
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from peach import social_links   # noqa: E402
+from medianfo import social_links   # noqa: E402
 
 
 def load_module():

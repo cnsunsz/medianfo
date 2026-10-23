@@ -1,7 +1,7 @@
 /* 作品详情岛（`item-detail`）的桩数据：`item-detail.test.ts` 与设计决定用例（`design-*.test.ts`）共用。
  *
- * 演示库里的作品没有共演、分卷、版本和播放列表，这里按 `q_item`、`q_items`（`src/peach/web_catalog.py`）
- * 与 `w_playlist`（`src/peach/web_playlists.py`）的形状造几种形态：普通、十二位共演、在脱盘来源上、标题很长、
+ * 演示库里的作品没有共演、分卷、版本和播放列表，这里按 `q_item`、`q_items`（`src/medianfo/web_catalog.py`）
+ * 与 `w_playlist`（`src/medianfo/web_playlists.py`）的形状造几种形态：普通、十二位共演、在脱盘来源上、标题很长、
  * 三卷分卷、两个版次，外加一份四条的播放列表。详情读写的接口全部由桩接住，写进来的请求记在
  * `writes` 里；片源不给正片，播放器报的那一条 VIDEOJS 错误由各条自己滤掉。 */
 import type { Browser, Page, Request } from 'playwright-core';
@@ -22,14 +22,14 @@ const detail = (id: number, extra: Record<string, unknown> = {}): Row => {
     id, name: `sample_${id}.mp4`, title: `演示作品 ${id}`, is_jav: false, medium: 'video', location: 'local',
     cost: 'free', size: 1_234_567_890, duration: 3600, play_seconds: 900, play_count: 2, leave_ratio: 0.4,
     has_cover: false, has_thumb: true, has_local_poster: false, performers, performer_total: performers.length,
-    performer_entities: performers.map((_, at) => ({ id: at + 1, has_image: false })), creator: '', studio: 'Peach Studio',
+    performer_entities: performers.map((_, at) => ({ id: at + 1, has_image: false })), creator: '', studio: 'MediaNfo Studio',
     feedback: null, disposal: null, watch_later: false, width: 1920, height: 1080, release_date: '2026-08-01',
     region: 'jp', region_label: '日本', region_settled: true, rating: 60, liked: false, like_reason: '', o_count: 1,
     better_version: false, better_version_reason: '', has_studio_logo: false, poster_box: null,
     tags: TAGS.map((k) => ({ k, cat: 'general', official: false })),
     entity_refs: {
       performer: performers.map((name, at) => ref(name, at + 1)),
-      studio: [ref('Peach Studio', 50, { has_logo: false })], creator: [], series: [ref('夏日系列', 70)],
+      studio: [ref('MediaNfo Studio', 50, { has_logo: false })], creator: [], series: [ref('夏日系列', 70)],
     },
     ...extra,
   };
@@ -190,7 +190,7 @@ export async function openItemPage(browser: Browser, path: string, viewport: Vie
   const opened = await visit(browser, '/', viewport);
   const page = opened.page;
   await page.context().addInitScript((value) => {
-    localStorage.setItem('peach.settings.v1', JSON.stringify(value));
+    localStorage.setItem('medianfo.settings.v1', JSON.stringify(value));
   }, { detailAutoplay: false, relatedLimit: 12, ...settings });
   const stubbed = await stub(page, catalogIds);
   await page.goto(new URL(path, page.url()).toString(), { waitUntil: 'load' });

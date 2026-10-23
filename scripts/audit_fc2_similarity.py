@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 r"""把现有 FC2 评论收获与只读 ledger 媒体事实合成跨号相似候选。
 
-不联网、不调用第三方 organizer，不依赖 FC2-Leak-Detector/JavSP。输入只复用 Peach 已有的
+不联网、不调用第三方 organizer，不依赖 FC2-Leak-Detector/JavSP。输入只复用 MediaNfo 已有的
 fc2-comment-harvest、fc2-candidate-log 和 ledger；输出候选与健康 CSV，不改番号、不合并资产、
 不写 review_decision。
 """
@@ -20,10 +20,10 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.config import DATABASE_PATH, GENERATED_DIR
-from peach.scripting import open_readonly
-from peach.fc2_similarity import POLICY_VERSION, build_candidates, fc2_video_id
-from peach.review_csv import read_rows, write_rows
+from medianfo.config import DATABASE_PATH, GENERATED_DIR
+from medianfo.scripting import open_readonly
+from medianfo.fc2_similarity import POLICY_VERSION, build_candidates, fc2_video_id
+from medianfo.review_csv import read_rows, write_rows
 
 
 CANDIDATE_FIELDS = (

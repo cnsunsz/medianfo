@@ -11,7 +11,7 @@ describe('宽封套与来源封面', () => {
     it(`${viewport.name}: Blu-ray 正封完整可见，剧照保持横图取景`, async () => {
       const context = await browser.newContext({ viewport });
       try {
-        await context.addInitScript(() => localStorage.setItem('peach.settings.v1', JSON.stringify({ detailAutoplay: false, feedAutoScroll: false })));
+        await context.addInitScript(() => localStorage.setItem('medianfo.settings.v1', JSON.stringify({ detailAutoplay: false, feedAutoScroll: false })));
         const page = await context.newPage();
         const remote = 'https://covers.example.test/wide.svg';
         const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="438"><rect width="428" height="438" fill="#777"/><rect x="428" width="372" height="438" fill="#ccc"/></svg>';
@@ -28,7 +28,7 @@ describe('宽封套与来源封面', () => {
             poster_box: { x0: 428, y0: 0, x1: 800, y1: 438, px: [800, 438] } },
           { id: 7, code: 'MDVR-276', title: '【VR】作品', has_cover: true, cover_frame: { cx: .22, cy: .2, layout: 'still' } },
         ] } }));
-        await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + '/');
+        await page.goto(requiredEnv('MEDIANFO_E2E_ORIGIN') + '/');
         for (const id of [1, 2, 3, 5, 6]) {
           const image = page.locator(`#feedNew [data-feed-id="${id}"] img.cover`);
           await image.scrollIntoViewIfNeeded();

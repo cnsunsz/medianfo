@@ -6,9 +6,9 @@ param(
 $ErrorActionPreference = 'Stop'
 $ProjectRoot = Split-Path -Parent $PSScriptRoot
 $Pythonw = Join-Path $ProjectRoot '.venv\Scripts\pythonw.exe'
-$BuiltTray = Join-Path $ProjectRoot 'dist\Peach\Peach.exe'
+$BuiltTray = Join-Path $ProjectRoot 'dist\MediaNfo\MediaNfo.exe'
 $Startup = [Environment]::GetFolderPath('Startup')
-$ShortcutPath = Join-Path $Startup 'Peach.lnk'
+$ShortcutPath = Join-Path $Startup 'MediaNfo.lnk'
 
 if ($Action -eq 'Uninstall') {
     if (Test-Path -LiteralPath $ShortcutPath -PathType Leaf) {
@@ -42,9 +42,9 @@ if (-not (Test-Path -LiteralPath $Pythonw -PathType Leaf)) {
 $Shell = New-Object -ComObject WScript.Shell
 $Shortcut = $Shell.CreateShortcut($ShortcutPath)
 $Shortcut.TargetPath = if (Test-Path -LiteralPath $BuiltTray -PathType Leaf) { $BuiltTray } else { $Pythonw }
-$Shortcut.Arguments = if (Test-Path -LiteralPath $BuiltTray -PathType Leaf) { '' } else { '-m peach.tray' }
+$Shortcut.Arguments = if (Test-Path -LiteralPath $BuiltTray -PathType Leaf) { '' } else { '-m medianfo.tray' }
 $Shortcut.WorkingDirectory = if (Test-Path -LiteralPath $BuiltTray -PathType Leaf) { Split-Path -Parent $BuiltTray } else { $ProjectRoot }
-$Shortcut.Description = 'Start Peach and show its system tray menu'
+$Shortcut.Description = 'Start MediaNfo and show its system tray menu'
 $Shortcut.IconLocation = if (Test-Path -LiteralPath $BuiltTray -PathType Leaf) { "$BuiltTray,0" } else { "$Pythonw,0" }
 $Shortcut.WindowStyle = 7
 $Shortcut.Save()

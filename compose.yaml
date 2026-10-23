@@ -1,16 +1,16 @@
 services:
   peach:
-    image: longmeidao/peach:${PEACH_VERSION:-edge}
+    image: cnsunsz/medianfo:${MEDIANFO_VERSION:-edge}
     build: .
     init: true
     restart: unless-stopped
     stop_grace_period: 75s
     ports:
-      - "${PEACH_BIND:-127.0.0.1}:${PEACH_PORT:-8900}:8900"
+      - "${MEDIANFO_BIND:-127.0.0.1}:${MEDIANFO_PORT:-8900}:8900"
     volumes:
-      - peach-data:/data
+      - medianfo-data:/data
       - type: bind
-        source: ${PEACH_MEDIA_ROOT:-./media}
+        source: ${MEDIANFO_MEDIA_ROOT:-./media}
         target: /media
         read_only: true
         bind:
@@ -18,4 +18,4 @@ services:
           create_host_path: false
 
 volumes:
-  peach-data:
+  medianfo-data:

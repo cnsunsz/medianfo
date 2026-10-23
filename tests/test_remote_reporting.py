@@ -10,8 +10,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest import mock
 
-from peach import remote_reporting as reporting
-from peach.settings_file import PeachConfig
+from medianfo import remote_reporting as reporting
+from medianfo.settings_file import MediaNfoConfig
 
 DSN = "https://public@o123.ingest.us.sentry.io/456"
 
@@ -21,10 +21,10 @@ class RemoteReportingTests(unittest.TestCase):
         folder = tempfile.TemporaryDirectory()
         self.addCleanup(folder.cleanup)
         self.root = Path(folder.name).resolve()
-        self.config = PeachConfig(self.root, self.root / "config.toml")
+        self.config = MediaNfoConfig(self.root, self.root / "config.toml")
         self.addCleanup(mock.patch.stopall)
-        mock.patch.dict(os.environ, {"PEACH_DATA_ROOT": str(self.root), "PEACH_SENTRY_DSN": DSN}).start()
-        mock.patch("peach.settings_file.active", return_value=self.config).start()
+        mock.patch.dict(os.environ, {"MEDIANFO_DATA_ROOT": str(self.root), "MEDIANFO_SENTRY_DSN": DSN}).start()
+        mock.patch("medianfo.settings_file.active", return_value=self.config).start()
         mock.patch.object(reporting, "_disabled", False).start()
         self.addCleanup(reporting.close)
         reporting.close()
@@ -69,7 +69,7 @@ class RemoteReportingTests(unittest.TestCase):
         reporting.save({"usage": True, "errors": True})
         self.assertTrue(reporting.snapshot()["usage"])
         self.assertTrue(reporting.snapshot()["errors"])
-        with mock.patch.dict(os.environ, {"PEACH_SENTRY_DSN": ""}):
+        with mock.patch.dict(os.environ, {"MEDIANFO_SENTRY_DSN": ""}):
             self.assertFalse(reporting.snapshot()["available"])
             with mock.patch.object(reporting, "_new_client") as client:
                 reporting.usage()
@@ -94,12 +94,12 @@ class RemoteReportingTests(unittest.TestCase):
 
     def test_dsn_only_accepts_hosted_public_https_endpoint(self):
         for value in (DSN, DSN.replace('.us.', '.'), DSN.replace('.us.', '.de.')):
-            with self.subTest(value=value), mock.patch.dict(os.environ, {"PEACH_SENTRY_DSN": value}):
+            with self.subTest(value=value), mock.patch.dict(os.environ, {"MEDIANFO_SENTRY_DSN": value}):
                 self.assertEqual(reporting.dsn(), value)
         for value in ('http://public@o123.ingest.sentry.io/1', 'https://public:secret@o123.ingest.sentry.io/1',
                       'https://public@localhost/1', DSN + '?token=secret', DSN + '#secret',
                       'https://public@o123.ingest.sentry.io.evil/1'):
-            with self.subTest(value=value), mock.patch.dict(os.environ, {"PEACH_SENTRY_DSN": value}):
+            with self.subTest(value=value), mock.patch.dict(os.environ, {"MEDIANFO_SENTRY_DSN": value}):
                 self.assertEqual(reporting.dsn(), "")
 
     def test_daily_budget_is_shared_deduplicated_and_bounded(self):
@@ -118,7 +118,7 @@ class RemoteReportingTests(unittest.TestCase):
         self.assertTrue(all(row['total'] == 2 for row in payload['records'].values()))
 
     def test_frequency_batches_send_disjoint_counts_and_keep_group_identity(self):
-        from peach import diagnostic_frequency as frequency
+        from medianfo import diagnostic_frequency as frequency
         reporting.save({"usage": True, "errors": True})
         client = mock.Mock()
         now = datetime(2026, 10, 18, 12, tzinfo=timezone.utc)
@@ -175,7 +175,7 @@ class RemoteReportingTests(unittest.TestCase):
             self.assertEqual(client.capture_event.call_args.args[0]['tags']['occurrence_count'], '1')
 
     def test_frequency_daily_limit_defers_counts_and_preserves_occurrence_day(self):
-        from peach import diagnostic_frequency as frequency
+        from medianfo import diagnostic_frequency as frequency
         reporting.save({"usage": True, "errors": True})
         client = mock.Mock()
         now = datetime(2026, 10, 18, 12, tzinfo=timezone.utc)
@@ -205,14 +205,14 @@ class RemoteReportingTests(unittest.TestCase):
             self.assertEqual(client.capture_event.call_count, 2)
 
     def test_frequency_shared_file_serializes_independent_processes(self):
-        from peach import diagnostic_frequency as frequency
+        from medianfo import diagnostic_frequency as frequency
         root = Path(__file__).resolve().parents[1]
         reporting.save({"usage": True, "errors": True})
-        program = ('from peach import diagnostic_frequency as f; '
-                   'from peach.settings_file import active; '
-                   'from peach.remote_reporting import consent; '
+        program = ('from medianfo import diagnostic_frequency as f; '
+                   'from medianfo.settings_file import active; '
+                   'from medianfo.remote_reporting import consent; '
                    'f.record(active(), consent()["revision"], {"release":"test", "tags":{"stage":"cli"}}, lambda e: True)')
-        env = {**os.environ, 'PYTHONPATH': str(root / 'src'), 'PEACH_SENTRY_DSN': ''}
+        env = {**os.environ, 'PYTHONPATH': str(root / 'src'), 'MEDIANFO_SENTRY_DSN': ''}
         processes = [subprocess.Popen([sys.executable, '-X', 'utf8', '-c', program], env=env,
                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE) for _ in range(2)]
         for process in processes:
@@ -247,7 +247,7 @@ class RemoteReportingTests(unittest.TestCase):
             reporting.usage()
 
     def test_frequency_timer_flushes_without_another_occurrence(self):
-        from peach import diagnostic_frequency as frequency
+        from medianfo import diagnostic_frequency as frequency
         reporting.save({"usage": True, "errors": True})
         now = datetime(2026, 10, 18, 12, tzinfo=timezone.utc)
         client = mock.Mock()
@@ -284,23 +284,23 @@ class RemoteReportingTests(unittest.TestCase):
             reporting.capture('background-result', message='cancelled')
             reporting.capture('browser', message='Script error.', stack='chrome-extension://private/file.js:1:2')
             send.assert_not_called()
-            reporting.capture('browser', message='private title', stack='at https://private/dist/peach-app.js:12:34')
+            reporting.capture('browser', message='private title', stack='at https://private/dist/medianfo-app.js:12:34')
             self.assertEqual(send.call_args.args[1]['exception']['values'][0]['stacktrace']['frames'],
-                             [{'filename': 'peach-app.js', 'lineno': 12, 'colno': 34}])
+                             [{'filename': 'medianfo-app.js', 'lineno': 12, 'colno': 34}])
 
     def test_control_and_source_states_keep_local_records_without_remote_events(self):
         import asyncio
         from concurrent.futures import CancelledError
-        from peach import error_reporting
-        from peach.browser_transport import BrowserUnavailable, ChallengeUnsolved
-        from peach.jav_cover_fetch import CoverConnectError, DeadlineExceeded
-        from peach.jobs import JobPaused, MeteredSourceDenied, DiskSpaceDenied, TaskRunConflict
-        from peach.metadata import MetadataProviderError
-        from peach.previews import PreviewUnavailable
-        from peach.scraping_access import SourcePaused
-        from peach.segments import SegmentCancelled
-        from peach.sources.base import SourceFailure, FailureReason
-        from peach.transcodes import TranscodeCancelled
+        from medianfo import error_reporting
+        from medianfo.browser_transport import BrowserUnavailable, ChallengeUnsolved
+        from medianfo.jav_cover_fetch import CoverConnectError, DeadlineExceeded
+        from medianfo.jobs import JobPaused, MeteredSourceDenied, DiskSpaceDenied, TaskRunConflict
+        from medianfo.metadata import MetadataProviderError
+        from medianfo.previews import PreviewUnavailable
+        from medianfo.scraping_access import SourcePaused
+        from medianfo.segments import SegmentCancelled
+        from medianfo.sources.base import SourceFailure, FailureReason
+        from medianfo.transcodes import TranscodeCancelled
         from starlette.requests import ClientDisconnect
         errors = [asyncio.CancelledError(), CancelledError(), InterruptedError(), JobPaused(),
                   MeteredSourceDenied(), DiskSpaceDenied(), TaskRunConflict('processing', 1),
@@ -320,8 +320,8 @@ class RemoteReportingTests(unittest.TestCase):
             send.assert_not_called()
 
     def test_source_parser_and_unknown_provider_failures_are_actionable(self):
-        from peach.metadata import MetadataProviderError
-        from peach.sources.base import SourceFailure, FailureReason
+        from medianfo.metadata import MetadataProviderError
+        from medianfo.sources.base import SourceFailure, FailureReason
         errors = [SourceFailure(FailureReason.PARSE_ERROR, 'parser failure'),
                   MetadataProviderError('parser failure', kind='unavailable', detail='parse_error'),
                   MetadataProviderError('unknown failure')]
@@ -333,7 +333,7 @@ class RemoteReportingTests(unittest.TestCase):
     def test_unrelated_exception_names_do_not_acquire_domain_state_semantics(self):
         for name in ('CancelledError', 'NotFound', 'Unavailable'):
             with self.subTest(name=name), mock.patch.object(reporting, 'send') as send:
-                error = type(name, (RuntimeError,), {'__module__': 'peach.fixture'})('unexpected failure')
+                error = type(name, (RuntimeError,), {'__module__': 'medianfo.fixture'})('unexpected failure')
                 reporting.capture('background-job', error)
                 send.assert_called_once()
 
@@ -356,14 +356,14 @@ class RemoteReportingTests(unittest.TestCase):
 
     def test_warning_exceptions_do_not_consume_remote_error_budget(self):
         namespace = {}
-        exec(compile('def fail():\n    raise ValueError("retrying")\n', 'peach/fixture.py', 'exec'), namespace)
+        exec(compile('def fail():\n    raise ValueError("retrying")\n', 'medianfo/fixture.py', 'exec'), namespace)
         try:
             namespace['fail']()
         except ValueError as error:
             with mock.patch.object(reporting, 'send') as send:
-                reporting.capture('logging', error, level='WARNING', logger='peach.fixture')
+                reporting.capture('logging', error, level='WARNING', logger='medianfo.fixture')
                 send.assert_not_called()
-                reporting.capture('logging', error, level='ERROR', logger='peach.fixture')
+                reporting.capture('logging', error, level='ERROR', logger='medianfo.fixture')
                 send.assert_called_once()
 
     def test_expected_media_input_conditions_are_local_and_decoder_faults_are_reported(self):
@@ -392,18 +392,18 @@ class RemoteReportingTests(unittest.TestCase):
 
     def test_browser_abort_and_extension_frames_stay_local_and_bundle_versions_keep_positions(self):
         with mock.patch.object(reporting, 'send') as send:
-            reporting.capture('browser', error_name='AbortError', stack='peach-app.js:12:34')
-            reporting.capture('browser', stack='at chrome-extension://extension/peach-app.js:12:34')
+            reporting.capture('browser', error_name='AbortError', stack='medianfo-app.js:12:34')
+            reporting.capture('browser', stack='at chrome-extension://extension/medianfo-app.js:12:34')
             reporting.capture('browser', stack='at moz-extension://extension/peach-pages.js:12:34')
             send.assert_not_called()
-            reporting.capture('browser', stack='at https://example.test/dist/peach-app.js?v=build:12:34')
+            reporting.capture('browser', stack='at https://example.test/dist/medianfo-app.js?v=build:12:34')
             send.assert_called_once()
             frames = send.call_args.args[1]['exception']['values'][0]['stacktrace']['frames']
-            self.assertEqual(frames, [{'filename': 'peach-app.js', 'lineno': 12, 'colno': 34}])
+            self.assertEqual(frames, [{'filename': 'medianfo-app.js', 'lineno': 12, 'colno': 34}])
 
     def test_preview_environment_conditions_preserve_guidance_and_local_issue(self):
-        from peach import library_processing
-        from peach.previews import PreviewUnavailable
+        from medianfo import library_processing
+        from medianfo.previews import PreviewUnavailable
         resolver = mock.Mock()
         resolver.ffmpeg.return_value = None
         row = {'id': 1, 'path': str(self.root / 'missing.mp4'), 'location': 'local', 'name': 'missing.mp4'}
@@ -442,7 +442,7 @@ class RemoteReportingTests(unittest.TestCase):
         client = reporting._new_client(DSN)
         self.addCleanup(lambda: client.close(timeout=0))
         envelope = Envelope()
-        envelope.add_event({"message": "Peach started", "extra": {
+        envelope.add_event({"message": "MediaNfo started", "extra": {
             "consent": str(self.config.directory('state') / 'remote-reporting.json'),
             "kind": "usage", "revision": previous['revision']}})
         reporting.save({"usage": False, "errors": False})
@@ -457,7 +457,7 @@ class RemoteReportingTests(unittest.TestCase):
             network.assert_not_called()
 
     def test_sdk_failure_does_not_break_local_error_recording(self):
-        from peach import error_reporting
+        from medianfo import error_reporting
         reporting.save({"usage": True, "errors": True})
         with mock.patch.object(reporting, "_new_client", side_effect=OSError('offline')), \
                 mock.patch.object(error_reporting, 'log_directories', return_value=[self.root / 'logs']):
@@ -478,9 +478,9 @@ class RemoteReportingTests(unittest.TestCase):
     def test_installer_choice_is_saved_without_startup_reporting(self):
         reporting.save({"usage": True, "errors": True})
         entry = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/build_app_entry.py"))
-        with mock.patch("peach.error_reporting.install", side_effect=reporting.usage), \
+        with mock.patch("medianfo.error_reporting.install", side_effect=reporting.usage), \
                 mock.patch.object(reporting, "send") as send:
-            self.assertEqual(entry["main"](["Peach.exe", "--installer-reporting", "0", "0"]), 0)
+            self.assertEqual(entry["main"](["MediaNfo.exe", "--installer-reporting", "0", "0"]), 0)
             send.assert_not_called()
         self.assertFalse(reporting.consent()["usage"])
         self.assertFalse(reporting.consent()["errors"])
@@ -503,17 +503,17 @@ class RemoteReportingTests(unittest.TestCase):
         )
         for mode, handler, args in cases:
             with self.subTest(mode=mode), mock.patch.object(reporting, "_disabled", False), \
-                    mock.patch("peach.error_reporting.install", side_effect=reporting.usage), \
-                    mock.patch(f"peach.desktop_installer.{handler}", side_effect=helper), \
+                    mock.patch("medianfo.error_reporting.install", side_effect=reporting.usage), \
+                    mock.patch(f"medianfo.desktop_installer.{handler}", side_effect=helper), \
                     mock.patch.object(reporting, "_new_client") as client:
-                self.assertEqual(entry["main"](["Peach.exe", mode, *args]), 0)
+                self.assertEqual(entry["main"](["MediaNfo.exe", mode, *args]), 0)
                 client.assert_not_called()
                 self.assertTrue(reporting.consent()["usage"])
                 self.assertTrue(reporting.consent()["errors"])
 
     def test_installer_helper_persists_explicit_choices_in_fresh_process(self):
         root = Path(__file__).resolve().parents[1]
-        env = {**os.environ, 'PYTHONPATH': str(root / 'src'), 'PEACH_SENTRY_DSN': ''}
+        env = {**os.environ, 'PYTHONPATH': str(root / 'src'), 'MEDIANFO_SENTRY_DSN': ''}
         for usage, errors in (('1', '1'), ('0', '0')):
             result = subprocess.run([sys.executable, '-X', 'utf8', str(root / 'scripts/build_app_entry.py'),
                                      '--installer-reporting', usage, errors], env=env,
@@ -528,11 +528,11 @@ class RemoteReportingTests(unittest.TestCase):
         entry = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/build_app_entry.py"))
         tray = mock.Mock()
         with mock.patch.dict(entry["main"].__globals__, {"tray_main": tray}), \
-                mock.patch("peach.error_reporting.install", side_effect=reporting.usage), \
+                mock.patch("medianfo.error_reporting.install", side_effect=reporting.usage), \
                 mock.patch.object(reporting, "_new_client") as client:
             for mode in ("--installer-prepare", "--installer-reporting", "--installer-unknown"):
                 with self.subTest(mode=mode), self.assertRaises(ValueError):
-                    entry["main"](["Peach.exe", mode])
+                    entry["main"](["MediaNfo.exe", mode])
             tray.assert_not_called()
             client.assert_not_called()
 
@@ -544,7 +544,7 @@ class RemoteReportingApiTests(unittest.TestCase):
         import asyncio
         import httpx
         from fastapi import FastAPI
-        from peach.routes_configuration import router, require_auth
+        from medianfo.routes_configuration import router, require_auth
         app = FastAPI()
         app.include_router(router)
         app.dependency_overrides[require_auth] = lambda: {}

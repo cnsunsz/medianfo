@@ -1,6 +1,6 @@
 """把本机已取得的厂牌标识收进 `resources/marks/`，随仓库分发（ADR-0026）。
 
-只搬运本机 `peach-data/generated/logos/` 里已经有的字节，不联网、不解析、不抓取。
+只搬运本机 `medianfo-data/generated/logos/` 里已经有的字节，不联网、不解析、不抓取。
 收录判据是 ADR-0026 那五条，缺一条就留在本机：
 
 1. provenance 里有 `source_url`；没有来源证据的不收，不靠文件名推断归属。
@@ -33,10 +33,10 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach import brand_marks
-from peach.config import GENERATED_DIR
-from peach.follow_assets import sniff
-from peach.previews import LOGO_VARIANTS
+from medianfo import brand_marks
+from medianfo.config import GENERATED_DIR
+from medianfo.follow_assets import sniff
+from medianfo.previews import LOGO_VARIANTS
 
 #: 嗅探出的 MIME → 落盘扩展名。`brand_marks.CONTENT_TYPES` 是它的反查表，两边必须
 #: 一一对应，否则收得进去、运行时认不出类型。

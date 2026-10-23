@@ -11,15 +11,15 @@ import tempfile
 import tomllib
 import unittest
 
-import peach
-from peach import appid
+import medianfo
+from medianfo import appid
 from scripts import test_runner
 
 REPO = pathlib.Path(peach.__file__).resolve().parents[2]
 DOCS = REPO / "docs"
 
 #: ADR-0017 定义的四个运行时目录，加一个归置处。顶层只允许这五项。
-TOP_LEVEL_ALLOWED = {"peach-app", "peach-data", "peach-sync", "peach-worktrees", "attic"}
+TOP_LEVEL_ALLOWED = {"medianfo-app", "medianfo-data", "medianfo-sync", "medianfo-worktrees", "attic"}
 
 #: 文件管理器自己写的缓存文件，按 casefold 比对（Windows 上大小写会变）。门槛拦的是人
 #: 放上去的散落文档和产物；这几个不是人放的，macOS Finder 只要打开过那个文件夹就会写
@@ -36,9 +36,9 @@ PRIVATE_CONTEXT_PATHS = frozenset({
     "resources/seed/entities.json",
 })
 PRIVATE_ARTIFACT_ROOTS = frozenset({
-    "peach-data", "peach-sync", "peach-worktrees", "secrets", "generated", "review", "attic", "build",
+    "medianfo-data", "medianfo-sync", "medianfo-worktrees", "secrets", "generated", "review", "attic", "build",
 })
-PRIVATE_RECORD_PATH = re.compile(r"(?:peach-data/(?:review|archive)/|attic/(?:evidence|reviews)/)(?![<*])[^`\s)]+")
+PRIVATE_RECORD_PATH = re.compile(r"(?:medianfo-data/(?:review|archive)/|attic/(?:evidence|reviews)/)(?![<*])[^`\s)]+")
 COLLECTION_INVENTORY = re.compile(
     r"(?:本机|本库|真实馆藏|真实库|库里|馆里)[^。\n]{0,100}\d[\d,]*\s*"
     r"(?:条资产|行|部|作品|张头像|张封面|个文件|条来源|个题材|枚圆标|位缺头像)"
@@ -65,13 +65,13 @@ class PrivateArtifactTests(unittest.TestCase):
 
     def test_private_artifact_paths_are_rejected_and_public_sources_are_allowed(self):
         for name in ("docs/HANDOFF.md", "docs/STATUS.md", "docs/PRODUCT_BACKLOG.md",
-                     "peach-data/review/catalog.csv", "review/current-inventory.csv",
+                     "medianfo-data/review/catalog.csv", "review/current-inventory.csv",
                      "attic/evidence/session.json", "secrets/access.json", ".env.local",
                      "database/ledger.db-wal", "database/history.sqlite3"):
             with self.subTest(path=name):
                 self.assertTrue(_private_artifact(name))
         for name in ("docs/REUSE.md", "docs/OPERATIONS.md", "docs/TESTING.md",
-                     "tests/test_job_status.py", "web/dist/peach-app.js", ".env.example"):
+                     "tests/test_job_status.py", "web/dist/medianfo-app.js", ".env.example"):
             with self.subTest(path=name):
                 self.assertFalse(_private_artifact(name))
 
@@ -84,7 +84,7 @@ class PrivateArtifactTests(unittest.TestCase):
     def test_git_ignores_private_context_and_runtime_directories(self):
         names = [f"docs/{name}" for name in sorted(PRIVATE_CONTEXT_DOCUMENTS)]
         names += sorted(PRIVATE_CONTEXT_PATHS)
-        names += ["peach-data/review/catalog.csv", "secrets/access.json", "review/catalog.csv",
+        names += ["medianfo-data/review/catalog.csv", "secrets/access.json", "review/catalog.csv",
                   "attic/evidence/session.json"]
         public_sources = ["frontend/src/react/review/review-page.tsx"]
         done = subprocess.run(["git", "check-ignore", "--no-index", "-z", "--stdin"], cwd=REPO,
@@ -95,9 +95,9 @@ class PrivateArtifactTests(unittest.TestCase):
 
     def test_private_inventory_and_record_references_are_distinguished_from_examples(self):
         self.assertIsNotNone(COLLECTION_INVENTORY.search("本机盘点有 1234 部作品"))
-        self.assertIsNotNone(PRIVATE_RECORD_PATH.search("peach-data/review/current-catalog.csv"))
+        self.assertIsNotNone(PRIVATE_RECORD_PATH.search("medianfo-data/review/current-catalog.csv"))
         self.assertIsNone(COLLECTION_INVENTORY.search("示例库包含 12 部合成视频"))
-        self.assertIsNone(PRIVATE_RECORD_PATH.search("<Peach 数据目录>/review/<复核产物>"))
+        self.assertIsNone(PRIVATE_RECORD_PATH.search("<MediaNfo 数据目录>/review/<复核产物>"))
 
 
 def _loose_files(top: pathlib.Path) -> list[str]:
@@ -109,22 +109,22 @@ def _loose_files(top: pathlib.Path) -> list[str]:
 class TopLevelLayoutTests(unittest.TestCase):
     """顶层只放四个运行时目录加 attic/，且不放散落文件。
 
-    在别的机器或 CI 上这个布局不成立（只 clone 了 peach-app），那里跳过——门槛要能在
+    在别的机器或 CI 上这个布局不成立（只 clone 了 medianfo-app），那里跳过——门槛要能在
     真实布局上拦住人，不能因为环境不同就把整套测试拖红。
     """
 
     def setUp(self):
         # 往上找真正的顶层，而不是 `REPO.parent`：测试几乎总是在隔离工作树里跑，那时
-        # 上一级是 `peach-worktrees/`，判据不成立就会永远跳过——一个永远跳过的门槛
+        # 上一级是 `medianfo-worktrees/`，判据不成立就会永远跳过——一个永远跳过的门槛
         # 等于没有，和它要防的失效是同一种。
         self.top = None
         for candidate in [REPO, *REPO.parents]:
             if all((candidate / name).is_dir()
-                   for name in ("peach-app", "peach-data", "peach-worktrees")):
+                   for name in ("medianfo-app", "medianfo-data", "medianfo-worktrees")):
                 self.top = candidate
                 break
         if self.top is None:
-            self.skipTest("不是双盘运行时布局（只 clone 了 peach-app），跳过")
+            self.skipTest("不是双盘运行时布局（只 clone 了 medianfo-app），跳过")
 
     def test_only_the_runtime_directories_and_attic_live_at_the_top(self):
         extra = sorted(p.name for p in self.top.iterdir()
@@ -150,7 +150,7 @@ class LooseFileGuardTests(unittest.TestCase):
             for name in (".DS_Store", "desktop.ini", "Thumbs.db",
                          "REVIEW.md", "probe.json", "ds_store.md"):
                 (sample / name).write_bytes(b"x")
-            (sample / "peach-app").mkdir()
+            (sample / "medianfo-app").mkdir()
             self.assertEqual(_loose_files(sample),
                              ["REVIEW.md", "ds_store.md", "probe.json"])
 
@@ -159,7 +159,7 @@ class UnregisteredWorktreeTests(unittest.TestCase):
     """两个工作树落点里都不许留下未登记的目录。
 
     工作树被回收后目录可能留在原地，成了一份看不出区别的旧副本——在里面跑 git
-    全部作用于主检出的 master。`peach-worktrees/` 是 `create` 的落点，也是智能体被告知
+    全部作用于主检出的 master。`medianfo-worktrees/` 是 `create` 的落点，也是智能体被告知
     要去干活的地方，所以它和 `.claude/worktrees/` 同一条判据。别的会话此刻可能正合法地
     占着一个工作树，所以判据是「有没有登记」而不是「有没有目录」，登记过的放行，
     本测试也从不删东西。
@@ -174,7 +174,7 @@ class UnregisteredWorktreeTests(unittest.TestCase):
 
     def test_no_unregistered_directory_lingers_in_either_worktree_root(self):
         # `--git-common-dir` 在工作树里指向主检出的 `.git`，在主检出里是相对路径，
-        # 所以统一按 REPO 解析再取上一级。只 clone 了 peach-app 的机器上两个落点都可能
+        # 所以统一按 REPO 解析再取上一级。只 clone 了 medianfo-app 的机器上两个落点都可能
         # 不存在，不存在的那一个跳过。
         common = pathlib.Path(self._git("rev-parse", "--git-common-dir").strip())
         main = (REPO / common).resolve().parent
@@ -183,7 +183,7 @@ class UnregisteredWorktreeTests(unittest.TestCase):
             for line in self._git("worktree", "list", "--porcelain").splitlines()
             if line.startswith("worktree ")
         }
-        for root in (main.parent / "peach-worktrees", main / ".claude" / "worktrees"):
+        for root in (main.parent / "medianfo-worktrees", main / ".claude" / "worktrees"):
             if not root.is_dir():
                 continue
             residue = sorted(child.name for child in root.iterdir()
@@ -222,7 +222,7 @@ class BundledImageTests(unittest.TestCase):
             stray, [],
             "图像二进制只进 resources/：应用自身品牌资产直接放 resources/，"
             "厂牌与站点标识走 scripts/sync_brand_marks.py 收进 resources/marks/（ADR-0026），"
-            "其余图片是本机派生产物，留在 peach-data/generated/",
+            "其余图片是本机派生产物，留在 medianfo-data/generated/",
         )
 
 
@@ -267,9 +267,9 @@ _HOME_DIRECTORY = (r"(?<!\w)[\\/](?:Users|home)[\\/]"
                    r"(?!(?:runner|runneradmin)\b)[A-Za-z][\w.-]*")
 
 #: mDNS 主机名 `<名字>.local`。只放行三个有文档意义的占位：默认名 `peach` 与讲双机布局用的
-#: `peach-writer`／`peach-reader`。`self.local`／`this.local` 是属性名与后缀同形，不算主机名；
+#: `medianfo-writer`／`peach-reader`。`self.local`／`this.local` 是属性名与后缀同形，不算主机名；
 #: `<mounts.local>` 是占位；`settings.local.json`、`_tcp.local.` 后面还有段，都不是主机名。
-_MDNS_HOST = (r"(?<![\w<-])(?!(?:self|this|peach|peach-writer|peach-reader)\.local\b)"
+_MDNS_HOST = (r"(?<![\w<-])(?!(?:self|this|peach|medianfo-writer|peach-reader)\.local\b)"
               r"[a-z0-9-]+\.local\b(?![.\w])")
 
 #: RFC 1918 私网地址；`10.` 段收尾要词边界，Windows 版本号 `10.0.26200.1234` 才不会被算进去。
@@ -280,13 +280,13 @@ _PRIVATE_IPV4 = (r"\b192\.168\.\d{1,3}\.\d{1,3}"
                  r"|\b172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}")
 
 #: 只属于某一台机器的字面量。它们要么住在设置文件里，要么由用户在命令行给，
-#: 不能编译进 `src/peach/`——否则第一个陌生用户跑起来就连着别人家的坐标（ADR-0023）。
+#: 不能编译进 `src/medianfo/`——否则第一个陌生用户跑起来就连着别人家的坐标（ADR-0023）。
 #: 挂载点与项目位置只在源码里拦：说明文档要讲清双机布局，就得点出具体落点。
 PERSONAL_LITERAL = re.compile("(?i)" + "|".join((
     r"Desktop[\\/]peach",                       # 某一台机器的项目位置
     _HOME_DIRECTORY,
     _MDNS_HOST,
-    r"Volumes[\\/](?:peach-sync|RESOURCES)",    # macOS 上的具体挂载点
+    r"Volumes[\\/](?:medianfo-sync|RESOURCES)",    # macOS 上的具体挂载点
     r"[\\/]IMSL[\\/]",                          # CloudDrive 挂载目录
     _PRIVATE_IPV4,
 )))
@@ -338,7 +338,7 @@ def _repository_identity(repo: pathlib.Path = REPO) -> frozenset[str]:
     """仓库自己的公开归属名，casefold 过。
 
     三个来源都取，取不到的静默跳过：`git remote` 的 URL、`pyproject.toml` 的项目 URL、
-    `src/peach/appid.py` 的反向域名前缀。它们指的是同一个归属，多取一处是为了任一处
+    `src/medianfo/appid.py` 的反向域名前缀。它们指的是同一个归属，多取一处是为了任一处
     缺失时判据仍然成立，而不是把名字写进这里——门槛自己也进 Git，点名等于把维护者的
     账号名印进公开代码，和形状判据不点名坐标是同一个理由。
     """
@@ -373,7 +373,7 @@ def _this_machine_guard(names, identity) -> re.Pattern[str] | None:
 
 
 class PersonalLiteralTests(unittest.TestCase):
-    """`src/peach/` 里不许留只对某一台机器成立的默认值。"""
+    """`src/medianfo/` 里不许留只对某一台机器成立的默认值。"""
 
     def test_common_machine_names_require_coordinate_context(self):
         guard = _this_machine_guard({"test", "desktop"}, frozenset())
@@ -394,19 +394,19 @@ class PersonalLiteralTests(unittest.TestCase):
                 if PERSONAL_LITERAL.search(text)
             ]
         self.assertEqual(offenders, [],
-                         "把它搬进 <Peach 数据目录>/config.toml（peach init --from-existing 会生成），"
+                         "把它搬进 <MediaNfo 数据目录>/config.toml（peach init --from-existing 会生成），"
                          "或者做成命令行参数")
 
     def test_the_guard_catches_the_shape_it_describes(self):
         """门槛自身也要能被证伪，否则它可能只是一段永远为真的代码。"""
-        for sample in (r"C:\Users\alice\Desktop\peach\peach-data", "~/Desktop/peach",
+        for sample in (r"C:\Users\alice\Desktop\medianfo\medianfo-data", "~/Desktop/peach",
                        "/Users/alice/peach", "/home/alice/peach", "alice-mbp.local",
-                       "/Volumes/peach-sync", "https://10.234.56.78",
+                       "/Volumes/medianfo-sync", "https://10.234.56.78",
                        "/Volumes/RESOURCES/media", "/Users/x/Desktop/IMSL/115"):
             self.assertTrue(PERSONAL_LITERAL.search(sample), sample)
-        for allowed in ("127.0.0.1", "0.0.0.0", "peach.local", "224.0.0.251",
-                        "192.0.2.1", r"R:\media", "peach-data", "peach-sync",
-                        "Chrome/131.0.0.0", r"C:\Users\<user>\peach-data",
+        for allowed in ("127.0.0.1", "0.0.0.0", "medianfo.local", "224.0.0.251",
+                        "192.0.2.1", r"R:\media", "medianfo-data", "medianfo-sync",
+                        "Chrome/131.0.0.0", r"C:\Users\<user>\medianfo-data",
                         "https://www.pixiv.net/users/93812377", "self.local"):
             self.assertIsNone(PERSONAL_LITERAL.search(allowed), allowed)
 
@@ -504,7 +504,7 @@ class MachineCoordinateTests(unittest.TestCase):
             for number, line in enumerate(text.splitlines(), 1):
                 if COLLECTION_INVENTORY.search(line) or PRIVATE_RECORD_PATH.search(line.replace("\\", "/")):
                     offenders.append(f"{name}:{number}")
-        self.assertEqual(offenders, [], "馆藏盘点与私有记录名应保存在部署 Peach 数据目录，检查输出只列文件和行号")
+        self.assertEqual(offenders, [], "馆藏盘点与私有记录名应保存在部署 MediaNfo 数据目录，检查输出只列文件和行号")
 
     def test_no_tracked_file_names_this_machine(self):
         """本机的账号名与主机名对任何维护者都成立，正好不用在正则里点名。
@@ -528,23 +528,23 @@ class MachineCoordinateTests(unittest.TestCase):
 
     def test_the_whole_tree_guard_catches_the_shape_it_describes(self):
         """门槛自身也要能被证伪，否则它可能只是一段永远为真的代码。"""
-        for sample in ("https://10.234.56.78", "PEACH_SHARED_SMB_HOST=192.168.1.9",
+        for sample in ("https://10.234.56.78", "MEDIANFO_SHARED_SMB_HOST=192.168.1.9",
                        "review_writer_origin = 'https://10.0.0.5'", "172.31.112.1",
                        r"C:\Users\alice\Desktop\peach", "/Users/alice/Desktop/peach",
-                       "/home/alice/peach", "smb://alice@alice-mbp.local/peach-sync",
+                       "/home/alice/peach", "smb://alice@alice-mbp.local/medianfo-sync",
                        "peach-two.local", "https://Alice-PC.local/"):
             self.assertTrue(MACHINE_COORDINATE.search(sample), sample)
         for allowed in ("127.0.0.1", "0.0.0.0", "224.0.0.251", "198.18.0.1",
                         "192.0.2.2", "198.51.100.162", "203.0.113.1",
-                        "peach.local", "peach-writer.local", "peach-reader.local",
+                        "medianfo.local", "medianfo-writer.local", "peach-reader.local",
                         "https://<writer>.local", "<mounts.local>/x",
                         ".claude/settings.local.json", "_https._tcp.local.",
-                        "copy_database(self.shared, self.local)", "peach-sync",
+                        "copy_database(self.shared, self.local)", "medianfo-sync",
                         r"C:\Users\<user>\Desktop\peach", "~/Desktop/<用户目录>/peach",
                         r"C:\Users\RUNNER~1\AppData\Local\Temp", "/home/runner/work",
                         "https://www.pixiv.net/users/93812377",
                         "Chrome/131.0.0.0", "10.0.26200.1234", r"R:\media",
-                        "https://github.com/peach-mitao/peach",
+                        "https://github.com/cnsunsz/medianfo",
                         "Copyright (C) 2026 longmeidao"):
             self.assertIsNone(MACHINE_COORDINATE.search(allowed), allowed)
 
@@ -566,15 +566,15 @@ class MachineCoordinateTests(unittest.TestCase):
         owner, other = "example-owner", "peach-two"
         guard = _this_machine_guard({owner, other}, frozenset({owner}))
         for allowed in (f"https://github.com/{owner}/peach",
-                        f"io.github.{owner}.peach.tray",
+                        f"io.github.{owner}.medianfo.tray",
                         f"Copyright (C) 2026 {owner}",
-                        f"{owner}-peach", f"{owner}.Peach"):
+                        f"{owner}-peach", f"{owner}.MediaNfo"):
             self.assertIsNone(guard.search(allowed), allowed)
-        for blocked in (f"smb://{other}/peach-sync", f"/Volumes/{other}/media"):
+        for blocked in (f"smb://{other}/medianfo-sync", f"/Volumes/{other}/media"):
             self.assertIsNotNone(guard.search(blocked), blocked)
         for blocked in (f"/Users/{owner}/Desktop/peach", f"/home/{owner}/peach",
-                        rf"C:\Users\{owner}\peach-data",
-                        f"smb://{owner}@{owner}-mbp.local/peach-sync"):
+                        rf"C:\Users\{owner}\medianfo-data",
+                        f"smb://{owner}@{owner}-mbp.local/medianfo-sync"):
             self.assertIsNotNone(MACHINE_COORDINATE.search(blocked), blocked)
         self.assertIsNone(_this_machine_guard({owner}, frozenset({owner})),
                           "名字全被剔掉时不许返回会匹配任何位置的空正则")
@@ -591,7 +591,7 @@ class ArchitectureDriftTests(unittest.TestCase):
         text = (DOCS / "ARCHITECTURE.md").read_text(encoding="utf-8")
         source = pathlib.Path(peach.__file__).parent
         missing = sorted({
-            name for name in re.findall(r"`src/peach/(\w+)\.py`", text)
+            name for name in re.findall(r"`src/medianfo/(\w+)\.py`", text)
             if not (source / f"{name}.py").is_file()
         })
         self.assertEqual(missing, [],

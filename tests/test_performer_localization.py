@@ -8,8 +8,8 @@ from pathlib import Path
 
 import opencc
 
-from peach.migrations import upgrade
-from peach import entry_links
+from medianfo.migrations import upgrade
+from medianfo import entry_links
 from scripts.audit_performer_entry_names import collect as audit_entries
 from scripts.localize_performer_names import (
     JP_KANJI_TO_SIMPLIFIED, KANJI_ALIAS_SOURCE, apply_rows, collect, main,
