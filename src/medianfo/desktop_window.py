@@ -11,13 +11,17 @@ from __future__ import annotations
 
 import logging
 import os
+import socket
 import subprocess
 import sys
 import threading
 import time
+import urllib.error
+import urllib.request
 import webbrowser
 from pathlib import Path
 from typing import Callable
+from urllib.parse import urlparse
 
 LOGGER = logging.getLogger(__name__)
 
@@ -88,6 +92,43 @@ def _ui_process_alive() -> bool:
     return _ui_process is not None and _ui_process.poll() is None
 
 
+def _ui_log_dir() -> Path | None:
+    """数据目录下的 logs；拿不到就返回 None（仍可拉起 UI，只是不落盘）。"""
+    try:
+        from .config import LOG_DIR
+        LOG_DIR.mkdir(parents=True, exist_ok=True)
+        return LOG_DIR
+    except Exception:
+        LOGGER.debug("无法解析桌面窗日志目录", exc_info=True)
+        return None
+
+
+def _wait_for_local_ready(url: str, *, timeout: float = 5.0) -> None:
+    """加载前短暂确认本机 TCP /healthz 可通，减少服务尚未就绪时的白屏。失败不阻断打开。"""
+    parsed = urlparse(url)
+    host = parsed.hostname or "127.0.0.1"
+    if host not in {"127.0.0.1", "localhost", "::1"}:
+        return
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    health = f"{parsed.scheme or 'http'}://{host}:{port}/healthz"
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            with socket.create_connection((host, port), timeout=0.3):
+                pass
+            try:
+                with urllib.request.urlopen(health, timeout=0.5) as resp:
+                    if getattr(resp, "status", 200) < 500:
+                        return
+            except urllib.error.HTTPError as exc:
+                # 本机已在听端口；4xx 也说明 HTTP 栈起来了。
+                if exc.code < 500:
+                    return
+        except OSError:
+            pass
+        time.sleep(0.15)
+
+
 def _spawn_ui_process(url: str, *, title: str) -> subprocess.Popen:
     command = ui_launch_command(url, title=title)
     LOGGER.info("拉起桌面窗进程：%s", command)
@@ -110,6 +151,14 @@ def _spawn_ui_process(url: str, *, title: str) -> subprocess.Popen:
         kwargs["close_fds"] = False
     else:
         kwargs["start_new_session"] = True
+    # 日志句柄交给子进程后父进程这一份就关掉（与托盘拉起 serve 同口径）。
+    log_dir = _ui_log_dir()
+    if log_dir is not None:
+        with (log_dir / "desktop-ui.out.log").open("ab") as stdout, \
+                (log_dir / "desktop-ui.err.log").open("ab") as stderr:
+            kwargs["stdout"] = stdout
+            kwargs["stderr"] = stderr
+            return subprocess.Popen(command, **kwargs)
     return subprocess.Popen(command, **kwargs)
 
 
@@ -123,6 +172,7 @@ def open_url(url: str, *, title: str = "MediaNfo") -> bool:
         if _ui_process_alive() and _ui_url != url:
             # 已有窗口但 URL 不同（例如配置页）：再开一个窗口进程。
             LOGGER.info("已有桌面窗，为不同 URL 再开一窗：%s", url)
+        _wait_for_local_ready(url)
         try:
             process = _spawn_ui_process(url, title=title)
         except Exception:

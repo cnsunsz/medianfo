@@ -70,7 +70,7 @@ _HOST_ORDER = ("2", "1")
 
 
 def setup_shell() -> str:
-    """首次运行页的 HTML 模板：题目、表单与完成态都由 `/dist/peach-pages.js` 按 `/api/setup/questions` 画出来。
+    """首次运行页的 HTML 模板：题目、表单与完成态都由 `/dist/medianfo-pages.js` 按 `/api/setup/questions` 画出来。
 
     字形从 `web/index.html` 的雪碧图里按名字摘。
     """
@@ -565,11 +565,20 @@ def app_asset(request: Request, args: dict[str, str] = Depends(require_asset_aut
     return asset_response(request, path, "text/css")
 
 
-_BUNDLE_NAMES = frozenset({"medianfo-app.js", "medianfo-app.css", "peach-pages.js", "peach-pages.css"})
+_BUNDLE_NAMES = frozenset({
+    "medianfo-app.js", "medianfo-app.css",
+    "medianfo-pages.js", "medianfo-pages.css",
+})
+#: 旧缓存仍可能请求 peach-pages.*；映射到同名 medianfo-pages 产物。
+_PAGES_ALIASES = {
+    "peach-pages.js": "medianfo-pages.js",
+    "peach-pages.css": "medianfo-pages.css",
+}
 
 
 def _bundle_response(request: Request, name: str) -> Response:
     """`web/dist/` 下的一份产物。名字不合法或文件不在都是 404，浏览器直接打开时由错误页说。"""
+    name = _PAGES_ALIASES.get(name, name)
     if name not in _BUNDLE_NAMES:
         raise HTTPException(404)
     path = request.app.state.settings.page_path.parent / "dist" / name
@@ -579,14 +588,18 @@ def _bundle_response(request: Request, name: str) -> Response:
     return asset_response(request, path, media)
 
 
-# 两条字面量路由必须注册在 `/dist/{name}` 之前：路由按注册顺序匹配。
+# 字面量路由必须注册在 `/dist/{name}` 之前：路由按注册顺序匹配。
+# medianfo-pages 为正式路径；peach-pages 为兼容别名（旧缓存 / 旧 HTML）。
+@router.api_route("/dist/medianfo-pages.js", methods=["GET", "HEAD"])
+@router.api_route("/dist/medianfo-pages.css", methods=["GET", "HEAD"])
 @router.api_route("/dist/peach-pages.js", methods=["GET", "HEAD"])
 @router.api_route("/dist/peach-pages.css", methods=["GET", "HEAD"])
 def page_bundle(request: Request):
     """入口页的页面包，不要会话（ADR-0094）：登录页要在拿到会话之前出图。
 
-    放行的只有这两个文件。它们提交进 Git、随仓库分发，不读账本、不含配置与凭据，内容不随
-    登录与否变化；页面包也不 import 别的产物。其余 `/dist/*` 仍走下面那条要会话的路由。
+    放行 medianfo-pages.js/css，以及旧名 peach-pages.js/css（映射到同一文件）。
+    它们提交进 Git、随仓库分发，不读账本、不含配置与凭据，内容不随登录与否变化；
+    页面包也不 import 别的产物。其余 `/dist/*` 仍走下面那条要会话的路由。
     """
     return _bundle_response(request, request.url.path.rsplit("/", 1)[1])
 

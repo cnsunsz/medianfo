@@ -1,4 +1,4 @@
-/* 独立页面包的构建入口（`web/dist/peach-pages.js`）。
+/* 独立页面包的构建入口（`web/dist/medianfo-pages.js`）。
  *
  * 首启、登录与错误三页共用服务端给的同一张HTML 模板，壳里只有一个挂载点 `#peach-page`：`data-page` 说是
  * 哪一页，其余 `data-*` 是服务端才知道的变量，原样交给那一页。这份产物不依赖主界面的任何模块：

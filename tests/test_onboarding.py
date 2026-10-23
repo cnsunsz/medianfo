@@ -500,13 +500,13 @@ class SetupJsonContractTests(_SetupHttpCase):
         body = response.text
         self.assertIn("<title>MediaNfo · 首次运行</title>", body)
         self.assertIn('<link rel="icon" href="/favicon.ico" type="image/x-icon">', body)
-        self.assertLess(body.index('localStorage.getItem("medianfo.settings.v1")'), body.index("/dist/peach-pages.css"))
+        self.assertLess(body.index('localStorage.getItem("medianfo.settings.v1")'), body.index("/dist/medianfo-pages.css"))
         for symbol in ("folder-search", "hard-drive", "database"):
             self.assertIn(f'<symbol id="i-{symbol}"', body)
         self.assertNotIn("/dist/peach-entry.js", body)
         self.assertNotIn("<form", body)
         # 首启服务没有口令，页面包、Inter 与站标得放行。
-        for path in ("/dist/peach-pages.js", "/dist/peach-pages.css", "/vendor/inter/5.3.0/index.css",
+        for path in ("/dist/medianfo-pages.js", "/dist/medianfo-pages.css", "/vendor/inter/5.3.0/index.css",
                      "/medianfo-logo.png"):
             with self.subTest(path):
                 self.assertEqual(self._get(path).status_code, 200)
@@ -1153,7 +1153,7 @@ class StandaloneConfigurationTests(_Case):
                     self.assertTrue(page.headers["content-type"].startswith("text/html"))
                     self.assertIn(f'<div id="peach-page" data-page="error" data-status="{status}" '
                                   f'data-detail="{detail}"></div>', page.text)
-                    self.assertIn('<script type="module" src="/dist/peach-pages.js"></script>', page.text)
+                    self.assertIn('<script type="module" src="/dist/medianfo-pages.js"></script>', page.text)
                     self.assertNotIn("/dist/peach-entry.js", page.text)
                     self.assertNotIn("<style", page.text)
             missing = client.get("/no-such-page", headers={"Accept": "text/html"})

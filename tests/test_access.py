@@ -85,8 +85,8 @@ class AccessTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(page.status_code, 200)
         self.assertIn('<div id="peach-page" data-page="login" data-next="/stats?x=1&amp;y=&quot;&lt;b&gt;">',
                       page.text)
-        self.assertIn('<link rel="stylesheet" href="/dist/peach-pages.css">', page.text)
-        self.assertIn('<script type="module" src="/dist/peach-pages.js"></script>', page.text)
+        self.assertIn('<link rel="stylesheet" href="/dist/medianfo-pages.css">', page.text)
+        self.assertIn('<script type="module" src="/dist/medianfo-pages.js"></script>', page.text)
         self.assertNotIn("<style", page.text)
         self.assertNotIn("<form", page.text)
         self.assertLess(page.text.index("dataset.theme=c"), page.text.index('<link rel="stylesheet"'),

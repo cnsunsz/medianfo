@@ -33,8 +33,8 @@ FRONTEND = ROOT / "frontend"
 DIST = ROOT / "web" / "dist"
 BUNDLE = DIST / "medianfo-app.js"
 APP_STYLES = DIST / "medianfo-app.css"
-PAGES_BUNDLE = DIST / "peach-pages.js"
-PAGES_STYLES = DIST / "peach-pages.css"
+PAGES_BUNDLE = DIST / "medianfo-pages.js"
+PAGES_STYLES = DIST / "medianfo-pages.css"
 
 
 class PageAssets(HTMLParser):
@@ -64,7 +64,7 @@ class MainBundleTests(unittest.TestCase):
     def test_bundle_name_carries_no_content_hash(self):
         """运行时只分发固定名字的主包和独立页面包。"""
         names = sorted(path.name for path in DIST.iterdir() if path.is_file())
-        self.assertEqual(names, ["medianfo-app.css", "medianfo-app.js", "peach-pages.css", "peach-pages.js"])
+        self.assertEqual(names, ["medianfo-app.css", "medianfo-app.js", "medianfo-pages.css", "medianfo-pages.js"])
 
     def test_the_main_document_loads_one_module_entry(self):
         assets = PageAssets((ROOT / "web" / "index.html").read_text(encoding="utf-8"))
@@ -159,13 +159,13 @@ class ReactBundleTests(unittest.TestCase):
         cls.pages_css = PAGES_STYLES.read_text(encoding="utf-8")
 
     def test_shipped_bundles_do_not_require_node_globals(self):
-        for name, bundle in (("medianfo-app.js", self.app), ("peach-pages.js", self.pages)):
+        for name, bundle in (("medianfo-app.js", self.app), ("medianfo-pages.js", self.pages)):
             self.assertNotIn("process.env", bundle, f"{name}：库模式没替换 NODE_ENV，浏览器里没有 process")
 
     def test_shipped_bundles_have_independent_module_graphs(self):
         """主包与页面包各自包含运行依赖，开发标注工具由本机开关单独加载。"""
         for name, bundle, allowed_dynamic in (("medianfo-app.js", self.app, {"/dev/agentation.js"}),
-                                              ("peach-pages.js", self.pages, set())):
+                                              ("medianfo-pages.js", self.pages, set())):
             static = re.findall(r'(?m)^\s*(?:import\b[^;]*?|export\s*\*\s*)from\s*["\']([^"\']+)["\']'
                                 r'|^\s*import\s*["\']([^"\']+)["\']', bundle)
             dynamic = set(re.findall(r'\bimport\s*\(\s*["\']([^"\']+)["\']\s*\)', bundle))

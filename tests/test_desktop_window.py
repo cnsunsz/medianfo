@@ -15,6 +15,9 @@ class DesktopWindowTests(unittest.TestCase):
     def setUp(self):
         desktop_window._ui_process = None
         desktop_window._ui_url = None
+        self._wait_patch = patch("medianfo.desktop_window._wait_for_local_ready")
+        self._wait_patch.start()
+        self.addCleanup(self._wait_patch.stop)
 
     def test_browser_allowed_requires_explicit_env(self):
         self.assertFalse(desktop_window.browser_allowed({}))

@@ -370,7 +370,7 @@ def complete_first_run(opener, base: str, media: Path, port: int, password: str,
     """首启服务的薄壳与页面包都取得到，再按页面包的提交形态完成一次设置。"""
     with opener.open(base + "/", timeout=5) as response:
         assert 'data-page="setup"' in response.read().decode("utf-8")
-    for path in ("/dist/peach-pages.js", "/dist/peach-pages.css", "/api/setup/questions"):
+    for path in ("/dist/medianfo-pages.js", "/dist/medianfo-pages.css", "/api/setup/questions"):
         with opener.open(base + path, timeout=5) as response:
             assert response.status == 200, path
     answers = {"media_dir": [{"path": str(media), "location": "115"}], "host": "2",

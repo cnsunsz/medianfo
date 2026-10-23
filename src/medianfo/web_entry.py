@@ -1,6 +1,6 @@
 """入口页共用件：首启、登录与错误三页的薄壳，首启与配置页共用的运行信息。
 
-三页都由独立页面包 `/dist/peach-pages.js` 画（ADR-0094），服务端只吐同一张薄壳，要画的变量写在
+三页都由独立页面包 `/dist/medianfo-pages.js` 画（ADR-0094），服务端只吐同一张薄壳，要画的变量写在
 挂载点的 `data-*` 上。运行信息则被 `/api/setup` 和 `/api/configuration` 共用。三个路由模块都要，
 就不能住在其中任何一个里：那会让路由层互相导入成环。放在 web 层，路由模块单向依赖它，
 `tests/test_module_layering.py` 守着这个方向。
@@ -46,8 +46,8 @@ def page_shell(title: str, page: str, data: Mapping[str, str] | None = None, *, 
     sprite = f'<svg width="0" height="0" aria-hidden="true" style="position:absolute">{symbols}</svg>' if symbols else ""
     return (f'{_PAGE_HEAD}<title>{escape(title)}</title>{_THEME_SCRIPT}'
             '<link rel="stylesheet" href="/vendor/inter/5.3.0/index.css">'
-            '<link rel="stylesheet" href="/dist/peach-pages.css">'
-            '<script type="module" src="/dist/peach-pages.js"></script></head>'
+            '<link rel="stylesheet" href="/dist/medianfo-pages.css">'
+            '<script type="module" src="/dist/medianfo-pages.js"></script></head>'
             f'<body class="peach-react">{sprite}'
             f'<div id="peach-page" data-page="{escape(page, quote=True)}"{attributes}></div></body></html>\n')
 

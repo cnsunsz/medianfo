@@ -202,8 +202,8 @@ class PageAssetDeliveryTests(unittest.IsolatedAsyncioTestCase):
         page.write_text("<!doctype html><title>MediaNfo test</title>", encoding="utf-8")
         (root / "dist" / "medianfo-app.css").write_text(
             ".peach-react{display:block}\n" + "/* filler */\n" * 200, encoding="utf-8")
-        (root / "dist" / "peach-pages.js").write_text("export const ok=1;", encoding="utf-8")
-        (root / "dist" / "peach-pages.css").write_text(".page{}", encoding="utf-8")
+        (root / "dist" / "medianfo-pages.js").write_text("export const ok=1;", encoding="utf-8")
+        (root / "dist" / "medianfo-pages.css").write_text(".page{}", encoding="utf-8")
         fresh_ledger(root)
         self.app = create_app(_settings(root, page))
         self.client = httpx.AsyncClient(
@@ -233,7 +233,7 @@ class PageAssetDeliveryTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_every_asset_route_shares_the_same_revalidation_contract(self):
         for path in ("/app.css", "/board.css", "/dist/medianfo-app.js", "/dist/medianfo-app.css",
-                     "/dist/peach-pages.js", "/dist/peach-pages.css"):
+                     "/dist/medianfo-pages.js", "/dist/medianfo-pages.css"):
             first = await self.client.get(path)
             self.assertEqual(first.status_code, 200, path)
             self.assertEqual(first.headers["cache-control"], "no-cache", path)

@@ -45,7 +45,7 @@ def main():
             assert client.get("/api/items", headers=headers).status_code == 200
             assert client.get("/", headers=headers).status_code == 200
             assert settings.page_path.is_file()
-            for name in ("medianfo-app.js", "medianfo-app.css", "peach-pages.js", "peach-pages.css"):
+            for name in ("medianfo-app.js", "medianfo-app.css", "medianfo-pages.js", "medianfo-pages.css"):
                 assert (settings.page_path.parent / "dist" / name).is_file()
             assert any(settings.vendor_path.iterdir())
             print(json.dumps({"module": peach.__file__, "ready": ready.json(),

@@ -96,7 +96,7 @@ def build_frontend_bundles() -> None:
     frontend = PROJECT_ROOT / "frontend"
     subprocess.run([npm, "--prefix", str(frontend), "ci"], check=True)
     subprocess.run([npm, "--prefix", str(frontend), "run", "build"], check=True)
-    for name in ("medianfo-app.js", "medianfo-app.css", "peach-pages.js", "peach-pages.css"):
+    for name in ("medianfo-app.js", "medianfo-app.css", "medianfo-pages.js", "medianfo-pages.css"):
         bundle = PROJECT_ROOT / "web" / "dist" / name
         if not bundle.is_file():
             raise SystemExit(f"构建之后仍然没有 {bundle}")

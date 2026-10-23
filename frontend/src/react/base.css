@@ -1,6 +1,6 @@
 /* React 子树共用的样式基线：暗色变体、Inter、阴影 token、`.peach-react` 容器基线与 token 重声明、
  * 下拉高度、输入框静止态边线与横滚条。主界面的 `styles.css`（`medianfo-app.css`）与独立页面包的 `pages/pages.css`
- * （`peach-pages.css`）各引一次，两份产物里的控件读到同一套值。这里不写 `@source`，
+ * （`medianfo-pages.css`）各引一次，两份产物里的控件读到同一套值。这里不写 `@source`，
  * 扫描范围由各自的入口决定。 */
 
 @custom-variant dark (&:where(.dark, .dark *));

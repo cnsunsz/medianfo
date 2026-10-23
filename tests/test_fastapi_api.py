@@ -256,10 +256,10 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             (self.root / "js" / f"{name}.js").write_text("export const ok = 1;", encoding="utf-8")
         # 前端产物（ADR-0022）：构建结果提交进 Git，运行时由 `/dist/{name}` 提供。
         (self.root / "dist").mkdir()
-        for name in ("medianfo-app.js", "peach-pages.js", "peach-ui.js", "peach-react.js", "peach-entry.js",
+        for name in ("medianfo-app.js", "medianfo-pages.js", "peach-ui.js", "peach-react.js", "peach-entry.js",
                      "other.js"):
             (self.root / "dist" / name).write_text("export const ok = 1;", encoding="utf-8")
-        for name in ("medianfo-app.css", "peach-pages.css", "peach-ui.css", "peach-react.css", "peach-entry.css"):
+        for name in ("medianfo-app.css", "medianfo-pages.css", "peach-ui.css", "peach-react.css", "peach-entry.css"):
             (self.root / "dist" / name).write_text(".peach-react{}", encoding="utf-8")
         con = sqlite3.connect(self.db)
         con.executescript(BASE_SCHEMA)
@@ -544,7 +544,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(denied.status_code, 404, f"{escape} 不该被提供")
 
     async def test_page_bundle_is_public_with_only_its_literal_names(self):
-        for name, media in (("peach-pages.js", "text/javascript"), ("peach-pages.css", "text/css")):
+        for name, media in (("medianfo-pages.js", "text/javascript"), ("medianfo-pages.css", "text/css")):
             path = f"/dist/{name}"
             served = await self.client.get(path)
             self.assertEqual(served.status_code, 200)
@@ -557,6 +557,13 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             cached = await self.client.get(path, headers={"If-None-Match": served.headers["etag"]})
             self.assertEqual(cached.status_code, 304)
             self.assertEqual(cached.content, b"")
+        # 旧名 peach-pages.* 作兼容别名，内容与 medianfo-pages 相同。
+        for alias, real in (("peach-pages.js", "medianfo-pages.js"),
+                            ("peach-pages.css", "medianfo-pages.css")):
+            aliased = await self.client.get(f"/dist/{alias}")
+            self.assertEqual(aliased.status_code, 200)
+            self.assertEqual(aliased.content, (self.root / "dist" / real).read_bytes())
+        self.assertEqual((await self.client.get("/dist/medianfo-pages.js.map")).status_code, 401)
         self.assertEqual((await self.client.get("/dist/peach-pages.js.map")).status_code, 401)
 
     async def test_annotation_tool_is_served_only_where_it_was_built(self):
@@ -1828,7 +1835,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         page = await self.client.get("/login?next=/")
         self.assertEqual(page.status_code, 200)
         self.assertIn('<meta name="color-scheme" content="light dark">', page.text)
-        self.assertIn('<link rel="stylesheet" href="/dist/peach-pages.css">', page.text)
+        self.assertIn('<link rel="stylesheet" href="/dist/medianfo-pages.css">', page.text)
         self.assertIn('localStorage.getItem("medianfo.settings.v1")', page.text)
         self.assertLess(page.text.index('localStorage.getItem("medianfo.settings.v1")'),
                         page.text.index('<link rel="stylesheet"'), "主题预读要排在任何样式之前")
@@ -3408,7 +3415,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("text/html", response.headers["content-type"])
         self.assertEqual(response.headers["cache-control"], "no-store")
         self.assertIn('<div id="peach-page" data-page="setup">', response.text)
-        self.assertIn('src="/dist/peach-pages.js"', response.text)
+        self.assertIn('src="/dist/medianfo-pages.js"', response.text)
 
     async def test_deep_links_land_on_the_same_shell(self):
         # 前端路由全部落到 `index`，未配置时不该只有首页能看。
@@ -3451,6 +3458,8 @@ PUBLIC_ROUTES = {
     # 入口页的页面包（ADR-0094）。登录页在拿到会话之前就要画出来，首启、登录与错误三页都由它画。
     # 只放这两个文件：它们提交进 Git、随仓库分发，不读账本、不含配置与凭据，内容不随登录与否
     # 变化，也不 import 别的产物；其余 `/dist/*` 仍走要会话的 `/dist/{name}`。
+    ("GET,HEAD", "/dist/medianfo-pages.js"),
+    ("GET,HEAD", "/dist/medianfo-pages.css"),
     ("GET,HEAD", "/dist/peach-pages.js"),
     ("GET,HEAD", "/dist/peach-pages.css"),
     # 用户脚本安装产物只含随仓库分发的代码与站点规则，不含配对令牌、网盘账号或账本内容。
@@ -3556,7 +3565,7 @@ class RouteAuthContractTests(unittest.TestCase):
 class LoginPageWithoutSessionTests(unittest.IsolatedAsyncioTestCase):
     """设了访问密码的实例上，没有会话也画得出登录页：它要的资源都能取，别的产物照旧要会话。"""
 
-    PAGE_ASSETS = ("/dist/peach-pages.css", "/dist/peach-pages.js", "/vendor/inter/5.3.0/index.css",
+    PAGE_ASSETS = ("/dist/medianfo-pages.css", "/dist/medianfo-pages.js", "/vendor/inter/5.3.0/index.css",
                    "/medianfo-logo.png", "/favicon.ico")
     SESSION_ASSETS = ("/dist/medianfo-app.js", "/dist/medianfo-app.css", "/app.css", "/board.css")
 

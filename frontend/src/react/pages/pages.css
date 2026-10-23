@@ -1,4 +1,4 @@
-/* 独立页面包的样式入口（`web/dist/peach-pages.css`）。
+/* 独立页面包的样式入口（`web/dist/medianfo-pages.css`）。
  *
  * 首启、登录与错误三页由服务端吐同一张薄壳，页面上只有这一份样式表，没有 `board.css` 与 `/app.css`。控件、
  * token 与容器基线和主界面的 React 子树同一套（`../base.css`），扫描范围只到页面包真正用到的
