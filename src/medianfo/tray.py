@@ -686,7 +686,7 @@ def tray_preparation(config, manager: "ServiceManager") -> TrayPreparation:
     return TrayPreparation(
         dependencies=runtime_prepare.Dependencies(PROJECT_ROOT),
         migrations=runtime_prepare.Migrations(
-            database, peach=_peach_executable,
+            database, peach=_medianfo_executable,
             writer=lambda: runtime_prepare.ledger_writer(
                 replication_enabled=bool(config.replication.enabled) and not standalone(),
                 db=database, shared_db=shared, state_dir=state),
